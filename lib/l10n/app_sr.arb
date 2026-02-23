@@ -1,0 +1,45 @@
+{
+  "@@locale": "sr",
+  "appTitle": "Balkan Giveaways",
+  "feedTab": "Ленд",
+  "endingSoonTab": "Истиче Ускоро",
+  "settingsTab": "Поставке",
+  "filters": "Филтери",
+  "hideEntered": "Сакриј унете",
+  "sponsored": "Спонзорисано",
+  "expiresIn": "Истиче за {hours}h",
+  "@expiresIn": {
+    "placeholders": {
+      "hours": {}
+    }
+  },
+  "prizePrefix": "Награда:",
+  "entriesCount": "{count} пријава",
+  "@entriesCount": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "enteredBtn": "Унето",
+  "enterBtn": "Пријави се",
+  "noGiveaways": "Нема наградних игара за ове филтере.",
+  "endingSoonTitle": "Истиче ускоро (< 6h)",
+  "noEndingSoon": "Тренутно нема наградних игара које истичу у наредних 6 сати.",
+  "settingsAppearance": "Изглед",
+  "settingsTheme": "Тема",
+  "settingsLanguage": "Језик апликације",
+  "settingsNotifications": "Нотификације",
+  "settingsAlerts": "Истиче ускоро упозорења",
+  "settingsAlertsDesc": "Обавести ме када giveaway истиче за мање од 6h",
+  "settingsAbout": "О апликацији",
+  "welcomeTitle": "Добродошли у\\nBalkan Giveaways!",
+  "welcomeDesc": "Пронађи најбоље наградне игре на Балкану.",
+  "onboardingLang": "Изабери језик интерфејса:",
+  "onboardingCountry": "Прикажи ми наградне игре из:",
+  "onboardingOptional": "(Необавезно)",
+  "onboardingStart": "Започни!",
+  "detailAbout": "О наградној игри",
+  "detailMarkEntered": "Означио сам као пријављено",
+  "detailMarkDesc": "Овај giveaway ће бити сакривен ако укључиш филтер \\\"Сакриј унете\\\"",
+  "detailGoToEntry": "Иди на пријаву"
+}
