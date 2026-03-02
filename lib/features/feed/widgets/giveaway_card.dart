@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../models/giveaway.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/providers/providers.dart';
 
 class GiveawayCard extends ConsumerWidget {
@@ -156,15 +156,29 @@ class GiveawayCard extends ConsumerWidget {
                         '${giveaway.entryCount} prijava',
                         style: theme.textTheme.bodySmall?.copyWith(color: AppColors.textMuted),
                       ),
-                      ElevatedButton.icon(
-                        onPressed: () => ref.read(enteredProvider.notifier).toggleEntered(giveaway.id),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isEntered ? Colors.grey.shade300 : theme.colorScheme.primary,
-                          foregroundColor: isEntered ? Colors.black54 : Colors.white,
-                          elevation: 0,
-                        ),
-                        icon: Icon(isEntered ? Icons.check_circle : Icons.add_circle_outline, size: 18),
-                        label: Text(isEntered ? 'Uneto' : 'Prijavi se'),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.share_outlined),
+                            onPressed: () {
+                              Share.share(
+                                'Check out this ${giveaway.prize} giveaway by ${giveaway.brand}! Enter here: ${giveaway.entryUrl}'
+                              );
+                            },
+                            tooltip: 'Podeli',
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton.icon(
+                            onPressed: () => ref.read(enteredProvider.notifier).toggleEntered(giveaway.id),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: isEntered ? Colors.grey.shade300 : theme.colorScheme.primary,
+                              foregroundColor: isEntered ? Colors.black54 : Colors.white,
+                              elevation: 0,
+                            ),
+                            icon: Icon(isEntered ? Icons.check_circle : Icons.add_circle_outline, size: 18),
+                            label: Text(isEntered ? 'Uneto' : 'Prijavi se'),
+                          ),
+                        ]
                       )
                     ],
                   )
