@@ -36,14 +36,37 @@ class FeedScreen extends ConsumerWidget {
                 }
                 return RefreshIndicator(
                   onRefresh: () async {
-                    ref.invalidate(giveawayListProvider);
+                    await ref.read(giveawayListProvider.notifier).refresh();
                   },
-                  child: ListView.builder(
-                    itemCount: giveaways.length,
-                    padding: const EdgeInsets.only(bottom: 24),
-                    itemBuilder: (context, index) {
-                      return GiveawayCard(giveaway: giveaways[index]);
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (ScrollNotification scrollInfo) {
+                      if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent - 200) {
+                        ref.read(giveawayListProvider.notifier).fetchNextPage();
+                      }
+                      return false;
                     },
+                    child: ListView.builder(
+                      itemCount: giveaways.length + 1, // +1 for loading spinner at bottom
+                      padding: const EdgeInsets.only(bottom: 24),
+                      itemBuilder: (context, index) {
+                        if (index == giveaways.length) {
+                          // Check if currently fetching or has more
+                          final isFetching = ref.watch(giveawayListProvider).isLoading;
+                          final hasMore = ref.read(giveawayListProvider.notifier).hasMore;
+                          if (isFetching || hasMore) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        }
+                        return GiveawayCard(giveaway: giveaways[index]);
+                      },
+                    ),
                   ),
                 );
               },

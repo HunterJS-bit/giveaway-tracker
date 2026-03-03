@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/giveaway.dart';
+import '../services/api_service.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SharedPreferences provider
@@ -14,17 +15,59 @@ final sharedPrefsProvider = Provider<SharedPreferences>((ref) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Raw giveaway list – loaded from JSON asset
 // ─────────────────────────────────────────────────────────────────────────────
-final giveawayListProvider = FutureProvider<List<Giveaway>>((ref) async {
-  final jsonStr = await rootBundle.loadString('assets/data/giveaways.json');
-  final all = Giveaway.listFromJson(jsonStr);
-  // Featured first, then by end date
-  all.sort((a, b) {
-    if (a.isFeatured && !b.isFeatured) return -1;
-    if (!a.isFeatured && b.isFeatured) return 1;
-    return a.endDate.compareTo(b.endDate);
-  });
-  return all;
-});
+class GiveawayFeedNotifier extends AsyncNotifier<List<Giveaway>> {
+  int _offset = 0;
+  static const int _limit = 20;
+  bool _hasMore = true;
+
+  bool get hasMore => _hasMore;
+
+  @override
+  Future<List<Giveaway>> build() async {
+    return _fetchPage(0);
+  }
+
+  Future<List<Giveaway>> _fetchPage(int offset) async {
+    final items = await ApiService.getPaginatedGiveaways(limit: _limit, offset: offset);
+    if (items.length < _limit) {
+      _hasMore = false;
+    }
+    return items;
+  }
+
+  Future<void> fetchNextPage() async {
+    if (!_hasMore || state.isLoading || state.isRefreshing) return;
+
+    final currentList = state.value ?? [];
+    
+    // Set to refreshing but preserve data to show in list while fetching
+    state = const AsyncValue.loading();
+    _offset += _limit;
+    
+    try {
+      final nextItems = await _fetchPage(_offset);
+      state = AsyncValue.data([...currentList, ...nextItems]);
+    } catch (e, st) {
+      // Revert offset on error
+      _offset -= _limit;
+      state = AsyncValue.data(currentList); // Or set error, but we preserve list for now
+    }
+  }
+
+  Future<void> refresh() async {
+    _offset = 0;
+    _hasMore = true;
+    state = const AsyncValue.loading();
+    try {
+       final items = await _fetchPage(0);
+       state = AsyncValue.data(items);
+    } catch (e, st) {
+       state = AsyncValue.error(e, st);
+    }
+  }
+}
+
+final giveawayListProvider = AsyncNotifierProvider<GiveawayFeedNotifier, List<Giveaway>>(GiveawayFeedNotifier.new);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Filter state
