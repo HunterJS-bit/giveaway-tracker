@@ -1,7 +1,7 @@
-import { pgTable, text, timestamp, boolean, doublePrecision, integer } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, boolean, doublePrecision, integer, index } from 'drizzle-orm/pg-core';
 
 export const giveaways = pgTable('giveaways', {
-    id: text('id').primaryKey(), // We'll keep the string UUIDs from the JSON
+    id: text('id').primaryKey(),
     title: text('title').notNull(),
     brand: text('brand').notNull(),
     brandLogoUrl: text('brand_logo_url').notNull(),
@@ -20,4 +20,10 @@ export const giveaways = pgTable('giveaways', {
     entryCount: integer('entry_count').default(0).notNull(),
     createdAt: timestamp('created_at').defaultNow().notNull(),
     updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => {
+    return {
+        endDateIdx: index('end_date_idx').on(table.endDate),
+        isFeaturedIdx: index('is_featured_idx').on(table.isFeatured),
+        countryIdx: index('country_idx').on(table.country),
+    };
 });
