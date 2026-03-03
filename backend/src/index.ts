@@ -14,11 +14,26 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Get all giveaways
+// Get all giveaways with optional pagination
 app.get('/api/giveaways', async (req, res) => {
     try {
-        const allGiveaways = await db.select().from(giveaways)
+        const limitStr = req.query.limit as string;
+        const offsetStr = req.query.offset as string;
+
+        let query = db.select().from(giveaways)
+            .$dynamic()
             .orderBy(desc(giveaways.isFeatured), asc(giveaways.endDate));
+
+        if (limitStr) {
+            const limit = parseInt(limitStr, 10);
+            if (!isNaN(limit)) query = query.limit(limit);
+        }
+        if (offsetStr) {
+            const offset = parseInt(offsetStr, 10);
+            if (!isNaN(offset)) query = query.offset(offset);
+        }
+
+        const allGiveaways = await query;
         res.json(allGiveaways);
     } catch (error) {
         console.error('Error fetching giveaways:', error);
