@@ -15,6 +15,7 @@ class GiveawayCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isEntered = ref.watch(enteredProvider).contains(giveaway.id);
+    final isFavorite = ref.watch(favoritesProvider).contains(giveaway.id);
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -80,6 +81,21 @@ class GiveawayCard extends ConsumerWidget {
                       '${giveaway.countryFlag} ${GiveawayCategories.emoji(giveaway.category)}',
                       style: const TextStyle(fontSize: 14),
                     ),
+                  ),
+                ),
+                Positioned(
+                  top: 56,
+                  right: 12,
+                  child: IconButton(
+                    onPressed: () => ref.read(favoritesProvider.notifier).toggleFavorite(giveaway.id),
+                    icon: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite ? Colors.red : Colors.white,
+                    ),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.black.withOpacity(0.4),
+                    ),
+                    tooltip: isFavorite ? 'Ukloni iz omiljenih' : 'Dodaj u omiljene',
                   ),
                 ),
                 // "Ending Soon" badge
