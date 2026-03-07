@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/feed/feed_screen.dart';
+import '../../features/feed/favorites_screen.dart';
 import '../../features/detail/giveaway_detail_screen.dart';
 import '../../features/ending_soon/ending_soon_screen.dart';
 import '../../features/settings/settings_screen.dart';
@@ -33,6 +34,10 @@ final router = GoRouter(
         GoRoute(
           path: '/ending-soon',
           builder: (ctx, state) => const EndingSoonScreen(),
+        ),
+        GoRoute(
+          path: '/favorites',
+          builder: (ctx, state) => const FavoritesScreen(),
         ),
         GoRoute(
           path: '/settings',
