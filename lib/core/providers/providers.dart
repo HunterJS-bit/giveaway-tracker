@@ -163,6 +163,36 @@ class EnteredNotifier extends Notifier<Set<String>> {
 final enteredProvider = NotifierProvider<EnteredNotifier, Set<String>>(EnteredNotifier.new);
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Favorites tracking (Local only)
+// ─────────────────────────────────────────────────────────────────────────────
+const _favoritesKey = 'favorite_giveaways';
+
+class FavoritesNotifier extends Notifier<Set<String>> {
+  @override
+  Set<String> build() {
+    final prefs = ref.read(sharedPrefsProvider);
+    final stored = prefs.getStringList(_favoritesKey) ?? [];
+    return stored.toSet();
+  }
+
+  Future<void> toggleFavorite(String id) async {
+    final prefs = ref.read(sharedPrefsProvider);
+    final next = Set<String>.from(state);
+    if (next.contains(id)) {
+      next.remove(id);
+    } else {
+      next.add(id);
+    }
+    state = next;
+    await prefs.setStringList(_favoritesKey, next.toList());
+  }
+
+  bool isFavorite(String id) => state.contains(id);
+}
+
+final favoritesProvider = NotifierProvider<FavoritesNotifier, Set<String>>(FavoritesNotifier.new);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Filtered feed (combines all the above)
 // ─────────────────────────────────────────────────────────────────────────────
 final filteredFeedProvider = Provider<AsyncValue<List<Giveaway>>>((ref) {
@@ -192,6 +222,18 @@ final endingSoonProvider = Provider<AsyncValue<List<Giveaway>>>((ref) {
         .where((g) => !g.isExpired && g.endDate.difference(now).inHours <= 6)
         .toList()
       ..sort((a, b) => a.endDate.compareTo(b.endDate));
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Favorites feed
+// ─────────────────────────────────────────────────────────────────────────────
+final favoritedGiveawaysProvider = Provider<AsyncValue<List<Giveaway>>>((ref) {
+  final all = ref.watch(giveawayListProvider);
+  final favorites = ref.watch(favoritesProvider);
+
+  return all.whenData((giveaways) {
+    return giveaways.where((g) => favorites.contains(g.id)).toList();
   });
 });
 
