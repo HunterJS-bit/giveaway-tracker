@@ -25,6 +25,11 @@ class AppShell extends StatelessWidget {
             label: 'Ističe Uskoro',
           ),
           NavigationDestination(
+            icon: Icon(Icons.favorite_outline),
+            selectedIcon: Icon(Icons.favorite),
+            label: 'Omiljeno',
+          ),
+          NavigationDestination(
             icon: Icon(Icons.settings_outlined),
             selectedIcon: Icon(Icons.settings),
             label: 'Postavke',
@@ -38,7 +43,8 @@ class AppShell extends StatelessWidget {
     final location = GoRouterState.of(context).uri.path;
     if (location.startsWith('/feed')) return 0;
     if (location.startsWith('/ending-soon')) return 1;
-    if (location.startsWith('/settings')) return 2;
+    if (location.startsWith('/favorites')) return 2;
+    if (location.startsWith('/settings')) return 3;
     return 0;
   }
 
@@ -51,6 +57,9 @@ class AppShell extends StatelessWidget {
         context.go('/ending-soon');
         break;
       case 2:
+        context.go('/favorites');
+        break;
+      case 3:
         context.go('/settings');
         break;
     }
