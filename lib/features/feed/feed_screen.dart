@@ -18,7 +18,12 @@ class FeedScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () {},
-          )
+          ),
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline),
+            onPressed: () => context.push('/submit-giveaway'),
+            tooltip: 'Predloži nagradnu igru',
+          ),
         ],
       ),
       body: Column(
