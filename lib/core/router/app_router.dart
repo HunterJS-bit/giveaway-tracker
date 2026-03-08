@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/feed/feed_screen.dart';
 import '../../features/feed/favorites_screen.dart';
+import '../../features/feed/submit_giveaway_screen.dart';
 import '../../features/detail/giveaway_detail_screen.dart';
 import '../../features/ending_soon/ending_soon_screen.dart';
 import '../../features/settings/settings_screen.dart';
@@ -42,6 +43,10 @@ final router = GoRouter(
         GoRoute(
           path: '/settings',
           builder: (ctx, state) => const SettingsScreen(),
+        ),
+        GoRoute(
+          path: '/submit-giveaway',
+          builder: (ctx, state) => const SubmitGiveawayScreen(),
         ),
       ],
     ),
