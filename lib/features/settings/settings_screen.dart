@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/providers/providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -60,6 +61,15 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: const Text('Obavesti me kada giveaway ističe za manje od 6h'),
             value: true, // Placeholder for local notification toggle
             onChanged: (val) {},
+          ),
+
+          _buildSectionHeader(context, 'Doprinesi'),
+          ListTile(
+            leading: const Icon(Icons.add_circle_outline),
+            title: const Text('Predloži nagradnu igru'),
+            subtitle: const Text('Pronašli ste nešto novo? Javite nam!'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/submit-giveaway'),
           ),
 
           _buildSectionHeader(context, 'Više informacija'),
