@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { db } from './db';
-import { giveaways } from './db/schema';
+import { giveaways, submissions } from './db/schema';
 import { eq, desc, asc } from 'drizzle-orm';
 import dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
@@ -86,6 +86,28 @@ app.post('/api/giveaways', async (req, res) => {
         res.status(201).json(newGiveaway);
     } catch (error) {
         console.error('Error creating giveaway:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Create a new submission
+app.post('/api/submissions', async (req, res) => {
+    try {
+        const { url } = req.body;
+
+        if (!url || typeof url !== 'string') {
+            return res.status(400).json({ error: 'URL is required' });
+        }
+
+        const [newSubmission] = await db.insert(submissions).values({
+            id: uuidv4(),
+            url: url,
+            status: 'pending',
+        }).returning();
+
+        res.status(201).json(newSubmission);
+    } catch (error) {
+        console.error('Error creating submission:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

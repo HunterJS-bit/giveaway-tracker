@@ -1,5 +1,13 @@
 import { pgTable, text, timestamp, boolean, doublePrecision, integer, index } from 'drizzle-orm/pg-core';
 
+export const submissions = pgTable('submissions', {
+    id: text('id').primaryKey(),
+    url: text('url').notNull(),
+    status: text('status').default('pending').notNull(), // pending, approved, rejected
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+
 export const giveaways = pgTable('giveaways', {
     id: text('id').primaryKey(),
     title: text('title').notNull(),
