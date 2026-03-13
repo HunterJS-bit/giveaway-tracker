@@ -81,6 +81,77 @@ class Giveaway {
         'entryCount': entryCount,
       };
 
+  // Database helpers (for sqflite)
+  Map<String, dynamic> toDbMap() {
+    final map = toJson();
+    // SQLite doesn't have a boolean type, so we convert to int
+    map['isFeatured'] = isFeatured ? 1 : 0;
+    map['isVerified'] = isVerified ? 1 : 0;
+    return map;
+  }
+
+  factory Giveaway.fromDbMap(Map<String, dynamic> map) {
+    return Giveaway(
+      id: map['id'] as String,
+      title: map['title'] as String,
+      brand: map['brand'] as String,
+      brandLogoUrl: map['brandLogoUrl'] as String,
+      imageUrl: map['imageUrl'] as String,
+      description: map['description'] as String,
+      prize: map['prize'] as String,
+      prizeValue: (map['prizeValue'] as num).toDouble(),
+      currency: map['currency'] as String,
+      country: map['country'] as String,
+      category: map['category'] as String,
+      entryUrl: map['entryUrl'] as String,
+      startDate: DateTime.parse(map['startDate'] as String),
+      endDate: DateTime.parse(map['endDate'] as String),
+      isFeatured: (map['isFeatured'] as int) == 1,
+      isVerified: (map['isVerified'] as int) == 1,
+      entryCount: map['entryCount'] as int,
+    );
+  }
+
+  Giveaway copyWith({
+    String? id,
+    String? title,
+    String? brand,
+    String? brandLogoUrl,
+    String? imageUrl,
+    String? description,
+    String? prize,
+    double? prizeValue,
+    String? currency,
+    String? country,
+    String? category,
+    String? entryUrl,
+    DateTime? startDate,
+    DateTime? endDate,
+    bool? isFeatured,
+    bool? isVerified,
+    int? entryCount,
+  }) {
+    return Giveaway(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      brand: brand ?? this.brand,
+      brandLogoUrl: brandLogoUrl ?? this.brandLogoUrl,
+      imageUrl: imageUrl ?? this.imageUrl,
+      description: description ?? this.description,
+      prize: prize ?? this.prize,
+      prizeValue: prizeValue ?? this.prizeValue,
+      currency: currency ?? this.currency,
+      country: country ?? this.country,
+      category: category ?? this.category,
+      entryUrl: entryUrl ?? this.entryUrl,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      isFeatured: isFeatured ?? this.isFeatured,
+      isVerified: isVerified ?? this.isVerified,
+      entryCount: entryCount ?? this.entryCount,
+    );
+  }
+
   // Helpers
   bool get isEndingSoon {
     final diff = endDate.difference(DateTime.now());
