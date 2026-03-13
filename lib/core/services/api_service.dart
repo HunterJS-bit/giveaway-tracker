@@ -1,56 +1,86 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../../../models/giveaway.dart';
 
-/// This is a stub for the future real backend API.
-/// Currently the app uses mock JSON data from `assets/data/giveaways.json`.
-/// When you are ready for a real backend (e.g. Node.js, Supabase, Firebase),
-/// you can implement these methods.
 class ApiService {
-  static const String baseUrl = 'http://localhost:3000/api'; // Use localhost for local dev
+  // Use 10.0.2.2 for Android Emulator, localhost for iOS/Web/Desktop
+  static String get baseUrl {
+    if (Platform.isAndroid) {
+      return 'http://10.0.2.2:3000/api';
+    }
+    return 'http://localhost:3000/api';
+  }
 
   // 1. Fetching Giveaways
   static Future<List<Giveaway>> getPaginatedGiveaways({required int limit, required int offset}) async {
-    final response = await http.get(Uri.parse('$baseUrl/giveaways?limit=$limit&offset=$offset'));
-    if (response.statusCode == 200) {
-      final List data = jsonDecode(response.body);
-      return data.map((g) => Giveaway.fromJson(g)).toList();
-    } else {
-      throw Exception('Failed to load giveaways');
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/giveaways?limit=$limit&offset=$offset'),
+      ).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final List data = jsonDecode(response.body);
+        return data.map((g) => Giveaway.fromJson(g)).toList();
+      } else {
+        throw ApiException(
+          message: 'Greška pri učitavanju nagradnih igara',
+          statusCode: response.statusCode,
+        );
+      }
+    } on SocketException {
+      throw const ApiException(message: 'Nema internet konekcije ili server nije dostupan');
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException(message: 'Neočekivana greška: $e');
     }
   }
 
   // 2. Submitting a new giveaway (User Submission)
   static Future<void> submitGiveaway(String url) async {
-    final response = await http.post(
-      Uri.parse('$baseUrl/submissions'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'url': url}),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/submissions'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'url': url}),
+      ).timeout(const Duration(seconds: 10));
 
-    if (response.statusCode != 201) {
-      final errorData = jsonDecode(response.body);
-      throw Exception(errorData['error'] ?? 'Neuspešno slanje');
+      if (response.statusCode != 201) {
+        final errorData = jsonDecode(response.body);
+        throw ApiException(
+          message: errorData['error'] ?? 'Neuspešno slanje',
+          statusCode: response.statusCode,
+        );
+      }
+    } on SocketException {
+      throw const ApiException(message: 'Server nije dostupan. Proverite konekciju.');
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException(message: 'Greška pri slanju: $e');
     }
   }
 
   static Future<List<Giveaway>> getGiveaways() async {
-    // This was the old stub, redirecting to paginated for now or keeping as is
     return getPaginatedGiveaways(limit: 100, offset: 0);
   }
 
-  // 2. Marking as Entered (if you want to track it on the server, not just locally)
+  // 3. Mark Entered (Placeholder for future)
   static Future<void> markEntered(String giveawayId, String userId) async {
-    /*
-    await http.post(
-      Uri.parse('$baseUrl/giveaways/$giveawayId/enter'),
-      headers: {'Authorization': 'Bearer $userId'},
-    );
-    */
+    // Implement when auth is ready
   }
 
-  // 3. Subscribing to "Ending Soon" push notification topic using FCM
+  // 4. Subscribe to push notifications (Placeholder)
   static Future<void> subscribeToEndingSoon(String category) async {
     throw UnimplementedError('Requires Firebase Cloud Messaging integration');
   }
+}
+
+class ApiException implements Exception {
+  final String message;
+  final int? statusCode;
+
+  const ApiException({required this.message, this.statusCode});
+
+  @override
+  String toString() => message;
 }
