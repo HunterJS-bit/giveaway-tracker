@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/giveaway.dart';
 import '../services/api_service.dart';
+import '../services/database_service.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SharedPreferences provider
@@ -163,34 +164,35 @@ class EnteredNotifier extends Notifier<Set<String>> {
 final enteredProvider = NotifierProvider<EnteredNotifier, Set<String>>(EnteredNotifier.new);
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Favorites tracking (Local only)
+// Favorites tracking (SQLite)
 // ─────────────────────────────────────────────────────────────────────────────
-const _favoritesKey = 'favorite_giveaways';
-
-class FavoritesNotifier extends Notifier<Set<String>> {
+class FavoritesNotifier extends AsyncNotifier<List<Giveaway>> {
   @override
-  Set<String> build() {
-    final prefs = ref.read(sharedPrefsProvider);
-    final stored = prefs.getStringList(_favoritesKey) ?? [];
-    return stored.toSet();
+  Future<List<Giveaway>> build() async {
+    return DatabaseService.instance.getFavorites();
   }
 
-  Future<void> toggleFavorite(String id) async {
-    final prefs = ref.read(sharedPrefsProvider);
-    final next = Set<String>.from(state);
-    if (next.contains(id)) {
-      next.remove(id);
+  Future<void> toggleFavorite(Giveaway giveaway) async {
+    final currentList = state.valueOrNull ?? [];
+    final isFavorite = currentList.any((g) => g.id == giveaway.id);
+    
+    if (isFavorite) {
+      await DatabaseService.instance.removeFavorite(giveaway.id);
+      state = AsyncValue.data(
+        currentList.where((g) => g.id != giveaway.id).toList(),
+      );
     } else {
-      next.add(id);
+      await DatabaseService.instance.addFavorite(giveaway);
+      state = AsyncValue.data([...currentList, giveaway]);
     }
-    state = next;
-    await prefs.setStringList(_favoritesKey, next.toList());
   }
 
-  bool isFavorite(String id) => state.contains(id);
+  bool isFavorite(String id) {
+    return state.valueOrNull?.any((g) => g.id == id) ?? false;
+  }
 }
 
-final favoritesProvider = NotifierProvider<FavoritesNotifier, Set<String>>(FavoritesNotifier.new);
+final favoritesProvider = AsyncNotifierProvider<FavoritesNotifier, List<Giveaway>>(FavoritesNotifier.new);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Filtered feed (combines all the above)
@@ -229,12 +231,7 @@ final endingSoonProvider = Provider<AsyncValue<List<Giveaway>>>((ref) {
 // Favorites feed
 // ─────────────────────────────────────────────────────────────────────────────
 final favoritedGiveawaysProvider = Provider<AsyncValue<List<Giveaway>>>((ref) {
-  final all = ref.watch(giveawayListProvider);
-  final favorites = ref.watch(favoritesProvider);
-
-  return all.whenData((giveaways) {
-    return giveaways.where((g) => favorites.contains(g.id)).toList();
-  });
+  return ref.watch(favoritesProvider);
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
