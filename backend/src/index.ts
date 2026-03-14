@@ -80,6 +80,7 @@ app.post('/api/giveaways', async (req, res) => {
             endDate: new Date(data.endDate),
             isFeatured: data.isFeatured ?? false,
             isVerified: data.isVerified ?? false,
+            status: data.status ?? 'active',
             entryCount: data.entryCount ?? 0,
         }).returning();
 

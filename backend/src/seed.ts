@@ -41,6 +41,7 @@ async function main() {
                 endDate: new Date(item.endDate),
                 isFeatured: item.isFeatured ?? false,
                 isVerified: item.isVerified ?? false,
+                status: item.status ?? 'active',
                 entryCount: item.entryCount ?? 0,
             });
             console.log(`Created giveaway: ${item.title}`);
