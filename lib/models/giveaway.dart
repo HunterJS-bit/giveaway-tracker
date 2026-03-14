@@ -17,6 +17,7 @@ class Giveaway {
   final DateTime endDate;
   final bool isFeatured;
   final bool isVerified;
+  final String status; // active, expired, verified
   final int entryCount;
 
   const Giveaway({
@@ -36,6 +37,7 @@ class Giveaway {
     required this.endDate,
     required this.isFeatured,
     required this.isVerified,
+    required this.status,
     required this.entryCount,
   });
 
@@ -57,6 +59,7 @@ class Giveaway {
       endDate: DateTime.parse(json['endDate'] as String),
       isFeatured: json['isFeatured'] as bool,
       isVerified: json['isVerified'] as bool,
+      status: (json['status'] as String?) ?? 'active',
       entryCount: json['entryCount'] as int,
     );
   }
@@ -78,6 +81,7 @@ class Giveaway {
         'endDate': endDate.toIso8601String(),
         'isFeatured': isFeatured,
         'isVerified': isVerified,
+        'status': status,
         'entryCount': entryCount,
       };
 
@@ -108,6 +112,7 @@ class Giveaway {
       endDate: DateTime.parse(map['endDate'] as String),
       isFeatured: (map['isFeatured'] as int) == 1,
       isVerified: (map['isVerified'] as int) == 1,
+      status: (map['status'] as String?) ?? 'active',
       entryCount: map['entryCount'] as int,
     );
   }
@@ -129,6 +134,7 @@ class Giveaway {
     DateTime? endDate,
     bool? isFeatured,
     bool? isVerified,
+    String? status,
     int? entryCount,
   }) {
     return Giveaway(
@@ -148,6 +154,7 @@ class Giveaway {
       endDate: endDate ?? this.endDate,
       isFeatured: isFeatured ?? this.isFeatured,
       isVerified: isVerified ?? this.isVerified,
+      status: status ?? this.status,
       entryCount: entryCount ?? this.entryCount,
     );
   }
