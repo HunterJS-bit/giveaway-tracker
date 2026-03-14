@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/providers/providers.dart';
+import '../../../core/providers/providers.dart';
 import '../../../models/giveaway.dart';
 
 class FilterBar extends ConsumerWidget {
