@@ -20,9 +20,16 @@ class DatabaseService {
 
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _createDB,
+      onUpgrade: _onUpgrade,
     );
+  }
+
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE favorites ADD COLUMN status TEXT NOT NULL DEFAULT "active"');
+    }
   }
 
   Future _createDB(Database db, int version) async {
@@ -49,9 +56,11 @@ CREATE TABLE favorites (
   endDate $textType,
   isFeatured $boolType,
   isVerified $boolType,
+  status $textType,
   entryCount $intType
   )
 ''');
+
   }
 
   Future<void> addFavorite(Giveaway giveaway) async {
