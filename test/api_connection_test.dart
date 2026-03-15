@@ -1,37 +1,23 @@
-import 'dart:convert';
-import 'dart:io';
-import 'package:http/http.dart' as http;
+import 'package:balkan_giveaway_tracker/core/services/api_service.dart';
 
 void main() async {
-  const String baseUrl = 'http://localhost:3000/api';
-  print('--- API Connection Test ---');
-  print('Target: $baseUrl');
+  print('--- API Service Integration Test ---');
+  print('Base URL: ${ApiService.baseUrl}');
 
   try {
-    print('\n1. Testing GET /giveaways...');
-    final getResponse = await http.get(Uri.parse('$baseUrl/giveaways?limit=1')).timeout(Duration(seconds: 5));
-    print('Status: ${getResponse.statusCode}');
-    if (getResponse.statusCode == 200) {
-      print('Success! Data: ${getResponse.body.substring(0, getResponse.body.length > 100 ? 100 : getResponse.body.length)}...');
-    } else {
-      print('Failed with status ${getResponse.statusCode}');
+    print('\n1. Testing ApiService.getPaginatedGiveaways(1, 0)...');
+    final giveaways = await ApiService.getPaginatedGiveaways(1, 0);
+    print('Success! Found ${giveaways.length} giveaways.');
+    if (giveaways.isNotEmpty) {
+      print('First item: ${giveaways.first.title}');
     }
 
-    print('\n2. Testing POST /submissions...');
-    final postResponse = await http.post(
-      Uri.parse('$baseUrl/submissions'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'url': 'https://test-giveaway.com'}),
-    ).timeout(Duration(seconds: 5));
-    print('Status: ${postResponse.statusCode}');
-    if (postResponse.statusCode == 201) {
-      print('Success! Submission created.');
-    } else {
-      print('Failed with status ${postResponse.statusCode}: ${postResponse.body}');
-    }
+    print('\n2. Testing ApiService.submitGiveaway...');
+    await ApiService.submitGiveaway('https://test-from-api-service.com');
+    print('Success! Submission created.');
 
   } catch (e) {
-    print('\n[ERROR] Could not connect to backend: $e');
+    print('\n[ERROR] ApiService test failed: $e');
     print('Make sure the backend is running (cd backend && npm run dev)');
   }
 }
