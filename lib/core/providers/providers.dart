@@ -29,7 +29,7 @@ class GiveawayFeedNotifier extends AsyncNotifier<List<Giveaway>> {
   }
 
   Future<List<Giveaway>> _fetchPage(int offset) async {
-    final items = await ApiService.getPaginatedGiveaways(limit: _limit, offset: offset);
+    final items = await ApiService.getPaginatedGiveaways(_limit, offset);
     if (items.length < _limit) {
       _hasMore = false;
     }
