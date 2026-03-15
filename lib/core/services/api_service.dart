@@ -6,6 +6,10 @@ import '../../../models/giveaway.dart';
 class ApiService {
   // Use 10.0.2.2 for Android Emulator, localhost for iOS/Web/Desktop
   static String get baseUrl {
+    // Allows overriding via --dart-define=API_BASE_URL=...
+    const envUrl = String.fromEnvironment('API_BASE_URL');
+    if (envUrl.isNotEmpty) return envUrl;
+
     if (Platform.isAndroid) {
       return 'http://10.0.2.2:3000/api';
     }
@@ -13,7 +17,7 @@ class ApiService {
   }
 
   // 1. Fetching Giveaways
-  static Future<List<Giveaway>> getPaginatedGiveaways({required int limit, required int offset}) async {
+  static Future<List<Giveaway>> getPaginatedGiveaways(int limit, int offset) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/giveaways?limit=$limit&offset=$offset'),
@@ -61,7 +65,7 @@ class ApiService {
   }
 
   static Future<List<Giveaway>> getGiveaways() async {
-    return getPaginatedGiveaways(limit: 100, offset: 0);
+    return getPaginatedGiveaways(100, 0);
   }
 
   // 3. Mark Entered (Placeholder for future)
