@@ -15,9 +15,12 @@ const getCategoryColor = (category: string) => {
 <template>
   <div class="giveaway-card">
     <div class="card-image-wrap">
-      <img :src="giveaway.imageUrl" :alt="giveaway.title" class="card-image" />
+      <NuxtLink :to="`/giveaways/${giveaway.id}`">
+        <img :src="giveaway.imageUrl" :alt="giveaway.title" class="card-image" />
+      </NuxtLink>
       <div class="card-overlay">
-        <a :href="giveaway.entryUrl" target="_blank" class="btn btn-primary small">Entry Link</a>
+        <NuxtLink :to="`/giveaways/${giveaway.id}`" class="btn btn-primary small">Detalji</NuxtLink>
+        <a :href="giveaway.entryUrl" target="_blank" class="btn btn-dark small icon-btn">🔗</a>
       </div>
       <div 
         class="category-badge" 
@@ -32,7 +35,9 @@ const getCategoryColor = (category: string) => {
         <span class="brand-name">{{ giveaway.brand }}</span>
         <span class="prize-value">{{ giveaway.formattedPrizeValue || giveaway.prizeValue }} {{ giveaway.currency }}</span>
       </div>
-      <h3 class="card-title">{{ giveaway.title }}</h3>
+      <NuxtLink :to="`/giveaways/${giveaway.id}`">
+        <h3 class="card-title">{{ giveaway.title }}</h3>
+      </NuxtLink>
       
       <div class="card-footer">
         <div class="entry-count">
@@ -162,5 +167,15 @@ const getCategoryColor = (category: string) => {
 .small {
   padding: 8px 16px;
   font-size: 12px;
+}
+
+.icon-btn {
+  padding: 8px 12px;
+  margin-left: 8px;
+}
+
+.card-overlay .btn {
+  font-weight: 700;
+  text-transform: uppercase;
 }
 </style>
