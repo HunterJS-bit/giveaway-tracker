@@ -37,10 +37,11 @@
       <div class="footer-nav">
         <h4>Pravne Informacije</h4>
         <ul>
+          <!-- terms are usually distinct, but we can point it to privacy or leave empty for now, let's leave as / -->
           <li><NuxtLink to="/">Uslovi Korišćenja</NuxtLink></li>
-          <li><NuxtLink to="/">Politika Privatnosti</NuxtLink></li>
-          <li><NuxtLink to="/">O Nama</NuxtLink></li>
-          <li><NuxtLink to="/">Kontakt</NuxtLink></li>
+          <li><NuxtLink to="/privacy">Politika Privatnosti</NuxtLink></li>
+          <li><NuxtLink to="/about">O Nama</NuxtLink></li>
+          <li><NuxtLink to="/contact">Kontakt</NuxtLink></li>
         </ul>
       </div>
     </div>
