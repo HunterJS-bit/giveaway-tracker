@@ -5,6 +5,11 @@ export const useGiveaways = () => {
     const offset = useState<number>('giveaways-offset', () => 0);
     const limit = 12;
 
+    // Filtering State
+    const category = useState<string>('giveaways-category', () => 'All');
+    const platform = useState<string>('giveaways-platform', () => 'All');
+    const searchQuery = useState<string>('giveaways-search', () => '');
+
     // Change this to match your actual backend URL or use runtimeConfig
     const baseUrl = 'http://localhost:3000/api';
 
@@ -18,11 +23,17 @@ export const useGiveaways = () => {
         }
 
         try {
+            const queryParams: any = {
+                limit,
+                offset: offset.value,
+            };
+
+            if (category.value !== 'All') queryParams.category = category.value;
+            if (platform.value !== 'All') queryParams.platform = platform.value;
+            if (searchQuery.value) queryParams.search = searchQuery.value;
+
             const data: any = await $fetch(`${baseUrl}/giveaways`, {
-                query: {
-                    limit,
-                    offset: offset.value,
-                },
+                query: queryParams,
             });
 
             if (refresh) {
@@ -63,6 +74,9 @@ export const useGiveaways = () => {
         giveaways,
         isLoading,
         hasMore,
+        category,
+        platform,
+        searchQuery,
         fetchGiveaways,
         submitGiveaway,
     };
