@@ -56,7 +56,12 @@ const handleSubmit = async () => {
         </form>
         
         <div class="form-note">
-          Napomena: Objavljujemo samo proverene nagradne igre koje su u skladu sa našim pravilima.
+          <p><strong>Kako funkcioniše?</strong></p>
+          <ul class="note-list">
+            <li>Unesite link do posta (Instagram, Facebook, TikTok) gde se nalazi nagradna igra.</li>
+            <li>Naš tim će pregledati link u najkraćem roku.</li>
+            <li>Ukoliko je nagradna igra validna, biće objavljena na Fribbo platformi.</li>
+          </ul>
         </div>
       </div>
     </div>
@@ -145,10 +150,25 @@ const handleSubmit = async () => {
 }
 
 .form-note {
-  margin-top: 30px;
-  font-size: 12px;
+  margin-top: 35px;
+  padding-top: 25px;
+  border-top: 1px solid #eee;
+  font-size: 13px;
   color: var(--text-muted);
-  text-align: center;
-  opacity: 0.8;
+}
+
+.form-note strong {
+  color: var(--text-main);
+  display: block;
+  margin-bottom: 10px;
+}
+
+.note-list {
+  padding-left: 15px;
+  margin: 0;
+}
+
+.note-list li {
+  margin-bottom: 8px;
 }
 </style>
