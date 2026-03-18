@@ -1,21 +1,73 @@
 <script setup lang="ts">
 const categories = [
-  'All', 'Tech', 'Beauty', 'Cars', 'Travel', 'Food', 'Gaming', 'Fashion', 'Home'
+    'All', 'Tech', 'Beauty', 'Cars', 'Travel', 'Food', 'Gaming', 'Fashion', 'Home'
 ];
 
-const activeCategory = ref('All');
+const platforms = [
+  'All', 'Instagram', 'Facebook', 'TikTok', 'Website'
+];
+
+const { category, platform, searchQuery, fetchGiveaways } = useGiveaways();
+
+// Debounce search slightly
+let searchTimeout: any = null;
+const handleSearchInput = (e: Event) => {
+  const target = e.target as HTMLInputElement;
+  searchQuery.value = target.value;
+  
+  if (searchTimeout) clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(() => {
+    fetchGiveaways(true);
+  }, 500);
+};
+
+const setCategory = (c: string) => {
+  if (category.value === c) return;
+  category.value = c;
+  fetchGiveaways(true);
+};
+
+const setPlatform = (e: Event) => {
+  const target = e.target as HTMLSelectElement;
+  platform.value = target.value;
+  fetchGiveaways(true);
+};
 </script>
 
 <template>
   <div class="filters-wrap">
-    <div class="container">
-      <ul class="filters-list">
+    <div class="container filters-inner">
+      
+      <!-- Top row: Search and Platform -->
+      <div class="filters-controls">
+        <div class="search-box">
+          <input 
+            type="text" 
+            :value="searchQuery"
+            @input="handleSearchInput"
+            placeholder="Pretraži nagradne igre..." 
+            class="form-input search-input"
+          />
+          <span class="search-icon">🔍</span>
+        </div>
+        
+        <div class="platform-filter">
+          <select :value="platform" @change="setPlatform" class="form-input select-input">
+            <option v-for="p in platforms" :key="p" :value="p">
+              {{ p === 'All' ? 'Sve platforme' : p }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Bottom row: Categories -->
+      <ul class="categories-list">
         <li 
           v-for="cat in categories" 
           :key="cat"
-          class="filter-item"
-          :class="{ active: activeCategory === cat }"
-          @click="activeCategory = cat"
+          class="category-item"
+          :class="{ active: category === cat }"
+          @click="setCategory(cat)"
         >
           {{ cat }}
         </li>
@@ -28,39 +80,86 @@ const activeCategory = ref('All');
 .filters-wrap {
   margin-bottom: 40px;
   border-bottom: 1px solid #eee;
+  padding: 20px 0;
+  background: var(--white);
 }
 
-.filters-list {
+.filters-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.filters-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.search-box {
+  position: relative;
+  flex-grow: 1;
+  max-width: 400px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 15px 12px 40px;
+  border: 1px solid #ddd;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.select-input {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background-color: var(--white);
+  min-width: 150px;
+  cursor: pointer;
+}
+
+.categories-list {
   display: flex;
   gap: 25px;
   overflow-x: auto;
-  padding: 15px 0;
+  padding-bottom: 5px;
   scrollbar-width: none;
 }
 
-.filters-list::-webkit-scrollbar {
+.categories-list::-webkit-scrollbar {
   display: none;
 }
 
-.filter-item {
+.category-item {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-muted);
   cursor: pointer;
   white-space: nowrap;
   position: relative;
-  padding-bottom: 5px;
+  padding: 5px 0;
+  transition: color 0.2s ease;
 }
 
-.filter-item:hover {
+.category-item:hover {
   color: var(--text-main);
 }
 
-.filter-item.active {
+.category-item.active {
   color: var(--accent-pink);
 }
 
-.filter-item.active::after {
+.category-item.active::after {
   content: '';
   position: absolute;
   bottom: 0;
@@ -68,5 +167,14 @@ const activeCategory = ref('All');
   right: 0;
   height: 2px;
   background-color: var(--accent-pink);
+}
+
+@media (max-width: 600px) {
+  .filters-controls {
+    flex-direction: column;
+  }
+  .search-box {
+    max-width: 100%;
+  }
 }
 </style>
