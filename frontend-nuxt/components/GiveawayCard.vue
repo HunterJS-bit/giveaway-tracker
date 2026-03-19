@@ -13,7 +13,7 @@ const getCategoryColor = (category: string) => {
 </script>
 
 <template>
-  <div class="giveaway-card">
+  <div class="giveaway-card" :class="{ 'featured-card': giveaway.isFeatured }">
     <div class="card-image-wrap">
       <NuxtLink :to="`/giveaways/${giveaway.id}`">
         <img :src="giveaway.imageUrl" :alt="giveaway.title" class="card-image" />
@@ -27,6 +27,9 @@ const getCategoryColor = (category: string) => {
         :style="{ backgroundColor: getCategoryColor(giveaway.category) }"
       >
         {{ giveaway.category }}
+      </div>
+      <div v-if="giveaway.isFeatured" class="featured-badge">
+        <span class="icon" style="font-size: 10px; margin-right: 4px;">⭐</span>Sponzorisano
       </div>
     </div>
     
@@ -67,6 +70,15 @@ const getCategoryColor = (category: string) => {
 .giveaway-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 25px rgba(0,0,0,0.1);
+}
+
+.featured-card {
+  border: 2px solid var(--accent-gold);
+  box-shadow: 0 5px 20px rgba(243, 156, 18, 0.15);
+}
+
+.featured-card:hover {
+  box-shadow: 0 12px 30px rgba(243, 156, 18, 0.25);
 }
 
 .card-image-wrap {
@@ -115,6 +127,22 @@ const getCategoryColor = (category: string) => {
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
+}
+
+.featured-badge {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background-color: var(--accent-gold);
+  padding: 4px 12px;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(243, 156, 18, 0.5);
 }
 
 .card-content {
