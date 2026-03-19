@@ -19,10 +19,19 @@ app.get('/api/giveaways', async (req, res) => {
     try {
         const limitStr = req.query.limit as string;
         const offsetStr = req.query.offset as string;
+        const sort = req.query.sort as string;
+
+        let orderClause = [desc(giveaways.isFeatured), asc(giveaways.endDate)];
+
+        if (sort === 'newest') {
+            orderClause = [desc(giveaways.isFeatured), desc(giveaways.createdAt)];
+        } else if (sort === 'highestValue') {
+            orderClause = [desc(giveaways.isFeatured), desc(giveaways.prizeValue)];
+        }
 
         let query = db.select().from(giveaways)
             .$dynamic()
-            .orderBy(desc(giveaways.isFeatured), asc(giveaways.endDate));
+            .orderBy(...orderClause as any);
 
         if (limitStr) {
             const limit = parseInt(limitStr, 10);
