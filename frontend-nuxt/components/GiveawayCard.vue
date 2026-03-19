@@ -16,7 +16,7 @@ const getCategoryColor = (category: string) => {
   <div class="giveaway-card" :class="{ 'featured-card': giveaway.isFeatured }">
     <div class="card-image-wrap">
       <NuxtLink :to="`/giveaways/${giveaway.id}`">
-        <img :src="giveaway.imageUrl" :alt="giveaway.title" class="card-image" />
+        <NuxtImg :src="giveaway.imageUrl" :alt="giveaway.title" class="card-image" format="webp" loading="lazy" />
       </NuxtLink>
       <div class="card-overlay">
         <NuxtLink :to="`/giveaways/${giveaway.id}`" class="btn btn-primary small">Detalji</NuxtLink>
