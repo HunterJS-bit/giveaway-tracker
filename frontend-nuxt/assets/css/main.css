@@ -9,7 +9,7 @@
   --text-main: #1d2020;
   --text-muted: #6c757d;
   --white: #ffffff;
-  
+
   /* Category Colors */
   --cat-tech: #3498db;
   --cat-beauty: #8e44ad;
@@ -28,6 +28,17 @@
   --header-height: 70px;
 }
 
+html.dark {
+  /* Dark Mode Colors */
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --text-main: #e0e0e0;
+  --text-muted: #a0a0a0;
+  --white: #1e1e1e;
+  /* Using the secondary background for white cards */
+}
+
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -40,6 +51,7 @@ body {
   color: var(--text-main);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 a {
@@ -70,6 +82,12 @@ ul {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+html.dark .glass {
+  background: rgba(30, 30, 30, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Buttons */
