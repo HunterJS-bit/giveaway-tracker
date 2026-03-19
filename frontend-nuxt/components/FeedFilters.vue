@@ -7,7 +7,7 @@ const platforms = [
   'All', 'Instagram', 'Facebook', 'TikTok', 'Website'
 ];
 
-const { category, platform, searchQuery, fetchGiveaways } = useGiveaways();
+const { category, platform, searchQuery, sort, fetchGiveaways } = useGiveaways();
 
 // Debounce search slightly
 let searchTimeout: any = null;
@@ -30,6 +30,12 @@ const setCategory = (c: string) => {
 const setPlatform = (e: Event) => {
   const target = e.target as HTMLSelectElement;
   platform.value = target.value;
+  fetchGiveaways(true);
+};
+
+const setSort = (e: Event) => {
+  const target = e.target as HTMLSelectElement;
+  sort.value = target.value;
   fetchGiveaways(true);
 };
 </script>
@@ -56,6 +62,13 @@ const setPlatform = (e: Event) => {
             <option v-for="p in platforms" :key="p" :value="p">
               {{ p === 'All' ? 'Sve platforme' : p }}
             </option>
+          </select>
+        </div>
+        <div class="sort-filter">
+          <select :value="sort" @change="setSort" class="form-input select-input">
+            <option value="endingSoonest">Uskoro Ističe</option>
+            <option value="newest">Najnovije</option>
+            <option value="highestValue">Najveća Vrednost</option>
           </select>
         </div>
       </div>
