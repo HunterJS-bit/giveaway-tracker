@@ -9,6 +9,7 @@ export const useGiveaways = () => {
     const category = useState<string>('giveaways-category', () => 'All');
     const platform = useState<string>('giveaways-platform', () => 'All');
     const searchQuery = useState<string>('giveaways-search', () => '');
+    const sort = useState<string>('giveaways-sort', () => 'endingSoonest');
 
     // Change this to match your actual backend URL or use runtimeConfig
     const baseUrl = 'http://localhost:3000/api';
@@ -31,6 +32,7 @@ export const useGiveaways = () => {
             if (category.value !== 'All') queryParams.category = category.value;
             if (platform.value !== 'All') queryParams.platform = platform.value;
             if (searchQuery.value) queryParams.search = searchQuery.value;
+            queryParams.sort = sort.value;
 
             const data: any = await $fetch(`${baseUrl}/giveaways`, {
                 query: queryParams,
@@ -77,6 +79,7 @@ export const useGiveaways = () => {
         category,
         platform,
         searchQuery,
+        sort,
         fetchGiveaways,
         submitGiveaway,
     };
