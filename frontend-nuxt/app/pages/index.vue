@@ -27,9 +27,10 @@ onMounted(() => {
       <div class="container">
         <div v-if="giveaways.length > 0" class="grid">
           <GiveawayCard 
-            v-for="g in giveaways" 
+            v-for="(g, index) in giveaways" 
             :key="g.id" 
-            :giveaway="g" 
+            :giveaway="g"
+            :preload="index < 4"
           />
         </div>
         
