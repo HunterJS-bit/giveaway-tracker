@@ -70,7 +70,7 @@ useSeoMeta({
         <!-- Sidebar / Image -->
         <div class="details-sidebar">
           <div class="image-card glass">
-            <NuxtImg :src="giveaway.imageUrl" :alt="giveaway.title" class="main-image" format="webp" loading="lazy" />
+            <NuxtImg :src="giveaway.imageUrl" :alt="giveaway.title" class="main-image" format="webp" preload fetchpriority="high" />
             <div class="category-badge">{{ giveaway.category }}</div>
           </div>
           
