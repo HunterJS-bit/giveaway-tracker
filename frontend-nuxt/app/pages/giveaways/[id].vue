@@ -15,10 +15,22 @@ const fetchGiveawayDetails = async () => {
   
   isLoading.value = true;
   try {
-    // Assuming the backend has a single giveaway endpoint
-    const data: any = await $fetch(`http://localhost:3000/api/giveaways/${id}`);
-    // We can push to the global state to keep it in sync
-    giveaways.value.push(data);
+    const { data: result, error: fetchError } = await useAsyncData(
+      `giveaway-${id}`,
+      () => $fetch(`http://localhost:3000/api/giveaways/${id}`),
+      {
+        getCachedData(key, nuxtApp) {
+          const fromList = giveaways.value.find(g => g.id === id);
+          if (fromList) return fromList;
+          return nuxtApp.payload.data[key] || nuxtApp.static.data[key];
+        }
+      }
+    );
+    
+    if (fetchError.value) throw fetchError.value;
+    if (result.value) {
+      giveaways.value.push(result.value);
+    }
   } catch (err: any) {
     console.error('Error fetching giveaway details:', err);
     error.value = 'Nagradna igra nije pronađena.';
