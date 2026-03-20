@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { UseElementVisibility } from '@vueuse/components';
+
 const props = defineProps<{
-  giveaway: any
+  giveaway: any,
+  preload?: boolean
 }>();
 
 const getCategoryColor = (category: string) => {
@@ -13,47 +16,51 @@ const getCategoryColor = (category: string) => {
 </script>
 
 <template>
-  <div class="giveaway-card" :class="{ 'featured-card': giveaway.isFeatured }">
-    <div class="card-image-wrap">
-      <NuxtLink :to="`/giveaways/${giveaway.id}`">
-        <NuxtImg :src="giveaway.imageUrl" :alt="giveaway.title" class="card-image" format="webp" loading="lazy" />
-      </NuxtLink>
-      <div class="card-overlay">
-        <NuxtLink :to="`/giveaways/${giveaway.id}`" class="btn btn-primary small">Detalji</NuxtLink>
-        <a :href="giveaway.entryUrl" target="_blank" class="btn btn-dark small icon-btn">🔗</a>
-      </div>
-      <div 
-        class="category-badge" 
-        :style="{ backgroundColor: getCategoryColor(giveaway.category) }"
-      >
-        {{ giveaway.category }}
-      </div>
-      <div v-if="giveaway.isFeatured" class="featured-badge">
-        <span class="icon" style="font-size: 10px; margin-right: 4px;">⭐</span>Sponzorisano
-      </div>
-    </div>
-    
-    <div class="card-content">
-      <div class="card-meta">
-        <span class="brand-name">{{ giveaway.brand }}</span>
-        <span class="prize-value">{{ giveaway.formattedPrizeValue || giveaway.prizeValue }} {{ giveaway.currency }}</span>
-      </div>
-      <NuxtLink :to="`/giveaways/${giveaway.id}`">
-        <h3 class="card-title">{{ giveaway.title }}</h3>
-      </NuxtLink>
-      
-      <div class="card-footer">
-        <div class="entry-count">
-          <span class="icon">👥</span>
-          {{ giveaway.entryCount }} submisija
+  <UseElementVisibility v-slot="{ isVisible }">
+    <div class="giveaway-card" :class="{ 'featured-card': giveaway.isFeatured }" style="min-height: 380px;">
+      <template v-if="isVisible || preload">
+        <div class="card-image-wrap">
+          <NuxtLink :to="`/giveaways/${giveaway.id}`">
+            <NuxtImg :src="giveaway.imageUrl" :alt="giveaway.title" class="card-image" format="webp" :loading="preload ? 'eager' : 'lazy'" :preload="preload" :fetchpriority="preload ? 'high' : 'auto'" />
+          </NuxtLink>
+          <div class="card-overlay">
+            <NuxtLink :to="`/giveaways/${giveaway.id}`" class="btn btn-primary small">Detalji</NuxtLink>
+            <a :href="giveaway.entryUrl" target="_blank" class="btn btn-dark small icon-btn">🔗</a>
+          </div>
+          <div 
+            class="category-badge" 
+            :style="{ backgroundColor: getCategoryColor(giveaway.category) }"
+          >
+            {{ giveaway.category }}
+          </div>
+          <div v-if="giveaway.isFeatured" class="featured-badge">
+            <span class="icon" style="font-size: 10px; margin-right: 4px;">⭐</span>Sponzorisano
+          </div>
         </div>
-        <div class="time-remaining" :class="{ 'ending-soon': giveaway.isEndingSoon }">
-          <span class="icon">⏰</span>
-          {{ giveaway.status === 'expired' ? 'Završeno' : 'Aktivno' }}
+        
+        <div class="card-content">
+          <div class="card-meta">
+            <span class="brand-name">{{ giveaway.brand }}</span>
+            <span class="prize-value">{{ giveaway.formattedPrizeValue || giveaway.prizeValue }} {{ giveaway.currency }}</span>
+          </div>
+          <NuxtLink :to="`/giveaways/${giveaway.id}`">
+            <h3 class="card-title">{{ giveaway.title }}</h3>
+          </NuxtLink>
+          
+          <div class="card-footer">
+            <div class="entry-count">
+              <span class="icon">👥</span>
+              {{ giveaway.entryCount }} submisija
+            </div>
+            <div class="time-remaining" :class="{ 'ending-soon': giveaway.isEndingSoon }">
+              <span class="icon">⏰</span>
+              {{ giveaway.status === 'expired' ? 'Završeno' : 'Aktivno' }}
+            </div>
+          </div>
         </div>
-      </div>
+      </template>
     </div>
-  </div>
+  </UseElementVisibility>
 </template>
 
 <style scoped>
