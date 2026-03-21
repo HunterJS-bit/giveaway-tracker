@@ -10,6 +10,40 @@ const giveaway = computed(() => giveaways.value.find(g => g.id === id) || null);
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 
+const showToast = ref(false);
+const toastMessage = ref('');
+
+const showToastMessage = (msg: string) => {
+  toastMessage.value = msg;
+  showToast.value = true;
+  setTimeout(() => {
+    showToast.value = false;
+  }, 3000);
+};
+
+const shareGiveaway = async () => {
+  if (!giveaway.value) return;
+  
+  const shareData = {
+    title: giveaway.value.title,
+    text: `Pogledaj ovu nagradnu igru: ${giveaway.value.title}`,
+    url: window.location.href,
+  };
+
+  try {
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      await navigator.share(shareData);
+    } else {
+      await navigator.clipboard.writeText(window.location.href);
+      showToastMessage('Link je kopiran!');
+    }
+  } catch (err: any) {
+    if (err.name !== 'AbortError') {
+      console.error('Error sharing:', err);
+    }
+  }
+};
+
 const fetchGiveawayDetails = async () => {
   if (giveaway.value) return;
   
@@ -91,8 +125,9 @@ useSeoMeta({
             <div class="share-info">
               <p>Podeli sa prijateljima:</p>
               <div class="share-buttons">
-                <!-- Add share icons here if needed -->
-                <button class="btn-share">Copy Link</button>
+                <button @click="shareGiveaway" class="btn-share">
+                  <span class="icon">📤</span> Podeli
+                </button>
               </div>
             </div>
           </div>
@@ -124,6 +159,11 @@ useSeoMeta({
           </div>
         </div>
       </div>
+    </div>
+    <!-- Toast Notification -->
+    <div class="toast" :class="{ 'toast-visible': showToast }">
+      <span class="toast-icon">✓</span>
+      {{ toastMessage }}
     </div>
   </div>
 </template>
@@ -261,6 +301,65 @@ useSeoMeta({
 .loading-state, .error-state {
   text-align: center;
   padding: 100px 0;
+}
+
+.btn-share {
+  background: #f1f5f9;
+  color: var(--text-main);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.btn-share:hover {
+  background: #e2e8f0;
+  transform: translateY(-2px);
+}
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--text-main);
+  color: var(--white);
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.toast.toast-visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.toast-icon {
+  background: #4ade80;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
 }
 
 @media (max-width: 992px) {
