@@ -8,7 +8,7 @@ import { Pool } from 'pg';
 async function main() {
     console.log('Seeding database from giveaways.json...');
 
-    const dataPath = path.join(__dirname, '../../assets/data/giveaways.json');
+    const dataPath = process.env.SEED_DATA_PATH || path.join(__dirname, '../../assets/data/giveaways.json');
 
     if (!fs.existsSync(dataPath)) {
         console.error(`File not found: ${dataPath}`);
