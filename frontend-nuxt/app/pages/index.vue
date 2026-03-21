@@ -1,9 +1,10 @@
 <script setup lang="ts">
-const { giveaways, isLoading, hasMore, fetchGiveaways } = useGiveaways();
+// // import { useGiveaways } from '@/composables/useGiveaways'
+// const { giveaways, isLoading, hasMore, fetchGiveaways } = useGiveaways();
 
-onMounted(() => {
-  fetchGiveaways(true);
-});
+// onMounted(() => {
+//   fetchGiveaways(true);
+// });
 </script>
 
 <template>
@@ -23,37 +24,7 @@ onMounted(() => {
     <FeedFilters />
 
     <!-- Grid -->
-    <section class="feed-section">
-      <div class="container">
-        <div v-if="giveaways.length > 0" class="grid">
-          <GiveawayCard 
-            v-for="(g, index) in giveaways" 
-            :key="g.id" 
-            :giveaway="g"
-            :preload="index < 4"
-          />
-        </div>
-        
-        <div v-else-if="isLoading" class="loading-state">
-          Učitavanje nagradnih igara...
-        </div>
-        
-        <div v-else class="empty-state">
-          <p>Trenutno nema aktivnih nagradnih igara za odabrane kriterijume.</p>
-        </div>
-
-        <!-- Pagination -->
-        <div v-if="hasMore" class="pagination-wrap">
-          <button 
-            class="btn btn-dark" 
-            :disabled="isLoading"
-            @click="fetchGiveaways()"
-          >
-            {{ isLoading ? 'Učitavanje...' : 'Prikaži još' }}
-          </button>
-        </div>
-      </div>
-    </section>
+  
   </div>
 </template>
 
