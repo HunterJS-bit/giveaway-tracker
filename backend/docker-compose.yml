@@ -1,0 +1,37 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/balkan_giveaways
+      - PORT=3000
+      - SEED_DATA_PATH=/app/assets/data/giveaways.json
+    volumes:
+      - ../assets:/app/assets
+    depends_on:
+      db:
+        condition: service_healthy
+    develop:
+      watch:
+        - action: restart
+          path: ./src
+
+  db:
+    image: postgres:17
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=balkan_giveaways
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d balkan_giveaways" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
