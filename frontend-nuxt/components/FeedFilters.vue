@@ -41,7 +41,7 @@ const setSort = (e: Event) => {
 </script>
 
 <template>
-  <div class="filters-wrap">
+  <div class="filters-wrap animate-fade-in-up">
     <div class="container filters-inner">
       
       <!-- Top row: Search and Platform -->
