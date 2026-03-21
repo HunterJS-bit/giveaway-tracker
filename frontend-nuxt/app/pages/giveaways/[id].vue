@@ -1,11 +1,26 @@
 <script setup lang="ts">
+interface Giveaway {
+  id: string;
+  title: string;
+  description?: string;
+  imageUrl: string;
+  entryUrl: string;
+  category: string;
+  brand: string;
+  prizeValue: string;
+  formattedPrizeValue?: string;
+  currency: string;
+  status: string;
+  entryCount: number;
+}
+
 const route = useRoute();
 const id = route.params.id as string;
 const { giveaways } = useGiveaways();
 
 // In a real app, you'd fetch by ID from the API. 
 // For now, we'll find it in the existing state or fetch if not present.
-const giveaway = computed(() => giveaways.value.find(g => g.id === id) || null);
+const giveaway = computed<Giveaway | null>(() => giveaways.value.find((g: Giveaway) => g.id === id) || null);
 
 const isLoading = ref(false);
 const error = ref<string | null>(null);
