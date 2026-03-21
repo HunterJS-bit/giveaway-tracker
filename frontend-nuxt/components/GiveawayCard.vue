@@ -1,8 +1,25 @@
 <script setup lang="ts">
 import { UseElementVisibility } from '@vueuse/components';
 
+interface Giveaway {
+  id: string;
+  title: string;
+  description?: string;
+  imageUrl: string;
+  entryUrl: string;
+  category: string;
+  brand: string;
+  prizeValue: string;
+  formattedPrizeValue?: string;
+  currency: string;
+  status: string;
+  entryCount: number;
+  isFeatured?: boolean;
+  isEndingSoon?: boolean;
+}
+
 const props = defineProps<{
-  giveaway: any,
+  giveaway: Giveaway,
   preload?: boolean
 }>();
 
@@ -17,7 +34,7 @@ const getCategoryColor = (category: string) => {
 
 <template>
   <UseElementVisibility v-slot="{ isVisible }">
-    <div class="giveaway-card" :class="{ 'featured-card': giveaway.isFeatured }" style="min-height: 380px;">
+    <div class="giveaway-card animate-fade-in-up" :class="{ 'featured-card': giveaway.isFeatured }" style="min-height: 380px;">
       <template v-if="isVisible || preload">
         <div class="card-image-wrap">
           <NuxtLink :to="`/giveaways/${giveaway.id}`">
