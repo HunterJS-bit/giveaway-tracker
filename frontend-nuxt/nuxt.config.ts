@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   app: {
     pageTransition: { name: 'page', mode: 'out-in' }
   },
-  // css: ['~/assets/css/main.css'],
+  css: ['~/assets/css/main.css'],
   modules: [
     '@nuxtjs/color-mode',
     '@nuxt/image',
