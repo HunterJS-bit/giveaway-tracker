@@ -5,14 +5,56 @@ import { giveaways, submissions, comments } from './db/schema';
 import { eq, desc, asc } from 'drizzle-orm';
 import dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
+import rateLimit from 'express-rate-limit';
+import pino from 'pino-http';
+import { z } from 'zod';
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Logging with Pino
+const logger = pino({
+    level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+});
+app.use(logger);
+
 app.use(cors());
 app.use(express.json());
+
+// Rate Limiting: 100 requests per 15 minutes for general API
+const apiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 100,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests, please try again later.' }
+});
+
+// Stricter limiter for submissions and comments (anti-spam)
+const postLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000, // 1 hour
+    max: 5,
+    message: { error: 'Post limit reached. Please try again after an hour.' }
+});
+
+app.use('/api/', apiLimiter);
+
+// Zod Schemas
+const CommentSchema = z.object({
+    userName: z.string().min(2).max(50),
+    content: z.string().min(1).max(1000),
+});
+
+const SubmissionSchema = z.object({
+    url: z.string().url(),
+});
+
+// Health Check
+app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', uptime: process.uptime() });
+});
 
 // Get all giveaways with optional pagination
 app.get('/api/giveaways', async (req, res) => {
@@ -45,7 +87,7 @@ app.get('/api/giveaways', async (req, res) => {
         const allGiveaways = await query;
         res.json(allGiveaways);
     } catch (error) {
-        console.error('Error fetching giveaways:', error);
+        req.log.error(error, 'Error fetching giveaways');
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -61,17 +103,15 @@ app.get('/api/giveaways/:id', async (req, res) => {
         }
         res.json(giveaway);
     } catch (error) {
-        console.error('Error fetching giveaway:', error);
+        req.log.error(error, 'Error fetching giveaway');
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
-// Create a new giveaway
+// Create a new giveaway (Admin or Internal)
 app.post('/api/giveaways', async (req, res) => {
     try {
         const data = req.body;
-
-        // Basic validation could be inserted here
         const [newGiveaway] = await db.insert(giveaways).values({
             id: uuidv4(),
             title: data.title,
@@ -95,29 +135,28 @@ app.post('/api/giveaways', async (req, res) => {
 
         res.status(201).json(newGiveaway);
     } catch (error) {
-        console.error('Error creating giveaway:', error);
+        req.log.error(error, 'Error creating giveaway');
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
 // Create a new submission
-app.post('/api/submissions', async (req, res) => {
+app.post('/api/submissions', postLimiter, async (req, res) => {
     try {
-        const { url } = req.body;
-
-        if (!url || typeof url !== 'string') {
-            return res.status(400).json({ error: 'URL is required' });
+        const result = SubmissionSchema.safeParse(req.body);
+        if (!result.success) {
+            return res.status(400).json({ error: result.error.errors });
         }
 
         const [newSubmission] = await db.insert(submissions).values({
             id: uuidv4(),
-            url: url,
+            url: result.data.url,
             status: 'pending',
         }).returning();
 
         res.status(201).json(newSubmission);
     } catch (error) {
-        console.error('Error creating submission:', error);
+        req.log.error(error, 'Error creating submission');
         res.status(500).json({ error: 'Internal server error' });
     }
 });
@@ -132,31 +171,31 @@ app.get('/api/giveaways/:id/comments', async (req, res) => {
             .orderBy(desc(comments.createdAt));
         res.json(giveawayComments);
     } catch (error) {
-        console.error('Error fetching comments:', error);
+        req.log.error(error, 'Error fetching comments');
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
 // Post a comment to a giveaway
-app.post('/api/giveaways/:id/comments', async (req, res) => {
+app.post('/api/giveaways/:id/comments', postLimiter, async (req, res) => {
     try {
         const { id } = req.params;
-        const { userName, content } = req.body;
+        const result = CommentSchema.safeParse(req.body);
 
-        if (!userName || !content) {
-            return res.status(400).json({ error: 'userName and content are required' });
+        if (!result.success) {
+            return res.status(400).json({ error: result.error.errors });
         }
 
         const [newComment] = await db.insert(comments).values({
             id: uuidv4(),
             giveawayId: id,
-            userName,
-            content,
+            userName: result.data.userName,
+            content: result.data.content,
         }).returning();
 
         res.status(201).json(newComment);
     } catch (error) {
-        console.error('Error posting comment:', error);
+        req.log.error(error, 'Error posting comment');
         res.status(500).json({ error: 'Internal server error' });
     }
 });
