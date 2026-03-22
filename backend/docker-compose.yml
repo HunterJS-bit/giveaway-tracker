@@ -1,33 +1,45 @@
 services:
-  app:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/balkan_giveaways
-      - PORT=3000
-      - SEED_DATA_PATH=/app/assets/data/giveaways.json
-    volumes:
-      - ../assets:/app/assets
-    depends_on:
-      db:
-        condition: service_healthy
+  # app:
+  #   build: .
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     - DATABASE_URL=postgresql://postgres:postgres@db:5432/balkan_giveaways
+  #     - PORT=3000
+  #     - SEED_DATA_PATH=/app/assets/data/giveaways.json
+  #   volumes:
+  #     - ../assets:/app/assets
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
 
-  db:
-    image: postgres:17
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=balkan_giveaways
+  postgres:
+    image: postgres:10.4-alpine
     ports:
-      - "5432:5432"
+      - "5446:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
     volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres -d balkan_giveaways" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - postgres-data:/data
+    networks:
+      - app-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - postgres
+    ports:
+      - "8080:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+    networks:
+      - app-network
 
 volumes:
-  pgdata:
+  postgres-data:
+networks:
+  app-network:
+    driver: bridge
