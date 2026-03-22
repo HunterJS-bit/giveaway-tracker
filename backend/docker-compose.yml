@@ -12,10 +12,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    develop:
-      watch:
-        - action: restart
-          path: ./src
 
   db:
     image: postgres:17
