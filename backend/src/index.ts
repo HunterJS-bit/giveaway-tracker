@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { db } from './db';
-import { giveaways, submissions } from './db/schema';
+import { giveaways, submissions, comments } from './db/schema';
 import { eq, desc, asc } from 'drizzle-orm';
 import dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
@@ -118,6 +118,45 @@ app.post('/api/submissions', async (req, res) => {
         res.status(201).json(newSubmission);
     } catch (error) {
         console.error('Error creating submission:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Get comments for a giveaway
+app.get('/api/giveaways/:id/comments', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const giveawayComments = await db.select()
+            .from(comments)
+            .where(eq(comments.giveawayId, id))
+            .orderBy(desc(comments.createdAt));
+        res.json(giveawayComments);
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Post a comment to a giveaway
+app.post('/api/giveaways/:id/comments', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { userName, content } = req.body;
+
+        if (!userName || !content) {
+            return res.status(400).json({ error: 'userName and content are required' });
+        }
+
+        const [newComment] = await db.insert(comments).values({
+            id: uuidv4(),
+            giveawayId: id,
+            userName,
+            content,
+        }).returning();
+
+        res.status(201).json(newComment);
+    } catch (error) {
+        console.error('Error posting comment:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
