@@ -36,3 +36,15 @@ export const giveaways = pgTable('giveaways', {
         countryIdx: index('country_idx').on(table.country),
     };
 });
+
+export const comments = pgTable('comments', {
+    id: text('id').primaryKey(),
+    giveawayId: text('giveaway_id').references(() => giveaways.id).notNull(),
+    userName: text('user_name').notNull(),
+    content: text('content').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => {
+    return {
+        giveawayIdIdx: index('comment_giveaway_id_idx').on(table.giveawayId),
+    };
+});
