@@ -168,10 +168,14 @@ useSeoMeta({
             <div class="description" v-html="giveaway.description || 'Nema opisa za ovu nagradnu igru.'"></div>
           </div>
 
+
           <div class="rules-section glass">
             <h3>Pravila i Uslovi</h3>
             <p>Klikom na dugme "Učestvuj" bićete preusmereni na zvaničnu stranicu nagradne igre. Obavezno pročitajte sva pravila organizatora pre učestvovanja.</p>
           </div>
+
+          <!-- Comment Section -->
+          <CommentSection :giveaway-id="id" />
         </div>
       </div>
     </div>
