@@ -95,7 +95,7 @@ app.get('/api/giveaways', async (req, res) => {
 // Get a single giveaway by ID
 app.get('/api/giveaways/:id', async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
         const [giveaway] = await db.select().from(giveaways).where(eq(giveaways.id, id));
 
         if (!giveaway) {
@@ -145,7 +145,7 @@ app.post('/api/submissions', postLimiter, async (req, res) => {
     try {
         const result = SubmissionSchema.safeParse(req.body);
         if (!result.success) {
-            return res.status(400).json({ error: result.error.errors });
+            return res.status(400).json({ error: result.error.issues });
         }
 
         const [newSubmission] = await db.insert(submissions).values({
@@ -164,7 +164,7 @@ app.post('/api/submissions', postLimiter, async (req, res) => {
 // Get comments for a giveaway
 app.get('/api/giveaways/:id/comments', async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
         const giveawayComments = await db.select()
             .from(comments)
             .where(eq(comments.giveawayId, id))
@@ -179,11 +179,11 @@ app.get('/api/giveaways/:id/comments', async (req, res) => {
 // Post a comment to a giveaway
 app.post('/api/giveaways/:id/comments', postLimiter, async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params as { id: string };
         const result = CommentSchema.safeParse(req.body);
 
         if (!result.success) {
-            return res.status(400).json({ error: result.error.errors });
+            return res.status(400).json({ error: result.error.issues });
         }
 
         const [newComment] = await db.insert(comments).values({
