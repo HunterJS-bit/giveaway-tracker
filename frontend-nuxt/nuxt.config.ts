@@ -12,6 +12,12 @@ export default defineNuxtConfig({
     '@nuxt/fonts',
     'nuxt-delay-hydration'
   ],
+  fonts: {
+    families: [
+      { name: 'Outfit', provider: 'google' },
+      { name: 'Inter', provider: 'google' }
+    ]
+  },
   delayHydration: {
     mode: 'init' // Delays hydration until interaction to maximize Lighthouse score
   },
