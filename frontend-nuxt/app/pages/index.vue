@@ -1,10 +1,16 @@
 <script setup lang="ts">
-// // import { useGiveaways } from '@/composables/useGiveaways'
-// const { giveaways, isLoading, hasMore, fetchGiveaways } = useGiveaways();
+const { giveaways, isLoading, hasMore, fetchGiveaways } = useGiveaways();
 
-// onMounted(() => {
-//   fetchGiveaways(true);
-// });
+onMounted(() => {
+  fetchGiveaways(true);
+});
+
+useHead({
+  title: 'Naslovna - Najveća baza nagradnih igara',
+  meta: [
+    { name: 'description', content: 'Sve nagradne igre na jednom mestu u Srbiji, Hrvatskoj i BIH. Osvoji vredne nagrade!' }
+  ]
+})
 </script>
 
 <template>
@@ -24,7 +30,33 @@
     <FeedFilters />
 
     <!-- Grid -->
-  
+    <section class="feed-section container">
+      <div v-if="isLoading && giveaways.length === 0" class="grid">
+        <SkeletonCard v-for="i in 6" :key="i" />
+      </div>
+
+      <div v-else-if="giveaways.length > 0" class="grid">
+        <GiveawayCard 
+          v-for="(giveaway, index) in giveaways" 
+          :key="giveaway.id" 
+          :giveaway="giveaway" 
+          :preload="index < 4"
+        />
+      </div>
+
+      <div v-else-if="!isLoading" class="empty-state">
+        <p>Trenutno nema dostupnih nagradnih igara za odabrane kriterijume.</p>
+      </div>
+
+      <div v-if="hasMore" class="pagination-wrap">
+        <button class="btn btn-dark" @click="fetchGiveaways()" :disabled="isLoading">
+          {{ isLoading ? 'Učitavanje...' : 'Učitaj još' }}
+        </button>
+      </div>
+    </section>
+
+    <!-- Newsletter -->
+    <NewsletterSignup />
   </div>
 </template>
 
