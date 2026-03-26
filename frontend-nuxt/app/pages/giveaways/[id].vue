@@ -89,8 +89,21 @@ const fetchGiveawayDetails = async () => {
   }
 };
 
+const similarGiveaways = ref<Giveaway[]>([]);
+const fetchSimilarGiveaways = async () => {
+  try {
+    const { data } = await useFetch<Giveaway[]>(`http://localhost:3000/api/giveaways/${id}/similar`);
+    if (data.value) {
+      similarGiveaways.value = data.value;
+    }
+  } catch (err) {
+    console.error('Error fetching similar giveaways:', err);
+  }
+};
+
 onMounted(() => {
   fetchGiveawayDetails();
+  fetchSimilarGiveaways();
 });
 
 // SEO
@@ -209,6 +222,14 @@ useHead({
           <div class="rules-section glass">
             <h3>Pravila i Uslovi</h3>
             <p>Klikom na dugme "Učestvuj" bićete preusmereni na zvaničnu stranicu nagradne igre. Obavezno pročitajte sva pravila organizatora pre učestvovanja.</p>
+          </div>
+
+          <!-- Similar Giveaways -->
+          <div v-if="similarGiveaways.length > 0" class="similar-giveaways-section glass">
+            <h3>Slične nagradne igre</h3>
+            <div class="giveaways-grid">
+              <GiveawayCard v-for="simGiveaway in similarGiveaways" :key="simGiveaway.id" :giveaway="simGiveaway" />
+            </div>
           </div>
 
           <!-- Comment Section -->
@@ -426,5 +447,23 @@ useHead({
   .details-sidebar {
     order: 2;
   }
+}
+
+.similar-giveaways-section {
+  padding: 30px;
+  border-radius: var(--radius-md);
+  margin-top: 20px;
+}
+
+.similar-giveaways-section h3 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.giveaways-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
 }
 </style>
