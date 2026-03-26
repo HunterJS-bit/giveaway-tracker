@@ -17,6 +17,7 @@ interface Giveaway {
 const route = useRoute();
 const id = route.params.id as string;
 const { giveaways } = useGiveaways();
+const { isFavorite, toggleFavorite } = useFavorites();
 
 // In a real app, you'd fetch by ID from the API. 
 // For now, we'll find it in the existing state or fetch if not present.
@@ -99,6 +100,39 @@ useSeoMeta({
   description: () => giveaway.value?.description || 'Pogledajte detalje ove nagradne igre.',
   ogImage: () => giveaway.value?.imageUrl,
 });
+
+const jsonLd = computed(() => {
+  if (!giveaway.value) return null;
+  
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    'name': giveaway.value.title,
+    'image': giveaway.value.imageUrl,
+    'description': giveaway.value.description?.replace(/<[^>]*>?/gm, '').substring(0, 160),
+    'brand': {
+      '@type': 'Brand',
+      'name': giveaway.value.brand
+    },
+    'offers': {
+      '@type': 'Offer',
+      'url': giveaway.value.entryUrl,
+      'price': '0',
+      'priceCurrency': giveaway.value.currency || 'RSD',
+      'itemCondition': 'https://schema.org/NewCondition',
+      'availability': giveaway.value.status === 'expired' ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock'
+    }
+  };
+});
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: () => JSON.stringify(jsonLd.value)
+    }
+  ]
+});
 </script>
 
 <template>
@@ -142,6 +176,9 @@ useSeoMeta({
               <div class="share-buttons">
                 <button @click="shareGiveaway" class="btn-share">
                   <span class="icon">📤</span> Podeli
+                </button>
+                <button @click="toggleFavorite(id)" class="btn-share favorite-btn" :class="{ 'is-favorite': isFavorite(id) }">
+                  <span class="icon">{{ isFavorite(id) ? '❤️' : '🤍' }}</span> Omiljeno
                 </button>
               </div>
             </div>
