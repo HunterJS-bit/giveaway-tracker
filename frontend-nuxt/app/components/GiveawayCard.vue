@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { UseElementVisibility } from '@vueuse/components';
+import { useFavorites } from '~/composables/useFavorites';
+import { useToast } from '~/composables/useToast';
 
 interface Giveaway {
   id: string;
@@ -16,12 +18,61 @@ interface Giveaway {
   entryCount: number;
   isFeatured?: boolean;
   isEndingSoon?: boolean;
+  endDate: string;
 }
 
 const props = defineProps<{
   giveaway: Giveaway,
   preload?: boolean
 }>();
+
+const { isFavorite, toggleFavorite } = useFavorites();
+const { addToast } = useToast();
+
+const timeLeft = ref('');
+let timer: any = null;
+
+const updateTimer = () => {
+  const end = new Date(props.giveaway.endDate).getTime();
+  const now = new Date().getTime();
+  const diff = end - now;
+
+  if (diff <= 0) {
+    timeLeft.value = 'Završeno';
+    clearInterval(timer);
+    return;
+  }
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+  if (days > 0) {
+    timeLeft.value = `${days}d ${hours}h`;
+  } else if (hours > 0) {
+    timeLeft.value = `${hours}h ${minutes}m`;
+  } else {
+    timeLeft.value = `${minutes}m`;
+  }
+};
+
+onMounted(() => {
+  updateTimer();
+  timer = setInterval(updateTimer, 60000); // Update every minute
+});
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer);
+});
+
+const shareCard = async () => {
+  try {
+    await navigator.clipboard.writeText(`${window.location.origin}/giveaways/${props.giveaway.id}`);
+    addToast('Link je kopiran!');
+  } catch (err) {
+    addToast('Greška prilikom kopiranja', 'error');
+  }
+};
 
 const getCategoryColor = (category: string) => {
   const cat = category?.toLowerCase();
@@ -42,7 +93,12 @@ const getCategoryColor = (category: string) => {
           </NuxtLink>
           <div class="card-overlay">
             <NuxtLink :to="`/giveaways/${giveaway.id}`" class="btn btn-primary small">Detalji</NuxtLink>
-            <a :href="giveaway.entryUrl" target="_blank" class="btn btn-dark small icon-btn">🔗</a>
+            <button @click.prevent="shareCard" class="btn btn-dark small icon-btn" title="Podeli">
+              📤
+            </button>
+            <button @click.prevent="toggleFavorite(giveaway.id)" class="btn btn-dark small icon-btn favorite-btn" :class="{ 'is-favorite': isFavorite(giveaway.id) }">
+              {{ isFavorite(giveaway.id) ? '❤️' : '🤍' }}
+            </button>
           </div>
           <div 
             class="category-badge" 
@@ -69,9 +125,9 @@ const getCategoryColor = (category: string) => {
               <span class="icon">👥</span>
               {{ giveaway.entryCount }} submisija
             </div>
-            <div class="time-remaining" :class="{ 'ending-soon': giveaway.isEndingSoon }">
+            <div class="time-remaining" :class="{ 'ending-soon': giveaway.isEndingSoon || timeLeft.includes('h') || timeLeft.includes('m') }">
               <span class="icon">⏰</span>
-              {{ giveaway.status === 'expired' ? 'Završeno' : 'Aktivno' }}
+              {{ timeLeft }}
             </div>
           </div>
         </div>
