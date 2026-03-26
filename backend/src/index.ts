@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import { db } from './db';
 import { giveaways, submissions, comments } from './db/schema';
-import { eq, desc, asc } from 'drizzle-orm';
+import { eq, desc, asc, ne, and } from 'drizzle-orm';
 import dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 import rateLimit from 'express-rate-limit';
@@ -104,6 +104,35 @@ app.get('/api/giveaways/:id', async (req, res) => {
         res.json(giveaway);
     } catch (error) {
         req.log.error(error, 'Error fetching giveaway');
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Get similar giveaways related to exactly one giveaway by category
+app.get('/api/giveaways/:id/similar', async (req, res) => {
+    try {
+        const { id } = req.params as { id: string };
+        const [giveaway] = await db.select({ category: giveaways.category })
+            .from(giveaways)
+            .where(eq(giveaways.id, id));
+
+        if (!giveaway) {
+            return res.status(404).json({ error: 'Giveaway not found' });
+        }
+
+        const similarGiveaways = await db.select()
+            .from(giveaways)
+            .where(and(
+                eq(giveaways.category, giveaway.category),
+                ne(giveaways.id, id),
+                eq(giveaways.status, 'active')
+            ))
+            .orderBy(desc(giveaways.createdAt))
+            .limit(3);
+
+        res.json(similarGiveaways);
+    } catch (error) {
+        req.log.error(error, 'Error fetching similar giveaways');
         res.status(500).json({ error: 'Internal server error' });
     }
 });
