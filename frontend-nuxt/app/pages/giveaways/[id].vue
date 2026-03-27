@@ -12,6 +12,8 @@ interface Giveaway {
   currency: string;
   status: string;
   entryCount: number;
+  startDate?: string;
+  endDate: string;
 }
 
 const route = useRoute();
@@ -111,7 +113,14 @@ useSeoMeta({
   title: () => giveaway.value?.title || 'Nagradna Igra',
   ogTitle: () => giveaway.value?.title || 'Nagradna Igra',
   description: () => giveaway.value?.description || 'Pogledajte detalje ove nagradne igre.',
+  ogDescription: () => giveaway.value?.description || 'Pogledajte detalje ove nagradne igre.',
   ogImage: () => giveaway.value?.imageUrl,
+  ogUrl: () => `https://nagradneigre.balkan/giveaways/${id}`,
+  ogType: 'article',
+  twitterCard: 'summary_large_image',
+  twitterTitle: () => giveaway.value?.title || 'Nagradna Igra',
+  twitterDescription: () => giveaway.value?.description || 'Pogledajte detalje ove nagradne igre.',
+  twitterImage: () => giveaway.value?.imageUrl,
 });
 
 const jsonLd = computed(() => {
@@ -142,7 +151,7 @@ useHead({
   script: [
     {
       type: 'application/ld+json',
-      children: () => JSON.stringify(jsonLd.value)
+      innerHTML: () => JSON.stringify(jsonLd.value)
     }
   ]
 });
