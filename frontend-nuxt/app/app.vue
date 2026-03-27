@@ -6,6 +6,7 @@
     </main>
     <AppFooter />
     <ToastContainer />
+    <CookieConsent />
   </div>
 </template>
 
