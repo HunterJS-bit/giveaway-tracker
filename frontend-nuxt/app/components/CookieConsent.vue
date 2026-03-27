@@ -29,6 +29,7 @@ onMounted(() => {
         Ova web stranica koristi kolačiće za poboljšanje vašeg korisničkog iskustva, 
         pružanje personalizovanog sadržaja i analizu našeg saobraćaja. Klikom na "Prihvatam", 
         slažete se sa upotrebom kolačića.
+        <NuxtLink to="/cookie-policy" class="cookie-link">Saznaj više →</NuxtLink>
       </p>
       <div class="cookie-actions">
         <button @click="declineCookies" class="btn btn-outline">Odbijam</button>
@@ -100,5 +101,14 @@ onMounted(() => {
 
 .btn-outline:hover {
   background: rgba(0,0,0,0.05);
+}
+
+.cookie-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--accent-pink);
+  font-weight: 600;
+  font-size: 13px;
+  text-decoration: underline;
 }
 </style>
