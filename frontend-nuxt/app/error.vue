@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { NuxtError } from '#app';
+const error = useError();
+const is404 = computed(() => error.value?.statusCode === 404);
 
-const props = defineProps({
-  error: Object as () => NuxtError
+useSeoMeta({
+  title: computed(() => is404.value ? 'Stranica nije pronađena - Fribbo' : 'Greška - Fribbo'),
 });
 
 const handleError = () => clearError({ redirect: '/' });
@@ -11,30 +12,31 @@ const handleError = () => clearError({ redirect: '/' });
 <template>
   <div class="app-layout">
     <AppHeader />
-    
     <main class="main-content">
-      <section class="error-section">
-        <div class="container error-inner">
-          <h1 class="error-title" v-if="error?.statusCode === 404">
-            404 - Stranica nije pronađena
+      <div class="error-page">
+        <div class="error-blob blob-1"></div>
+        <div class="error-blob blob-2"></div>
+
+        <div class="error-content">
+          <div class="error-code">{{ is404 ? '404' : error?.statusCode || '500' }}</div>
+          <h1 class="error-title">
+            {{ is404 ? 'Ups! Stranica nije pronađena.' : 'Nešto je pošlo naopako.' }}
           </h1>
-          <h1 class="error-title" v-else>
-            {{ error?.statusCode }} - Došlo je do greške
-          </h1>
-          
-          <p class="error-subtitle">
-            Izvinjavamo se, ali izgleda da stranica koju tražite ne postoji ili je premeštena.
+          <p class="error-description">
+            {{ is404
+              ? 'Nagradna igra ili stranica koju tražite ne postoji ili je uklonjena.'
+              : 'Desila se neočekivana greška. Naš tim je obavešten. Pokušajte ponovo za koji trenutak.'
+            }}
           </p>
-          
           <div class="error-actions">
-            <button @click="handleError" class="btn btn-primary">
-              Vrati se na početnu
-            </button>
+            <button @click="handleError" class="btn btn-primary">← Nazad na početnu</button>
+            <NuxtLink to="/submit" class="btn btn-outline-pink">Predloži nagradnu igru</NuxtLink>
           </div>
         </div>
-      </section>
+
+        <div class="emoji-float">🎁</div>
+      </div>
     </main>
-    
     <AppFooter />
   </div>
 </template>
@@ -49,47 +51,130 @@ const handleError = () => clearError({ redirect: '/' });
 .main-content {
   flex-grow: 1;
   padding-top: var(--header-height);
+}
+
+.error-page {
+  min-height: calc(100vh - var(--header-height) - 200px);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-}
-
-.error-section {
-  padding: 60px 0 80px;
   text-align: center;
-  background: var(--white);
-  width: 100%;
+  padding: 60px 20px;
+  position: relative;
+  overflow: hidden;
 }
 
-.error-inner {
+.error-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.blob-1 {
+  width: 500px;
+  height: 500px;
+  background: var(--accent-pink);
+  top: -100px;
+  right: -100px;
+}
+
+.blob-2 {
+  width: 400px;
+  height: 400px;
+  background: #7c3aed;
+  bottom: -50px;
+  left: -100px;
+}
+
+.error-content {
+  position: relative;
+  z-index: 1;
   max-width: 600px;
-  margin: 0 auto;
+}
+
+.error-code {
+  font-size: 140px;
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--accent-pink), #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 16px;
+  font-family: 'Outfit', sans-serif;
 }
 
 .error-title {
-  font-size: 64px;
-  font-weight: 800;
-  margin-bottom: 20px;
+  font-size: 28px;
+  font-weight: 700;
   color: var(--text-main);
-  line-height: 1.1;
+  margin-bottom: 16px;
 }
 
-.error-subtitle {
-  font-size: 18px;
+.error-description {
+  font-size: 17px;
   color: var(--text-muted);
-  margin: 0 auto 40px;
-  line-height: 1.6;
+  line-height: 1.7;
+  margin-bottom: 40px;
 }
 
 .error-actions {
   display: flex;
-  justify-content: center;
   gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-@media (max-width: 768px) {
+.btn-outline-pink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--accent-pink);
+  color: var(--accent-pink);
+  background: transparent;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-pink:hover {
+  background: var(--accent-pink);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 75, 125, 0.3);
+}
+
+.emoji-float {
+  font-size: 80px;
+  position: absolute;
+  bottom: 60px;
+  right: 10%;
+  animation: float 4s ease-in-out infinite;
+  opacity: 0.4;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+@media (max-width: 600px) {
+  .error-code {
+    font-size: 100px;
+  }
   .error-title {
-    font-size: 42px;
+    font-size: 22px;
+  }
+  .emoji-float {
+    display: none;
   }
 }
 </style>
