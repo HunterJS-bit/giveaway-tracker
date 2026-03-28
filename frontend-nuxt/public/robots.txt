@@ -1,2 +1,11 @@
-User-Agent: *
-Disallow:
+# Fribbo Giveaway Tracker - robots.txt
+
+User-agent: *
+Allow: /
+
+# Block admin and API routes from crawlers
+Disallow: /admin/
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://fribbo.rs/sitemap.xml
