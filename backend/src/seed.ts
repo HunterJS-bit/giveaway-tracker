@@ -1,13 +1,34 @@
 import { db } from './db';
-import { giveaways } from './db/schema';
+import { giveaways, categories } from './db/schema';
 import fs from 'fs';
 import path from 'path';
 import { eq } from 'drizzle-orm';
-import { Pool } from 'pg';
+import { v4 as uuidv4 } from 'uuid';
+
+const DEFAULT_CATEGORIES = [
+    { slug: 'Tech', name: 'Tehnologija', description: 'Giveaways sa tech uređajima i gadgetima.', icon: '💻', color: '#3498db' },
+    { slug: 'Beauty', name: 'Lepota', description: 'Kozmetika, parfemi i beauty proizvodi.', icon: '💄', color: '#8e44ad' },
+    { slug: 'Cars', name: 'Automobili', description: 'Automobilski dodaci, testovi i nagradne igre.', icon: '🚗', color: '#1abc9c' },
+    { slug: 'Travel', name: 'Putovanja', description: 'Osvoji putovanje, hotel ili avionske karte.', icon: '✈️', color: '#f1c40f' },
+    { slug: 'Food', name: 'Hrana i Piće', description: 'Restorani, dostava i food giveaways.', icon: '🍕', color: '#e67e22' },
+    { slug: 'Gaming', name: 'Gaming', description: 'Igrice, konzole i gaming oprema.', icon: '🎮', color: '#e74c3c' },
+    { slug: 'Fashion', name: 'Moda', description: 'Garderoba, obuća i modni dodaci.', icon: '👗', color: '#a0ce4e' },
+    { slug: 'Home', name: 'Dom i Bašta', description: 'Nameštaj, dekor i kućanski aparati.', icon: '🏠', color: '#34495e' },
+];
 
 async function main() {
-    console.log('Seeding database from giveaways.json...');
+    console.log('Seeding categories...');
+    for (const cat of DEFAULT_CATEGORIES) {
+        const [existing] = await db.select().from(categories).where(eq(categories.slug, cat.slug));
+        if (!existing) {
+            await db.insert(categories).values({ id: uuidv4(), ...cat });
+            console.log(`Created category: ${cat.name}`);
+        } else {
+            console.log(`Skipped existing category: ${cat.name}`);
+        }
+    }
 
+    console.log('Seeding giveaways...');
     const dataPath = process.env.SEED_DATA_PATH || path.join(__dirname, '../../assets/data/giveaways.json');
 
     if (!fs.existsSync(dataPath)) {
@@ -20,7 +41,6 @@ async function main() {
     const items = data.giveaways || [];
 
     for (const item of items) {
-        // Check if giveaway already exists
         const [existing] = await db.select().from(giveaways).where(eq(giveaways.id, item.id));
 
         if (!existing) {
