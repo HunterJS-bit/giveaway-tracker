@@ -1,8 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import { db } from './db';
-import { giveaways, submissions, comments } from './db/schema';
-import { eq, desc, asc, ne, and } from 'drizzle-orm';
+import { giveaways, submissions, comments, categories } from './db/schema';
+import { eq, desc, asc, ne, and, sql, count } from 'drizzle-orm';
 import dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 import rateLimit from 'express-rate-limit';
@@ -54,6 +54,72 @@ const SubmissionSchema = z.object({
 // Health Check
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', uptime: process.uptime() });
+});
+
+// Get all categories with active giveaway count
+app.get('/api/categories', async (req, res) => {
+    try {
+        const allCategories = await db.select().from(categories).orderBy(asc(categories.name));
+
+        const withCounts = await Promise.all(
+            allCategories.map(async (cat) => {
+                const [result] = await db
+                    .select({ count: count() })
+                    .from(giveaways)
+                    .where(and(eq(giveaways.category, cat.slug), eq(giveaways.status, 'active')));
+                return { ...cat, giveawayCount: result?.count ?? 0 };
+            })
+        );
+
+        res.json(withCounts);
+    } catch (error) {
+        req.log.error(error, 'Error fetching categories');
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Get giveaways by category slug (paginated)
+app.get('/api/categories/:slug/giveaways', async (req, res) => {
+    try {
+        const { slug } = req.params as { slug: string };
+        const limitStr = req.query.limit as string;
+        const offsetStr = req.query.offset as string;
+        const sort = req.query.sort as string;
+
+        // Verify category exists
+        const [category] = await db.select().from(categories).where(eq(categories.slug, slug));
+        if (!category) {
+            return res.status(404).json({ error: 'Category not found' });
+        }
+
+        let orderClause = [desc(giveaways.isFeatured), asc(giveaways.endDate)];
+        if (sort === 'newest') {
+            orderClause = [desc(giveaways.isFeatured), desc(giveaways.createdAt)];
+        } else if (sort === 'highestValue') {
+            orderClause = [desc(giveaways.isFeatured), desc(giveaways.prizeValue)];
+        }
+
+        let query = db.select()
+            .from(giveaways)
+            .where(and(eq(giveaways.category, slug), eq(giveaways.status, 'active')))
+            .$dynamic()
+            .orderBy(...orderClause as any);
+
+        if (limitStr) {
+            const limit = parseInt(limitStr, 10);
+            if (!isNaN(limit)) query = query.limit(limit);
+        }
+        if (offsetStr) {
+            const offset = parseInt(offsetStr, 10);
+            if (!isNaN(offset)) query = query.offset(offset);
+        }
+
+        const results = await query;
+        res.json({ category, giveaways: results });
+    } catch (error) {
+        req.log.error(error, 'Error fetching category giveaways');
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 // Get all giveaways with optional pagination
