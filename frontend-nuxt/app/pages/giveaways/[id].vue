@@ -452,9 +452,40 @@ useHead({
   .details-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .details-sidebar {
     order: 2;
+  }
+
+  .details-title {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 600px) {
+  .giveaway-details-page {
+    padding: 20px 0 60px;
+  }
+
+  .details-grid {
+    gap: 20px;
+  }
+
+  .content-section, .rules-section {
+    padding: 20px;
+  }
+
+  .actions-card {
+    padding: 20px;
+  }
+
+  .share-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .giveaways-grid {
+    grid-template-columns: 1fr;
   }
 }
 
