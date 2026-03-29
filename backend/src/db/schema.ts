@@ -1,4 +1,18 @@
-import { pgTable, text, timestamp, boolean, doublePrecision, integer, index } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, boolean, doublePrecision, integer, index, uniqueIndex } from 'drizzle-orm/pg-core';
+
+export const categories = pgTable('categories', {
+    id: text('id').primaryKey(),
+    slug: text('slug').notNull(),
+    name: text('name').notNull(),
+    description: text('description').notNull(),
+    icon: text('icon').notNull(),
+    color: text('color').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => {
+    return {
+        slugIdx: uniqueIndex('category_slug_idx').on(table.slug),
+    };
+});
 
 export const submissions = pgTable('submissions', {
     id: text('id').primaryKey(),
