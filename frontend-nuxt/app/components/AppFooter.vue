@@ -168,6 +168,11 @@
     grid-template-columns: 1fr 1fr;
     gap: 40px;
   }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+    max-width: 100%;
+  }
 }
 
 @media (max-width: 600px) {
@@ -176,14 +181,18 @@
     gap: 30px;
     text-align: center;
   }
-  
+
   .footer-brand {
     max-width: none;
     margin: 0 auto;
   }
-  
+
   .social-links {
     justify-content: center;
+  }
+
+  .app-footer {
+    padding: 50px 0 0;
   }
 }
 </style>
