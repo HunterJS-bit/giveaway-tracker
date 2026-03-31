@@ -1,3 +1,8 @@
+<script setup lang="ts">
+const { categories, fetchCategories } = useCategories();
+onMounted(() => fetchCategories());
+</script>
+
 <template>
   <footer class="app-footer glass">
     <div class="container footer-grid">
@@ -33,10 +38,9 @@
       <div class="footer-nav">
         <h4>Kategorije</h4>
         <ul>
-          <li><NuxtLink to="/">Tehnologija</NuxtLink></li>
-          <li><NuxtLink to="/">Lepota i Kozmetika</NuxtLink></li>
-          <li><NuxtLink to="/">Automobili</NuxtLink></li>
-          <li><NuxtLink to="/">Putovanja</NuxtLink></li>
+          <li v-for="cat in categories" :key="cat.slug">
+            <NuxtLink :to="`/category/${cat.slug}`">{{ cat.icon }} {{ cat.name }}</NuxtLink>
+          </li>
         </ul>
       </div>
 
