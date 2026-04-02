@@ -1,11 +1,19 @@
 <script setup lang="ts">
-const categories = [
-    'All', 'Tech', 'Beauty', 'Cars', 'Travel', 'Food', 'Gaming', 'Fashion', 'Home'
-];
+import type { Category } from '~/composables/useCategories';
+const { categories: categoryList, fetchCategories } = useCategories();
 
 const platforms = [
   'All', 'Instagram', 'Facebook', 'TikTok', 'Website'
 ];
+
+// All category slugs including the 'All' option
+const categories = computed(() => ['All', ...categoryList.value.map((c: Category) => c.slug)]);
+const categoryLabel = (slug: string) => {
+  if (slug === 'All') return 'Sve';
+  return categoryList.value.find((c: Category) => c.slug === slug)?.name ?? slug;
+};
+
+onMounted(() => fetchCategories());
 
 const { category, platform, searchQuery, sort, fetchGiveaways } = useGiveaways();
 
@@ -75,14 +83,15 @@ const setSort = (e: Event) => {
 
       <!-- Bottom row: Categories -->
       <ul class="categories-list">
-        <li 
-          v-for="cat in categories" 
+        <li
+          v-for="cat in categories"
           :key="cat"
           class="category-item"
           :class="{ active: category === cat }"
           @click="setCategory(cat)"
         >
-          {{ cat }}
+          <span v-if="cat !== 'All'">{{ categoryList.find(c => c.slug === cat)?.icon }} </span>
+          {{ categoryLabel(cat) }}
         </li>
       </ul>
     </div>
