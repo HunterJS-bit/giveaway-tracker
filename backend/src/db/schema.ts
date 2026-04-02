@@ -1,5 +1,19 @@
 import { pgTable, text, timestamp, boolean, doublePrecision, integer, index, uniqueIndex } from 'drizzle-orm/pg-core';
 
+export const users = pgTable('users', {
+    id: text('id').primaryKey(),
+    email: text('email').notNull().unique(),
+    passwordHash: text('password_hash'),
+    googleId: text('google_id').unique(),
+    role: text('role').default('user').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => {
+    return {
+        emailIdx: uniqueIndex('user_email_idx').on(table.email),
+        googleIdIdx: uniqueIndex('user_google_id_idx').on(table.googleId),
+    };
+});
+
 export const categories = pgTable('categories', {
     id: text('id').primaryKey(),
     slug: text('slug').notNull(),
