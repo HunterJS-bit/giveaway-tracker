@@ -1,13 +1,17 @@
 import express from 'express';
 import cors from 'cors';
 import { db } from './db';
-import { giveaways, submissions, comments, categories } from './db/schema';
+import { giveaways, submissions, comments, categories, users } from './db/schema';
 import { eq, desc, asc, ne, and, sql, count } from 'drizzle-orm';
 import dotenv from 'dotenv';
 import { v4 as uuidv4 } from 'uuid';
 import rateLimit from 'express-rate-limit';
 import pino from 'pino-http';
 import { z } from 'zod';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
+import { requireAuth, requireAdmin, AuthRequest } from './middleware/auth';
 
 dotenv.config();
 
@@ -22,6 +26,9 @@ app.use(logger);
 
 app.use(cors());
 app.use(express.json());
+
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '');
 
 // Rate Limiting: 100 requests per 15 minutes for general API
 const apiLimiter = rateLimit({
@@ -55,6 +62,92 @@ const SubmissionSchema = z.object({
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', uptime: process.uptime() });
 });
+
+// --- Auth Routes ---
+app.post('/api/auth/register', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+
+        const existingUser = await db.select().from(users).where(eq(users.email, email));
+        if (existingUser.length > 0) return res.status(400).json({ error: 'Email already in use' });
+
+        const passwordHash = await bcrypt.hash(password, 10);
+        const [newUser] = await db.insert(users).values({
+            id: uuidv4(),
+            email,
+            passwordHash,
+            role: 'user'
+        }).returning({ id: users.id, email: users.email, role: users.role });
+
+        const token = jwt.sign(newUser, JWT_SECRET, { expiresIn: '7d' });
+        res.status(201).json({ user: newUser, token });
+    } catch (e) {
+        req.log.error(e, 'Register error');
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const [user] = await db.select().from(users).where(eq(users.email, email));
+        if (!user || !user.passwordHash) return res.status(400).json({ error: 'Invalid credentials' });
+
+        const valid = await bcrypt.compare(password, user.passwordHash);
+        if (!valid) return res.status(400).json({ error: 'Invalid credentials' });
+
+        const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+        res.json({ user: { id: user.id, email: user.email, role: user.role }, token });
+    } catch (e) {
+        req.log.error(e, 'Login error');
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.post('/api/auth/google', async (req, res) => {
+    try {
+        const { credential } = req.body;
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) return res.status(400).json({ error: 'Invalid Google Token' });
+
+        let [user] = await db.select().from(users).where(eq(users.email, payload.email));
+        if (!user) {
+            // Check if another user has this googleId just in case
+            if (payload.sub) {
+                [user] = await db.select().from(users).where(eq(users.googleId, payload.sub));
+            }
+
+            if (!user) {
+                // Register
+                [user] = await db.insert(users).values({
+                    id: uuidv4(),
+                    email: payload.email,
+                    googleId: payload.sub,
+                    role: 'user'
+                }).returning();
+            }
+        } else if (!user.googleId && payload.sub) {
+            // Update existing user with googleId if they used email previously
+            await db.update(users).set({ googleId: payload.sub }).where(eq(users.id, user.id));
+        }
+
+        const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+        res.json({ user: { id: user.id, email: user.email, role: user.role }, token });
+    } catch (e) {
+        req.log.error(e, 'Google Auth error');
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.get('/api/auth/me', requireAuth as any, (req: AuthRequest, res) => {
+    res.json({ user: req.user });
+});
+
 
 // Get all categories with active giveaway count
 app.get('/api/categories', async (req, res) => {
@@ -204,7 +297,7 @@ app.get('/api/giveaways/:id/similar', async (req, res) => {
 });
 
 // Create a new giveaway (Admin or Internal)
-app.post('/api/giveaways', async (req, res) => {
+app.post('/api/giveaways', requireAdmin as any, async (req, res) => {
     try {
         const data = req.body;
         const [newGiveaway] = await db.insert(giveaways).values({
@@ -255,6 +348,42 @@ app.post('/api/submissions', postLimiter, async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+// --- Admin Submissions Management ---
+app.get('/api/admin/submissions', requireAdmin as any, async (req, res) => {
+    try {
+        const allSubmissions = await db.select().from(submissions).where(eq(submissions.status, 'pending')).orderBy(asc(submissions.createdAt));
+        res.json(allSubmissions);
+    } catch (e) {
+        req.log.error(e, 'Error fetching submissions');
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.post('/api/admin/submissions/:id/approve', requireAdmin as any, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [updated] = await db.update(submissions).set({ status: 'approved', updatedAt: new Date() }).where(eq(submissions.id, id)).returning();
+        if (!updated) return res.status(404).json({ error: 'Submission not found' });
+        res.json(updated);
+    } catch (e) {
+        req.log.error(e, 'Error approving submission');
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.post('/api/admin/submissions/:id/reject', requireAdmin as any, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [updated] = await db.update(submissions).set({ status: 'rejected', updatedAt: new Date() }).where(eq(submissions.id, id)).returning();
+        if (!updated) return res.status(404).json({ error: 'Submission not found' });
+        res.json(updated);
+    } catch (e) {
+        req.log.error(e, 'Error rejecting submission');
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 
 // Get comments for a giveaway
 app.get('/api/giveaways/:id/comments', async (req, res) => {
