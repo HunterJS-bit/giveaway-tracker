@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useAuth } from '~/composables/useAuth';
+
 const colorMode = useColorMode();
 const isMenuOpen = ref(false);
+const auth = useAuth();
 
 const toggleTheme = () => {
   colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark';
@@ -32,11 +35,18 @@ watch(() => route.path, closeMenu);
         <NuxtLink to="/" class="nav-link">Početna</NuxtLink>
         <NuxtLink to="/about" class="nav-link">O nama</NuxtLink>
         <NuxtLink to="/contact" class="nav-link">Kontakt</NuxtLink>
+        
+        <NuxtLink v-if="auth.isAdmin" to="/admin" class="nav-link">Admin</NuxtLink>
+
         <button @click="toggleTheme" class="theme-toggle" aria-label="Toggle Dark Mode">
           <svg v-if="colorMode.value === 'light'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
           <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
         </button>
-        <NuxtLink to="/submit" class="nav-link btn btn-primary">Predloži nagradnu igru</NuxtLink>
+        
+        <NuxtLink v-if="!auth.isAuthenticated" to="/login" class="nav-link">Login</NuxtLink>
+        <button v-else @click="auth.logout" class="nav-link" style="background:none; border:none; cursor:pointer;">Logout</button>
+        
+        <NuxtLink to="/submit" class="nav-link btn btn-primary">Predloži</NuxtLink>
       </nav>
 
       <!-- Mobile controls -->
@@ -59,6 +69,11 @@ watch(() => route.path, closeMenu);
         <NuxtLink to="/" class="mobile-link" @click="closeMenu">🏠 Početna</NuxtLink>
         <NuxtLink to="/about" class="mobile-link" @click="closeMenu">ℹ️ O nama</NuxtLink>
         <NuxtLink to="/contact" class="mobile-link" @click="closeMenu">📩 Kontakt</NuxtLink>
+        
+        <NuxtLink v-if="auth.isAdmin" to="/admin" class="mobile-link" @click="closeMenu">🛡️ Admin</NuxtLink>
+        <NuxtLink v-if="!auth.isAuthenticated" to="/login" class="mobile-link" @click="closeMenu">🔐 Login</NuxtLink>
+        <button v-else @click="() => { auth.logout(); closeMenu(); }" class="mobile-link" style="background:none; border:none; text-align:left; width:100%; cursor:pointer;">🚪 Logout</button>
+
         <NuxtLink to="/submit" class="mobile-link btn btn-primary mobile-cta" @click="closeMenu">Predloži nagradnu igru</NuxtLink>
       </nav>
     </Transition>
