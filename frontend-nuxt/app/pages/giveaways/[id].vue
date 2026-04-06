@@ -128,12 +128,20 @@ const jsonLd = computed(() => {
   
   return {
     '@context': 'https://schema.org',
-    '@type': 'Product',
+    '@type': 'Event',
     'name': giveaway.value.title,
+    'description': giveaway.value.description?.replace(/<[^>]*>?/gm, '').substring(0, 160) || giveaway.value.title,
     'image': giveaway.value.imageUrl,
-    'description': giveaway.value.description?.replace(/<[^>]*>?/gm, '').substring(0, 160),
-    'brand': {
-      '@type': 'Brand',
+    'startDate': giveaway.value.startDate || new Date().toISOString(),
+    'endDate': giveaway.value.endDate || new Date().toISOString(),
+    'eventAttendanceMode': 'https://schema.org/OnlineEventAttendanceMode',
+    'eventStatus': giveaway.value.status === 'expired' ? 'https://schema.org/EventCancelled' : 'https://schema.org/EventScheduled',
+    'location': {
+      '@type': 'VirtualLocation',
+      'url': giveaway.value.entryUrl
+    },
+    'organizer': {
+      '@type': 'Organization',
       'name': giveaway.value.brand
     },
     'offers': {
@@ -141,8 +149,8 @@ const jsonLd = computed(() => {
       'url': giveaway.value.entryUrl,
       'price': '0',
       'priceCurrency': giveaway.value.currency || 'RSD',
-      'itemCondition': 'https://schema.org/NewCondition',
-      'availability': giveaway.value.status === 'expired' ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock'
+      'availability': giveaway.value.status === 'expired' ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+      'validFrom': giveaway.value.startDate || new Date().toISOString()
     }
   };
 });
