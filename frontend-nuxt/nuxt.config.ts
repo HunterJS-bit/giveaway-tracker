@@ -26,8 +26,18 @@ export default defineNuxtConfig({
     '@nuxtjs/color-mode',
     '@nuxt/image',
     '@nuxt/fonts',
-    'nuxt-delay-hydration'
+    'nuxt-delay-hydration',
+    '@nuxtjs/sitemap'
   ],
+  site: {
+    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://balkangiveawaytracker.com',
+    name: 'Nagradne Igre Tracker'
+  },
+  sitemap: {
+    sources: [
+      '/api/__sitemap__/urls'
+    ]
+  },
   fonts: {
     families: [
       { name: 'Outfit', provider: 'google' },
