@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/providers/providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -73,6 +74,28 @@ class SettingsScreen extends ConsumerWidget {
           ),
 
           _buildSectionHeader(context, 'Više informacija'),
+          ListTile(
+            leading: const Icon(Icons.admin_panel_settings_outlined),
+            title: const Text('Politika Privatnosti'),
+            trailing: const Icon(Icons.open_in_new, size: 16),
+            onTap: () async {
+              final url = Uri.parse('https://nagradneigre.balkan/privacy');
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.gavel_outlined),
+            title: const Text('Uslovi Korišćenja'),
+            trailing: const Icon(Icons.open_in_new, size: 16),
+            onTap: () async {
+              final url = Uri.parse('https://nagradneigre.balkan/terms');
+              if (await canLaunchUrl(url)) {
+                await launchUrl(url, mode: LaunchMode.externalApplication);
+              }
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('O aplikaciji'),
