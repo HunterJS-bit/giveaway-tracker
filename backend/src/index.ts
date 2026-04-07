@@ -144,10 +144,100 @@ app.post('/api/auth/google', async (req, res) => {
     }
 });
 
+import nodemailer from 'nodemailer';
+
+// Generate ethereal test account for local dev if not provided
+let transporter: nodemailer.Transporter;
+nodemailer.createTestAccount((err, account) => {
+    if (err) {
+        console.error('Failed to create a testing account. ' + err.message);
+        return;
+    }
+    transporter = nodemailer.createTransport({
+        host: account.smtp.host,
+        port: account.smtp.port,
+        secure: account.smtp.secure,
+        auth: {
+            user: account.user,
+            pass: account.pass
+        }
+    });
+});
+
 app.get('/api/auth/me', requireAuth as any, (req: AuthRequest, res) => {
     res.json({ user: req.user });
 });
 
+app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ error: 'Email required' });
+
+        const [user] = await db.select().from(users).where(eq(users.email, email));
+        if (!user || (!user.passwordHash && user.googleId)) {
+            // Do not reveal whether user exists for security, just send 200
+            // Or reveal it for better UX. Let's send 200 to prevent email enumeration.
+            return res.json({ message: 'If an account with that email exists, we sent a reset link' });
+        }
+
+        // Generate stateless JWT valid for 1 hour, signed with current password hash!
+        const secret = JWT_SECRET + user.passwordHash;
+        const token = jwt.sign({ id: user.id }, secret, { expiresIn: '1h' });
+
+        const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+
+        if (!transporter) {
+            return res.status(500).json({ error: 'Mail server not configured' });
+        }
+
+        const info = await transporter.sendMail({
+            from: '"Balkan Giveaways" <noreply@nagradneigre.balkan>',
+            to: email,
+            subject: 'Resetovanje lozinke',
+            text: `Kliknite na sledeći link da resetujete lozinku: ${resetLink}`,
+            html: `<p>Kliknite na sledeći link da resetujete lozinku:</p><p><a href="${resetLink}">${resetLink}</a></p>`,
+        });
+
+        // Log the preview URL so the developer can see the fake email
+        req.log.info({ resetLinkPreview: nodemailer.getTestMessageUrl(info) }, 'Password reset email sent');
+        res.json({ message: 'If an account with that email exists, we sent a reset link' });
+
+    } catch (e) {
+        req.log.error(e, 'Forgot password error');
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+    try {
+        const { token, newPassword } = req.body;
+        if (!token || !newPassword) return res.status(400).json({ error: 'Token and new password required' });
+
+        // Decode to find which user this is
+        const decoded = jwt.decode(token) as { id: string } | null;
+        if (!decoded || !decoded.id) return res.status(400).json({ error: 'Invalid token payload' });
+
+        const [user] = await db.select().from(users).where(eq(users.id, decoded.id));
+        if (!user || !user.passwordHash) return res.status(400).json({ error: 'Invalid or expired token' });
+
+        // Verify signature using the current password hash
+        const secret = JWT_SECRET + user.passwordHash;
+        try {
+            jwt.verify(token, secret);
+        } catch (err) {
+            return res.status(400).json({ error: 'Invalid or expired token' });
+        }
+
+        // Token is valid! Hash new password and update.
+        const passwordHash = await bcrypt.hash(newPassword, 10);
+        await db.update(users).set({ passwordHash }).where(eq(users.id, user.id));
+
+        res.json({ message: 'Lozinka je uspešno promenjena' });
+    } catch (e) {
+        req.log.error(e, 'Reset password error');
+        res.status(500).json({ error: 'Server error' });
+    }
+});
 
 // Get all categories with active giveaway count
 app.get('/api/categories', async (req, res) => {
