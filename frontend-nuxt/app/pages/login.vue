@@ -19,6 +19,10 @@
         <button type="submit" class="btn primary-btn" :disabled="loading">
           {{ loading ? 'Processing...' : (isRegister ? 'Sign Up' : 'Log In') }}
         </button>
+        
+        <div class="forgot-password-link" v-if="!isRegister">
+          <NuxtLink to="/forgot-password" class="text-link">Zaboravili ste lozinku?</NuxtLink>
+        </div>
       </form>
 
       <div class="divider">
@@ -178,6 +182,21 @@ const handleGoogleLogin = async (response: any) => {
   font-size: 0.9rem;
   margin-bottom: 1rem;
   text-align: center;
+}
+
+.forgot-password-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.text-link {
+  color: var(--primary-color);
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.text-link:hover {
+  text-decoration: underline;
 }
 
 .divider {
