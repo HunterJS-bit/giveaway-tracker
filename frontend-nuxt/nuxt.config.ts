@@ -57,6 +57,9 @@ export default defineNuxtConfig({
   nitro: {
     compressPublicAssets: true
   },
+  experimental: {
+    viewTransition: true
+  },
   future: {
     compatibilityVersion: 4,
   },
