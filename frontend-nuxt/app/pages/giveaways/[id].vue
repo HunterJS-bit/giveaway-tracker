@@ -182,12 +182,12 @@ useHead({
       <div v-else-if="giveaway" class="details-grid">
         <!-- Sidebar / Image -->
         <div class="details-sidebar">
-          <div class="image-card glass">
-            <NuxtImg :src="giveaway.imageUrl" :alt="giveaway.title" class="main-image" format="webp" preload fetchpriority="high" />
+          <div class="image-card glass animate-fade-in-up" style="animation-delay: 0.1s">
+            <NuxtImg :src="giveaway.imageUrl" :alt="giveaway.title" class="main-image" :style="{ viewTransitionName: 'giveaway-' + giveaway.id }" format="webp" preload fetchpriority="high" />
             <div class="category-badge">{{ giveaway.category }}</div>
           </div>
           
-          <div class="actions-card glass">
+          <div class="actions-card glass animate-fade-in-up" style="animation-delay: 0.2s">
             <div class="brand-info">
               <span class="label">Organizator:</span>
               <span class="value">{{ giveaway.brand }}</span>
@@ -217,9 +217,9 @@ useHead({
 
         <!-- Main Content -->
         <div class="details-main">
-          <h1 class="details-title">{{ giveaway.title }}</h1>
+          <h1 class="details-title animate-fade-in-up" style="animation-delay: 0.15s">{{ giveaway.title }}</h1>
           
-          <div class="meta-row">
+          <div class="meta-row animate-fade-in-up" style="animation-delay: 0.2s">
             <div class="meta-item">
               <span class="icon">⏰</span>
               <span>{{ giveaway.status === 'expired' ? 'Završeno' : 'Aktivno' }}</span>
@@ -230,19 +230,18 @@ useHead({
             </div>
           </div>
 
-          <div class="content-section glass">
+          <div class="content-section glass animate-fade-in-up" style="animation-delay: 0.3s">
             <h3>O ovoj nagradnoj igri</h3>
             <div class="description" v-html="giveaway.description || 'Nema opisa za ovu nagradnu igru.'"></div>
           </div>
 
-
-          <div class="rules-section glass">
+          <div class="rules-section glass animate-fade-in-up" style="animation-delay: 0.4s">
             <h3>Pravila i Uslovi</h3>
             <p>Klikom na dugme "Učestvuj" bićete preusmereni na zvaničnu stranicu nagradne igre. Obavezno pročitajte sva pravila organizatora pre učestvovanja.</p>
           </div>
 
           <!-- Similar Giveaways -->
-          <div v-if="similarGiveaways.length > 0" class="similar-giveaways-section glass">
+          <div v-if="similarGiveaways.length > 0" class="similar-giveaways-section glass animate-fade-in-up" style="animation-delay: 0.5s">
             <h3>Slične nagradne igre</h3>
             <div class="giveaways-grid">
               <GiveawayCard v-for="simGiveaway in similarGiveaways" :key="simGiveaway.id" :giveaway="simGiveaway" />
@@ -250,7 +249,9 @@ useHead({
           </div>
 
           <!-- Comment Section -->
-          <CommentSection :giveaway-id="id" />
+          <div class="animate-fade-in-up" style="animation-delay: 0.6s">
+            <CommentSection :giveaway-id="id" />
+          </div>
         </div>
       </div>
     </div>

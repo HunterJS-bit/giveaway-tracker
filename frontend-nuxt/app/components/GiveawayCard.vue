@@ -89,7 +89,7 @@ const getCategoryColor = (category: string) => {
       <template v-if="isVisible || preload">
         <div class="card-image-wrap">
           <NuxtLink :to="`/giveaways/${giveaway.id}`">
-            <NuxtImg :src="giveaway.imageUrl" :alt="giveaway.title" class="card-image" format="webp" :loading="preload ? 'eager' : 'lazy'" :preload="preload" :fetchpriority="preload ? 'high' : 'auto'" />
+            <NuxtImg :src="giveaway.imageUrl" :alt="giveaway.title" class="card-image" :style="{ viewTransitionName: 'giveaway-' + giveaway.id }" format="webp" :loading="preload ? 'eager' : 'lazy'" :preload="preload" :fetchpriority="preload ? 'high' : 'auto'" />
           </NuxtLink>
           <div class="card-overlay">
             <NuxtLink :to="`/giveaways/${giveaway.id}`" class="btn btn-primary small">Detalji</NuxtLink>
