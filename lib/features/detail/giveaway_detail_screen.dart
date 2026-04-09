@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:intl/intl.dart';
@@ -32,7 +33,7 @@ class GiveawayDetailScreen extends ConsumerWidget {
           body: CustomScrollView(
             slivers: [
               SliverAppBar(
-                expandedHeight: 250,
+                expandedHeight: 260,
                 pinned: true,
                 actions: [
                   IconButton(
@@ -46,15 +47,18 @@ class GiveawayDetailScreen extends ConsumerWidget {
                   ),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
-                  background: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      CachedNetworkImage(
-                        imageUrl: giveaway.imageUrl,
-                        fit: BoxFit.cover,
-                      ),
-                      Container(color: Colors.black38), // Dark overlay for text readability
-                    ],
+                  background: Hero(
+                    tag: 'giveaway-image-${giveaway.id}',
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CachedNetworkImage(
+                          imageUrl: giveaway.imageUrl,
+                          fit: BoxFit.cover,
+                        ),
+                        Container(color: Colors.black38),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -91,14 +95,14 @@ class GiveawayDetailScreen extends ConsumerWidget {
                             padding: EdgeInsets.zero,
                           )
                         ],
-                      ),
+                      ).animate().fadeIn(delay: 100.ms, duration: 400.ms).slideY(begin: 0.15, end: 0),
                       const SizedBox(height: 16),
-                      
+
                       // Title & Prize
                       Text(
                         giveaway.title,
                         style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-                      ),
+                      ).animate().fadeIn(delay: 200.ms, duration: 400.ms).slideY(begin: 0.15, end: 0),
                       const SizedBox(height: 8),
                       Text(
                         '🏆 Nagrada: ${giveaway.prize}',
@@ -106,9 +110,9 @@ class GiveawayDetailScreen extends ConsumerWidget {
                           color: theme.colorScheme.primary,
                           fontWeight: FontWeight.bold,
                         ),
-                      ),
+                      ).animate().fadeIn(delay: 280.ms, duration: 400.ms).slideY(begin: 0.15, end: 0),
                       const SizedBox(height: 16),
-                      
+
                       // Meta info row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -123,21 +127,21 @@ class GiveawayDetailScreen extends ConsumerWidget {
                             color: giveaway.isEndingSoon ? AppColors.endingSoon : null,
                           ),
                         ],
-                      ),
+                      ).animate().fadeIn(delay: 360.ms, duration: 400.ms).slideY(begin: 0.15, end: 0),
                       const SizedBox(height: 24),
-                      
+
                       // Description
                       Text(
                         'O nagradnoj igri',
                         style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                      ),
+                      ).animate().fadeIn(delay: 440.ms, duration: 400.ms).slideY(begin: 0.15, end: 0),
                       const SizedBox(height: 8),
                       Text(
                         giveaway.description,
                         style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
-                      ),
+                      ).animate().fadeIn(delay: 500.ms, duration: 400.ms).slideY(begin: 0.1, end: 0),
                       const SizedBox(height: 32),
-                      
+
                       // "Entered" status toggle
                       SwitchListTile(
                         title: const Text('Označio sam kao prijavljeno', style: TextStyle(fontWeight: FontWeight.bold)),
@@ -146,7 +150,7 @@ class GiveawayDetailScreen extends ConsumerWidget {
                         activeColor: theme.colorScheme.primary,
                         onChanged: (val) => ref.read(enteredProvider.notifier).toggleEntered(giveaway.id),
                         contentPadding: EdgeInsets.zero,
-                      ),
+                      ).animate().fadeIn(delay: 560.ms, duration: 400.ms).slideY(begin: 0.1, end: 0),
                     ],
                   ),
                 ),
