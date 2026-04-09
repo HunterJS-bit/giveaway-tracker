@@ -25,9 +25,31 @@ final router = GoRouter(
           routes: [
             GoRoute(
               path: 'detail/:id',
-              builder: (ctx, state) {
+              pageBuilder: (ctx, state) {
                 final id = state.pathParameters['id']!;
-                return GiveawayDetailScreen(giveawayId: id);
+                return CustomTransitionPage(
+                  key: state.pageKey,
+                  child: GiveawayDetailScreen(giveawayId: id),
+                  transitionDuration: const Duration(milliseconds: 400),
+                  reverseTransitionDuration: const Duration(milliseconds: 300),
+                  transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                    final curved = CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                      reverseCurve: Curves.easeInCubic,
+                    );
+                    return FadeTransition(
+                      opacity: curved,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 0.06),
+                          end: Offset.zero,
+                        ).animate(curved),
+                        child: child,
+                      ),
+                    );
+                  },
+                );
               },
             ),
           ],
