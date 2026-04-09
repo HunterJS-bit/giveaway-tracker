@@ -34,15 +34,18 @@ class GiveawayCard extends ConsumerWidget {
             // Image header
             Stack(
               children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                  child: CachedNetworkImage(
-                    imageUrl: giveaway.imageUrl,
-                    height: 180,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    placeholder: (ctx, url) => Container(color: theme.colorScheme.surfaceVariant),
-                    errorWidget: (ctx, url, err) => const Icon(Icons.error),
+                Hero(
+                  tag: 'giveaway-image-${giveaway.id}',
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                    child: CachedNetworkImage(
+                      imageUrl: giveaway.imageUrl,
+                      height: 180,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      placeholder: (ctx, url) => Container(color: theme.colorScheme.surfaceVariant),
+                      errorWidget: (ctx, url, err) => const Icon(Icons.error),
+                    ),
                   ),
                 ),
                 if (giveaway.isFeatured)
