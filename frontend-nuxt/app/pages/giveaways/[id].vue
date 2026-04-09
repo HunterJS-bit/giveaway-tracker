@@ -79,13 +79,34 @@ const fetchGiveawayDetails = async () => {
       }
     );
     
-    if (fetchError.value) throw fetchError.value;
+    if (fetchError.value) {
+      const statusCode = (fetchError.value as any)?.statusCode || (fetchError.value as any)?.response?.status || 404;
+      throw createError({
+        statusCode,
+        statusMessage: statusCode === 404
+          ? 'Nagradna igra nije pronađena'
+          : 'Greška pri učitavanju nagradne igre',
+      });
+    }
     if (result.value) {
       giveaways.value.push(result.value);
+    } else {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Nagradna igra nije pronađena',
+      });
     }
   } catch (err: any) {
+    // If it's already a Nuxt error (from createError), re-throw to trigger error.vue
+    if (err.statusCode) {
+      showError(err);
+      return;
+    }
     console.error('Error fetching giveaway details:', err);
-    error.value = 'Nagradna igra nije pronađena.';
+    showError({
+      statusCode: 404,
+      statusMessage: 'Nagradna igra nije pronađena',
+    });
   } finally {
     isLoading.value = false;
   }
