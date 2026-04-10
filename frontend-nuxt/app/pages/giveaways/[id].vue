@@ -18,6 +18,7 @@ interface Giveaway {
 
 const route = useRoute();
 const id = route.params.id as string;
+const config = useRuntimeConfig();
 const { giveaways } = useGiveaways();
 const { isFavorite, toggleFavorite } = useFavorites();
 
@@ -69,7 +70,7 @@ const fetchGiveawayDetails = async () => {
   try {
     const { data: result, error: fetchError } = await useAsyncData(
       `giveaway-${id}`,
-      () => $fetch(`http://localhost:3000/api/giveaways/${id}`),
+      () => $fetch(`${config.public.apiBase}/api/giveaways/${id}`),
       {
         getCachedData(key, nuxtApp) {
           const fromList = giveaways.value.find(g => g.id === id);
@@ -115,7 +116,7 @@ const fetchGiveawayDetails = async () => {
 const similarGiveaways = ref<Giveaway[]>([]);
 const fetchSimilarGiveaways = async () => {
   try {
-    const { data } = await useFetch<Giveaway[]>(`http://localhost:3000/api/giveaways/${id}/similar`);
+    const { data } = await useFetch<Giveaway[]>(`${config.public.apiBase}/api/giveaways/${id}/similar`);
     if (data.value) {
       similarGiveaways.value = data.value;
     }

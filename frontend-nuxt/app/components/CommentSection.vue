@@ -3,6 +3,8 @@ const props = defineProps<{
   giveawayId: string
 }>();
 
+const config = useRuntimeConfig();
+
 interface Comment {
   id: string;
   userName: string;
@@ -17,7 +19,7 @@ const submitError = ref<string | null>(null);
 
 const { data: comments, refresh, pending } = await useAsyncData<Comment[]>(
   `comments-${props.giveawayId}`,
-  () => $fetch(`http://localhost:3000/api/giveaways/${props.giveawayId}/comments`)
+  () => $fetch(`${config.public.apiBase}/api/giveaways/${props.giveawayId}/comments`)
 );
 
 const submitComment = async () => {
@@ -27,7 +29,7 @@ const submitComment = async () => {
   submitError.value = null;
   
   try {
-    await $fetch(`http://localhost:3000/api/giveaways/${props.giveawayId}/comments`, {
+    await $fetch(`${config.public.apiBase}/api/giveaways/${props.giveawayId}/comments`, {
       method: 'POST',
       body: {
         userName: userName.value,

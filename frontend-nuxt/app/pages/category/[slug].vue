@@ -20,12 +20,11 @@ interface Giveaway {
 
 const route = useRoute();
 const slug = route.params.slug as string;
-
-const BASE_URL = 'http://localhost:3000';
+const config = useRuntimeConfig();
 
 // Fetch category info + giveaways from the new endpoint
 const { data, error } = await useAsyncData(`category-${slug}`, () =>
-  $fetch<{ category: Category; giveaways: Giveaway[] }>(`${BASE_URL}/api/categories/${slug}/giveaways`, {
+  $fetch<{ category: Category; giveaways: Giveaway[] }>(`${config.public.apiBase}/api/categories/${slug}/giveaways`, {
     query: { limit: 24, sort: 'endingSoonest' }
   })
 );
@@ -47,7 +46,7 @@ const loadMore = async () => {
   isLoading.value = true;
   try {
     const result = await $fetch<{ category: Category; giveaways: Giveaway[] }>(
-      `${BASE_URL}/api/categories/${slug}/giveaways`,
+      `${config.public.apiBase}/api/categories/${slug}/giveaways`,
       { query: { limit: 24, offset: offset.value, sort: 'endingSoonest' } }
     );
     allGiveaways.value.push(...result.giveaways);

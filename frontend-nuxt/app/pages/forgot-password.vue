@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const config = useRuntimeConfig();
 const email = ref('');
 const isLoading = ref(false);
 const errorMsg = ref('');
@@ -20,7 +21,7 @@ const submitForgot = async () => {
 
   try {
     const res = await $fetch('/api/auth/forgot-password', {
-      baseURL: 'http://localhost:3000',
+      baseURL: config.public.apiBase as string,
       method: 'POST',
       body: { email: email.value }
     });

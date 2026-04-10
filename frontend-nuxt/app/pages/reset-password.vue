@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const config = useRuntimeConfig();
 const route = useRoute();
 const router = useRouter();
 
@@ -36,7 +37,7 @@ const submitReset = async () => {
 
   try {
     const res = await $fetch('/api/auth/reset-password', {
-      baseURL: 'http://localhost:3000',
+      baseURL: config.public.apiBase as string,
       method: 'POST',
       body: { token, newPassword: password.value }
     });
