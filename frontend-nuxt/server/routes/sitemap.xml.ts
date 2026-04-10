@@ -1,14 +1,14 @@
 import { defineEventHandler, setHeader } from 'h3'
 
 export default defineEventHandler(async (event) => {
-    const config = useRuntimeConfig()
-    const baseUrl = 'https://nagradne-igre-tracker.com' // Replace with actual domain or env var
-    const backendUrl = 'http://localhost:3000/api'
+  const config = useRuntimeConfig()
+  const baseUrl = config.public.siteUrl || 'https://nagradne-igre-tracker.com'
+  const backendUrl = `${config.apiBase}/api`
 
-    try {
-        const giveaways: any = await $fetch(`${backendUrl}/giveaways?limit=100`)
+  try {
+    const giveaways: any = await $fetch(`${backendUrl}/giveaways?limit=100`)
 
-        const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
+    const sitemapContent = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>${baseUrl}/</loc>
@@ -30,10 +30,10 @@ export default defineEventHandler(async (event) => {
   </url>`).join('')}
 </urlset>`
 
-        setHeader(event, 'Content-Type', 'application/xml')
-        return sitemapContent
-    } catch (error) {
-        console.error('Sitemap error:', error)
-        return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${baseUrl}/</loc></url></urlset>`
-    }
+    setHeader(event, 'Content-Type', 'application/xml')
+    return sitemapContent
+  } catch (error) {
+    console.error('Sitemap error:', error)
+    return `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${baseUrl}/</loc></url></urlset>`
+  }
 })

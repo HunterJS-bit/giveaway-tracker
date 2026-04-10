@@ -1,13 +1,14 @@
 import { defineEventHandler, setHeader } from 'h3'
 
 export default defineEventHandler(async (event) => {
-    const baseUrl = 'https://nagradne-igre-tracker.com' // Replace with actual domain
-    const backendUrl = 'http://localhost:3000/api'
+  const config = useRuntimeConfig()
+  const baseUrl = config.public.siteUrl || 'https://nagradne-igre-tracker.com'
+  const backendUrl = `${config.apiBase}/api`
 
-    try {
-        const giveaways: any = await $fetch(`${backendUrl}/giveaways?limit=25`)
+  try {
+    const giveaways: any = await $fetch(`${backendUrl}/giveaways?limit=25`)
 
-        const rssItems = giveaways.map((g: any) => `
+    const rssItems = giveaways.map((g: any) => `
   <item>
     <title><![CDATA[${g.title}]]></title>
     <link>${baseUrl}/giveaways/${g.id}</link>
@@ -17,7 +18,7 @@ export default defineEventHandler(async (event) => {
     <category>${g.category}</category>
   </item>`).join('')
 
-        const rssContent = `<?xml version="1.0" encoding="UTF-8" ?>
+    const rssContent = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
   <title>Balkan Nagradne Igre Tracker</title>
@@ -30,10 +31,10 @@ export default defineEventHandler(async (event) => {
 </channel>
 </rss>`
 
-        setHeader(event, 'Content-Type', 'application/xml')
-        return rssContent
-    } catch (error) {
-        console.error('RSS error:', error)
-        return `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Balkan Nagradne Igre Tracker</title></channel></rss>`
-    }
+    setHeader(event, 'Content-Type', 'application/xml')
+    return rssContent
+  } catch (error) {
+    console.error('RSS error:', error)
+    return `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>Balkan Nagradne Igre Tracker</title></channel></rss>`
+  }
 })
