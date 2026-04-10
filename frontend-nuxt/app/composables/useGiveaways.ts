@@ -1,4 +1,5 @@
 export const useGiveaways = () => {
+    const config = useRuntimeConfig();
     const giveaways = useState<any[]>('giveaways', () => []);
     const isLoading = useState<boolean>('giveaways-loading', () => false);
     const hasMore = useState<boolean>('giveaways-has-more', () => true);
@@ -11,8 +12,7 @@ export const useGiveaways = () => {
     const searchQuery = useState<string>('giveaways-search', () => '');
     const sort = useState<string>('giveaways-sort', () => 'endingSoonest');
 
-    // Change this to match your actual backend URL or use runtimeConfig
-    const baseUrl = 'http://localhost:3000/api';
+    const baseUrl = `${config.public.apiBase}/api`;
 
     const fetchGiveaways = async (refresh = false) => {
         if (isLoading.value || (!hasMore.value && !refresh)) return;

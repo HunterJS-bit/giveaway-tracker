@@ -8,13 +8,14 @@ export interface Category {
     giveawayCount?: number;
 }
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = ''; // resolved at runtime via useRuntimeConfig
 
 // Module-level cache so categories are fetched once per app session
 const _categories = ref<Category[]>([]);
 const _loaded = ref(false);
 
 export const useCategories = () => {
+    const config = useRuntimeConfig();
     const isLoading = ref(false);
     const error = ref<string | null>(null);
 
@@ -22,7 +23,7 @@ export const useCategories = () => {
         if (_loaded.value) return;
         isLoading.value = true;
         try {
-            const data = await $fetch<Category[]>(`${BASE_URL}/api/categories`);
+            const data = await $fetch<Category[]>(`${config.public.apiBase}/api/categories`);
             _categories.value = data;
             _loaded.value = true;
         } catch (e) {

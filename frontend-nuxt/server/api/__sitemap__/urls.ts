@@ -1,8 +1,9 @@
 export default defineEventHandler(async () => {
+    const config = useRuntimeConfig();
     try {
         const [giveaways, categories] = await Promise.all([
-            $fetch<any[]>('http://localhost:3000/api/giveaways?limit=1000'),
-            $fetch<any[]>('http://localhost:3000/api/categories')
+            $fetch<any[]>(`${config.apiBase}/api/giveaways?limit=1000`),
+            $fetch<any[]>(`${config.apiBase}/api/categories`)
         ]);
 
         const urls: { loc: string, lastmod?: string }[] = [];
