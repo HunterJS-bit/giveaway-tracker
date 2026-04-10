@@ -184,7 +184,8 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         const secret = JWT_SECRET + user.passwordHash;
         const token = jwt.sign({ id: user.id }, secret, { expiresIn: '1h' });
 
-        const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3001';
+        const resetLink = `${frontendUrl}/reset-password?token=${token}`;
 
         if (!transporter) {
             return res.status(500).json({ error: 'Mail server not configured' });
