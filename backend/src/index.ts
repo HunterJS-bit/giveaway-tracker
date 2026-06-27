@@ -12,6 +12,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import { requireAuth, requireAdmin, AuthRequest } from './middleware/auth';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -26,6 +29,30 @@ app.use(logger);
 
 app.use(cors());
 app.use(express.json());
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Serve static files for uploads
+app.use('/uploads', express.static(uploadsDir));
+
+// Multer storage config
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadsDir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
+    }
+});
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID || '');
@@ -512,6 +539,27 @@ app.post('/api/giveaways/:id/comments', postLimiter, async (req, res) => {
     } catch (error) {
         req.log.error(error, 'Error posting comment');
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Image upload endpoint (Admin only for now)
+app.post('/api/upload', requireAdmin as any, upload.single('image'), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: 'No file uploaded' });
+        }
+
+        // Return full URL
+        const protocol = req.protocol;
+        const host = req.get('host');
+        // In a real production setup, protocol and host might be behind a proxy, 
+        // so generating a relative or configured URL is also a good approach
+        const fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+
+        res.status(201).json({ url: fileUrl });
+    } catch (e) {
+        req.log.error(e, 'Upload error');
+        res.status(500).json({ error: 'Server error during file upload' });
     }
 });
 
