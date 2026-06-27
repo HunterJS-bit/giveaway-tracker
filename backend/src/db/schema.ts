@@ -62,6 +62,8 @@ export const giveaways = pgTable('giveaways', {
         endDateIdx: index('end_date_idx').on(table.endDate),
         isFeaturedIdx: index('is_featured_idx').on(table.isFeatured),
         countryIdx: index('country_idx').on(table.country),
+        categoryStatusIdx: index('category_status_idx').on(table.category, table.status),
+        statusIsFeaturedIdx: index('status_is_featured_idx').on(table.status, table.isFeatured),
     };
 });
 
