@@ -15,6 +15,7 @@ import { requireAuth, requireAdmin, AuthRequest } from './middleware/auth';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import sharp from 'sharp';
 
 dotenv.config();
 
@@ -40,15 +41,7 @@ if (!fs.existsSync(uploadsDir)) {
 app.use('/uploads', express.static(uploadsDir));
 
 // Multer storage config
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, uploadsDir);
-    },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
+const storage = multer.memoryStorage();
 const upload = multer({
     storage: storage,
     limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
@@ -543,18 +536,26 @@ app.post('/api/giveaways/:id/comments', postLimiter, async (req, res) => {
 });
 
 // Image upload endpoint (Admin only for now)
-app.post('/api/upload', requireAdmin as any, upload.single('image'), (req, res) => {
+app.post('/api/upload', requireAdmin as any, upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ error: 'No file uploaded' });
         }
 
+        // Process with sharp
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const filename = uniqueSuffix + '.webp';
+        const outputPath = path.join(uploadsDir, filename);
+
+        await sharp(req.file.buffer)
+            .resize({ width: 1200, withoutEnlargement: true }) // resize large images
+            .webp({ quality: 80 }) // compress into webp
+            .toFile(outputPath);
+
         // Return full URL
         const protocol = req.protocol;
         const host = req.get('host');
-        // In a real production setup, protocol and host might be behind a proxy, 
-        // so generating a relative or configured URL is also a good approach
-        const fileUrl = `${protocol}://${host}/uploads/${req.file.filename}`;
+        const fileUrl = `${protocol}://${host}/uploads/${filename}`;
 
         res.status(201).json({ url: fileUrl });
     } catch (e) {
