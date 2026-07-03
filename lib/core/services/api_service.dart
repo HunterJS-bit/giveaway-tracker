@@ -1,14 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../../models/giveaway.dart';
 
 class ApiService {
   // Use 10.0.2.2 for Android Emulator, localhost for iOS/Web/Desktop
   static String get baseUrl {
-    // Allows overriding via --dart-define=API_BASE_URL=...
-    const envUrl = String.fromEnvironment('API_BASE_URL');
-    if (envUrl.isNotEmpty) return envUrl;
+    // Look for API_BASE_URL in .env, with a fallback if android/ios
+    final envUrl = dotenv.env['API_BASE_URL'];
+    if (envUrl != null && envUrl.isNotEmpty) return envUrl;
 
     if (Platform.isAndroid) {
       return 'http://10.0.2.2:3000/api';
