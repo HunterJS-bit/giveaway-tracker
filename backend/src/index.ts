@@ -28,7 +28,18 @@ const logger = pino({
 });
 app.use(logger);
 
-app.use(cors());
+const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:3001'];
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, curl)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            return callback(new Error('The CORS policy for this site does not allow access from the specified Origin.'), false);
+        }
+        return callback(null, true);
+    },
+    credentials: true
+}));
 app.use(express.json());
 
 // Ensure uploads directory exists
