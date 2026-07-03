@@ -63,72 +63,41 @@ const shareGiveaway = async () => {
   }
 };
 
-const fetchGiveawayDetails = async () => {
-  if (giveaway.value) return;
-  
-  isLoading.value = true;
-  try {
-    const { data: result, error: fetchError } = await useAsyncData(
-      `giveaway-${id}`,
-      () => $fetch(`${config.public.apiBase}/api/giveaways/${id}`),
-      {
-        getCachedData(key, nuxtApp) {
-          const fromList = giveaways.value.find(g => g.id === id);
-          if (fromList) return fromList;
-          return nuxtApp.payload.data[key] || nuxtApp.static.data[key];
-        }
-      }
-    );
-    
-    if (fetchError.value) {
-      const statusCode = (fetchError.value as any)?.statusCode || (fetchError.value as any)?.response?.status || 404;
-      throw createError({
-        statusCode,
-        statusMessage: statusCode === 404
-          ? 'Nagradna igra nije pronađena'
-          : 'Greška pri učitavanju nagradne igre',
-      });
+// Fetch Giveaway Data with SSR
+const { data: result, error: fetchError } = await useAsyncData(
+  `giveaway-${id}`,
+  () => $fetch(`${config.public.apiBase}/api/giveaways/${id}`),
+  {
+    getCachedData(key, nuxtApp) {
+      const fromList = giveaways.value.find((g: Giveaway) => g.id === id);
+      if (fromList) return fromList;
+      return nuxtApp.payload.data[key] || nuxtApp.static.data[key];
     }
-    if (result.value) {
-      giveaways.value.push(result.value);
-    } else {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Nagradna igra nije pronađena',
-      });
-    }
-  } catch (err: any) {
-    // If it's already a Nuxt error (from createError), re-throw to trigger error.vue
-    if (err.statusCode) {
-      showError(err);
-      return;
-    }
-    console.error('Error fetching giveaway details:', err);
-    showError({
-      statusCode: 404,
-      statusMessage: 'Nagradna igra nije pronađena',
-    });
-  } finally {
-    isLoading.value = false;
   }
-};
+);
 
-const similarGiveaways = ref<Giveaway[]>([]);
-const fetchSimilarGiveaways = async () => {
-  try {
-    const { data } = await useFetch<Giveaway[]>(`${config.public.apiBase}/api/giveaways/${id}/similar`);
-    if (data.value) {
-      similarGiveaways.value = data.value;
-    }
-  } catch (err) {
-    console.error('Error fetching similar giveaways:', err);
+if (fetchError.value) {
+  const statusCode = (fetchError.value as any)?.statusCode || 404;
+  throw createError({
+    statusCode,
+    statusMessage: statusCode === 404 ? 'Nagradna igra nije pronađena' : 'Greška pri učitavanju'
+  });
+}
+if (result.value) {
+  const existing = giveaways.value.find((g: Giveaway) => g.id === id);
+  if (!existing) {
+    giveaways.value.push(result.value as any);
   }
-};
+} else if (!giveaway.value) {
+  throw createError({ statusCode: 404, statusMessage: 'Nije pronađeno' });
+}
 
-onMounted(() => {
-  fetchGiveawayDetails();
-  fetchSimilarGiveaways();
-});
+// Fetch similar
+const { data: similarData } = await useAsyncData(
+  `similar-${id}`,
+  () => $fetch<Giveaway[]>(`${config.public.apiBase}/api/giveaways/${id}/similar`)
+);
+const similarGiveaways = computed(() => similarData.value || []);
 
 // SEO
 useSeoMeta({
@@ -137,7 +106,7 @@ useSeoMeta({
   description: () => giveaway.value?.description || 'Pogledajte detalje ove nagradne igre.',
   ogDescription: () => giveaway.value?.description || 'Pogledajte detalje ove nagradne igre.',
   ogImage: () => giveaway.value?.imageUrl,
-  ogUrl: () => `https://nagradneigre.balkan/giveaways/${id}`,
+  ogUrl: () => `${config.public.siteUrl}/giveaways/${id}`,
   ogType: 'article',
   twitterCard: 'summary_large_image',
   twitterTitle: () => giveaway.value?.title || 'Nagradna Igra',
