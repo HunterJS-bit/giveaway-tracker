@@ -314,9 +314,14 @@ app.get('/api/categories/:slug/giveaways', async (req, res) => {
             orderClause = [desc(giveaways.isFeatured), desc(giveaways.prizeValue)];
         }
 
+        const combinedWhere = and(eq(giveaways.category, slug), eq(giveaways.status, 'active'));
+
+        const [countResult] = await db.select({ count: count() }).from(giveaways).where(combinedWhere);
+        const totalCount = countResult?.count ?? 0;
+
         let query = db.select()
             .from(giveaways)
-            .where(and(eq(giveaways.category, slug), eq(giveaways.status, 'active')))
+            .where(combinedWhere)
             .$dynamic()
             .orderBy(...orderClause as any);
 
@@ -330,19 +335,21 @@ app.get('/api/categories/:slug/giveaways', async (req, res) => {
         }
 
         const results = await query;
-        res.json({ category, giveaways: results });
+        res.json({ category, giveaways: results, totalCount });
     } catch (error) {
         req.log.error(error, 'Error fetching category giveaways');
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
-// Get all giveaways with optional pagination
+// Get all giveaways with optional pagination and filters
 app.get('/api/giveaways', async (req, res) => {
     try {
         const limitStr = req.query.limit as string;
         const offsetStr = req.query.offset as string;
         const sort = req.query.sort as string;
+        const categoryFilter = req.query.category as string;
+        const search = req.query.search as string;
 
         let orderClause = [desc(giveaways.isFeatured), asc(giveaways.endDate)];
 
@@ -352,7 +359,22 @@ app.get('/api/giveaways', async (req, res) => {
             orderClause = [desc(giveaways.isFeatured), desc(giveaways.prizeValue)];
         }
 
+        let whereConditions = [];
+        if (categoryFilter && categoryFilter !== 'All') {
+            whereConditions.push(eq(giveaways.category, categoryFilter));
+        }
+        if (search) {
+            whereConditions.push(sql`(${giveaways.title} ILIKE ${`%${search}%`} OR ${giveaways.brand} ILIKE ${`%${search}%`})`);
+        }
+        whereConditions.push(eq(giveaways.status, 'active'));
+
+        const combinedWhere = whereConditions.length > 0 ? and(...whereConditions) : undefined;
+
+        const [countResult] = await db.select({ count: count() }).from(giveaways).where(combinedWhere);
+        const totalCount = countResult?.count ?? 0;
+
         let query = db.select().from(giveaways)
+            .where(combinedWhere)
             .$dynamic()
             .orderBy(...orderClause as any);
 
@@ -366,7 +388,7 @@ app.get('/api/giveaways', async (req, res) => {
         }
 
         const allGiveaways = await query;
-        res.json(allGiveaways);
+        res.json({ data: allGiveaways, totalCount });
     } catch (error) {
         req.log.error(error, 'Error fetching giveaways');
         res.status(500).json({ error: 'Internal server error' });
