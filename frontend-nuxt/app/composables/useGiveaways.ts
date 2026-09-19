@@ -34,17 +34,20 @@ export const useGiveaways = () => {
             if (searchQuery.value) queryParams.search = searchQuery.value;
             queryParams.sort = sort.value;
 
-            const data: any = await $fetch(`${baseUrl}/giveaways`, {
+            const response: any = await $fetch(`${baseUrl}/giveaways`, {
                 query: queryParams,
             });
 
+            const fetchedData = response.data || [];
+            const fetchedCount = response.totalCount || 0;
+
             if (refresh) {
-                giveaways.value = data;
+                giveaways.value = fetchedData;
             } else {
-                giveaways.value.push(...data);
+                giveaways.value.push(...fetchedData);
             }
 
-            if (data.length < limit) {
+            if (giveaways.value.length >= fetchedCount || fetchedData.length < limit) {
                 hasMore.value = false;
             } else {
                 offset.value += limit;

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 const { giveaways, isLoading, hasMore, fetchGiveaways } = useGiveaways();
 
-onMounted(() => {
-  fetchGiveaways(true);
+await useAsyncData('home-giveaways', async () => {
+  if (giveaways.value.length === 0) {
+    await fetchGiveaways(true);
+  }
+  return true;
 });
 
 useHead({
