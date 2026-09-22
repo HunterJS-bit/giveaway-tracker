@@ -39,7 +39,7 @@ export default defineNuxtConfig({
     '@nuxtjs/sitemap'
   ],
   site: {
-    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://balkangiveawaytracker.com',
+    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://nagradne-igre-tracker.com',
     name: 'Nagradne Igre Tracker'
   },
   sitemap: {
