@@ -8,11 +8,16 @@ await useAsyncData('home-giveaways', async () => {
   return true;
 });
 
-useHead({
-  title: 'Naslovna - Najveća baza nagradnih igara',
-  meta: [
-    { name: 'description', content: 'Sve nagradne igre na jednom mestu u Srbiji, Hrvatskoj i BIH. Osvoji vredne nagrade!' }
-  ]
+const title = 'Naslovna - Najveća baza nagradnih igara';
+const description = 'Sve nagradne igre na jednom mestu u Srbiji, Hrvatskoj i BIH. Osvoji vredne nagrade!';
+const config = useRuntimeConfig();
+
+useSeoMeta({
+  title,
+  ogTitle: title,
+  description,
+  ogDescription: description,
+  ogUrl: config.public.siteUrl,
 })
 </script>
 

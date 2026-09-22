@@ -1,3 +1,15 @@
+<script setup lang="ts">
+const config = useRuntimeConfig();
+
+useSeoMeta({
+  ogSiteName: 'Nagradne Igre Tracker',
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
+  ogImage: `${config.public.siteUrl}/og-image.jpg`,
+  twitterImage: `${config.public.siteUrl}/og-image.jpg`
+});
+</script>
+
 <template>
   <div class="app-layout">
     <AppHeader />
