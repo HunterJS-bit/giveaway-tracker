@@ -24,7 +24,7 @@ const config = useRuntimeConfig();
 
 // Fetch category info + giveaways from the new endpoint
 const { data, error } = await useAsyncData(`category-${slug}`, () =>
-  $fetch<{ category: Category; giveaways: Giveaway[] }>(`${config.public.apiBase}/api/categories/${slug}/giveaways`, {
+  $fetch<{ category: Category; giveaways: Giveaway[], totalCount: number }>(`${config.public.apiBase}/api/categories/${slug}/giveaways`, {
     query: { limit: 24, sort: 'endingSoonest' }
   })
 );
@@ -36,21 +36,22 @@ if (error.value || !data.value) {
 
 const category = computed(() => data.value?.category ?? null);
 const giveaways = computed(() => data.value?.giveaways ?? []);
+const initialTotalCount = computed(() => data.value?.totalCount ?? 0);
 const isLoading = ref(false);
 const allGiveaways = ref<Giveaway[]>(giveaways.value);
-const hasMore = ref(giveaways.value.length === 24);
+const hasMore = ref(allGiveaways.value.length < initialTotalCount.value);
 const offset = ref(24);
 
 const loadMore = async () => {
   if (isLoading.value || !hasMore.value) return;
   isLoading.value = true;
   try {
-    const result = await $fetch<{ category: Category; giveaways: Giveaway[] }>(
+    const result = await $fetch<{ category: Category; giveaways: Giveaway[], totalCount: number }>(
       `${config.public.apiBase}/api/categories/${slug}/giveaways`,
       { query: { limit: 24, offset: offset.value, sort: 'endingSoonest' } }
     );
     allGiveaways.value.push(...result.giveaways);
-    hasMore.value = result.giveaways.length === 24;
+    hasMore.value = allGiveaways.value.length < result.totalCount;
     offset.value += 24;
   } finally {
     isLoading.value = false;
