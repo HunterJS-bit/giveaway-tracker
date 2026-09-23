@@ -1,7 +1,14 @@
 <script setup lang="ts">
+const title = 'Uslovi Korišćenja - Fribbo';
+const description = 'Pročitajte uslove korišćenja platforme Fribbo pre nego što počnete da koristite naše usluge.';
+const config = useRuntimeConfig();
+
 useSeoMeta({
-  title: 'Uslovi Korišćenja - Fribbo',
-  description: 'Pročitajte uslove korišćenja platforme Fribbo pre nego što počnete da koristite naše usluge.',
+  title,
+  ogTitle: title,
+  description,
+  ogDescription: description,
+  ogUrl: `${config.public.siteUrl}/terms`,
 });
 </script>
 

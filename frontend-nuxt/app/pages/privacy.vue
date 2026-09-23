@@ -1,7 +1,14 @@
 <script setup lang="ts">
+const title = 'Politika Privatnosti - Fribbo';
+const description = 'Pročitajte kako Fribbo štiti vašu privatnost i obrađuje vaše podatke.';
+const config = useRuntimeConfig();
+
 useSeoMeta({
-  title: 'Politika Privatnosti - Fribbo',
-  description: 'Pročitajte kako Fribbo štiti vašu privatnost i obrađuje vaše podatke.',
+  title,
+  ogTitle: title,
+  description,
+  ogDescription: description,
+  ogUrl: `${config.public.siteUrl}/privacy`,
 });
 </script>
 
