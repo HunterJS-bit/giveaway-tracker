@@ -1,7 +1,14 @@
 <script setup lang="ts">
+const title = 'O Nama - Fribbo';
+const description = 'Saznajte više o Fribbo platformi, našoj misiji i kako vam pomažemo da pronađete najbolje nagradne igre na Balkanu.';
+const config = useRuntimeConfig();
+
 useSeoMeta({
-  title: 'O Nama - Fribbo',
-  description: 'Saznajte više o Fribbo platformi, našoj misiji i kako vam pomažemo da pronađete najbolje nagradne igre na Balkanu.',
+  title,
+  ogTitle: title,
+  description,
+  ogDescription: description,
+  ogUrl: `${config.public.siteUrl}/about`,
 });
 </script>
 

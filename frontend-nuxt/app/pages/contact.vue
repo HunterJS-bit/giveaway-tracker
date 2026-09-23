@@ -1,7 +1,14 @@
 <script setup lang="ts">
+const title = 'Kontakt - Fribbo';
+const description = 'Imate pitanje, sugestiju ili želite da ostvarimo saradnju? Kontaktirajte Fribbo tim.';
+const config = useRuntimeConfig();
+
 useSeoMeta({
-  title: 'Kontakt - Fribbo',
-  description: 'Imate pitanje, sugestiju ili želite da ostvarimo saradnju? Kontaktirajte Fribbo tim.',
+  title,
+  ogTitle: title,
+  description,
+  ogDescription: description,
+  ogUrl: `${config.public.siteUrl}/contact`,
 });
 
 const isSubmitting = ref(false);
