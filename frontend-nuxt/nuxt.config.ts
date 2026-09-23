@@ -67,7 +67,8 @@ export default defineNuxtConfig({
     compressPublicAssets: true
   },
   experimental: {
-    viewTransition: true
+    viewTransition: true,
+    payloadExtraction: true
   },
   future: {
     compatibilityVersion: 4,
