@@ -1,7 +1,14 @@
 <script setup lang="ts">
+const title = 'Politika Kolačića - Fribbo';
+const description = 'Saznajte koje kolačiće Fribbo koristi i kako možete upravljati njima u vašem pretraživaču.';
+const config = useRuntimeConfig();
+
 useSeoMeta({
-  title: 'Politika Kolačića - Fribbo',
-  description: 'Saznajte koje kolačiće Fribbo koristi i kako možete upravljati njima u vašem pretraživaču.',
+  title,
+  ogTitle: title,
+  description,
+  ogDescription: description,
+  ogUrl: `${config.public.siteUrl}/cookie-policy`,
 });
 </script>
 

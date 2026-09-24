@@ -16,9 +16,9 @@ useSeoMeta({
     <main class="main-content">
       <NuxtPage />
     </main>
-    <AppFooter />
-    <ToastContainer />
-    <CookieConsent />
+    <LazyAppFooter />
+    <LazyToastContainer />
+    <LazyCookieConsent />
   </div>
 </template>
 
