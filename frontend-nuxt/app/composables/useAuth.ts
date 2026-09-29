@@ -18,8 +18,8 @@ export const useAuth = () => {
         }
 
         try {
-            const data = await $fetch<{ user: User }>('/api/auth/me', {
-                baseURL: config.public.apiBase,
+            const apiBase = config.public.apiBase || 'http://localhost:3000';
+            const data = await $fetch<{ user: User }>(`${apiBase}/api/auth/me`, {
                 headers: {
                     Authorization: `Bearer ${token.value}`
                 }

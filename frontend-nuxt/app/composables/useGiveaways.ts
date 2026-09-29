@@ -12,7 +12,8 @@ export const useGiveaways = () => {
     const searchQuery = useState<string>('giveaways-search', () => '');
     const sort = useState<string>('giveaways-sort', () => 'endingSoonest');
 
-    const baseUrl = `${config.public.apiBase}/api`;
+    const apiBase = config.public.apiBase || 'http://localhost:3000';
+    const baseUrl = `${apiBase}/api`;
 
     const fetchGiveaways = async (refresh = false) => {
         if (isLoading.value || (!hasMore.value && !refresh)) return;

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useAuth } from '~/composables/useAuth';
 
 const colorMode = useColorMode();
 const isMenuOpen = ref(false);

@@ -22,8 +22,11 @@ export const useCategories = () => {
     const fetchCategories = async () => {
         if (_loaded.value) return;
         isLoading.value = true;
+
+        const apiBase = config.public.apiBase || 'http://localhost:3000';
+
         try {
-            const data = await $fetch<Category[]>(`${config.public.apiBase}/api/categories`);
+            const data = await $fetch<Category[]>(`${apiBase}/api/categories`);
             _categories.value = data;
             _loaded.value = true;
         } catch (e) {

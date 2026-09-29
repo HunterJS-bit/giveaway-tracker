@@ -11,6 +11,14 @@ export default defineNuxtConfig({
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://nagradne-igre-tracker.com',
     }
   },
+  vite: {
+    optimizeDeps: {
+      include: [
+        'vue3-google-login',
+        '@vueuse/components'
+      ]
+    }
+  },
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     head: {
