@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
+import logger from './utils/logger';
 
 const DEFAULT_CATEGORIES = [
     { slug: 'Tech', name: 'Tehnologija', description: 'Giveaways sa tech uređajima i gadgetima.', icon: '💻', color: '#3498db' },
@@ -17,22 +18,22 @@ const DEFAULT_CATEGORIES = [
 ];
 
 async function main() {
-    console.log('Seeding categories...');
+    logger.info('Seeding categories...');
     for (const cat of DEFAULT_CATEGORIES) {
         const [existing] = await db.select().from(categories).where(eq(categories.slug, cat.slug));
         if (!existing) {
             await db.insert(categories).values({ id: uuidv4(), ...cat });
-            console.log(`Created category: ${cat.name}`);
+            logger.info(`Created category: ${cat.name}`);
         } else {
-            console.log(`Skipped existing category: ${cat.name}`);
+            logger.debug(`Skipped existing category: ${cat.name}`);
         }
     }
 
-    console.log('Seeding giveaways...');
+    logger.info('Seeding giveaways...');
     const dataPath = process.env.SEED_DATA_PATH || path.join(__dirname, '../../assets/data/giveaways.json');
 
     if (!fs.existsSync(dataPath)) {
-        console.error(`File not found: ${dataPath}`);
+        logger.error(`File not found: ${dataPath}`);
         process.exit(1);
     }
 
@@ -64,17 +65,17 @@ async function main() {
                 status: item.status ?? 'active',
                 entryCount: item.entryCount ?? 0,
             });
-            console.log(`Created giveaway: ${item.title}`);
+            logger.info(`Created giveaway: ${item.title}`);
         } else {
-            console.log(`Skipped existing giveaway: ${item.title}`);
+            logger.debug(`Skipped existing giveaway: ${item.title}`);
         }
     }
 
-    console.log('Seeding finished.');
+    logger.info('Seeding finished.');
     process.exit(0);
 }
 
 main().catch((e) => {
-    console.error(e);
+    logger.error(e);
     process.exit(1);
 });
