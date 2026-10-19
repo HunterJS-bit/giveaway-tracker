@@ -15,6 +15,7 @@ COPY --from=build /app/dist ./dist
 # Also copy src for development purposes (watch)
 COPY --from=build /app/src ./src
 COPY --from=build /app/tsconfig.json ./tsconfig.json
+COPY --from=build /app/drizzle.config.ts ./drizzle.config.ts
 
 EXPOSE 3000
 CMD ["sh", "-c", "npx drizzle-kit push && npm run dev"]
