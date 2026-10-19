@@ -2,7 +2,7 @@ name: Build, Test, and Deploy API Server
 
 on:
   push:
-    branches: [main]
+    branches: [master]
     paths:
       - 'backend/**'
       - '.github/workflows/deploy-server.yml'
