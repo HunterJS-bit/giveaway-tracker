@@ -69,6 +69,9 @@ app.use('/api/giveaways', giveawaysRoutes);
 app.use('/api/submissions', submissionsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/', (req, res) => {
+    res.status(404).json({ msg: 'GiveAway API v1.1.0' });    
+})
 
 app.listen(port, () => {
     loggerInstance.info(`Server is running on port ${port}`);
