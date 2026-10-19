@@ -66,14 +66,14 @@ jobs:
 
       - name: Update Environment Variables via Dokploy API
         run: |
-          curl -X POST "${{ secrets.DOKPLOY_URL }}/api/application.update" \
+          curl --fail -X POST "${{ secrets.DOKPLOY_URL }}/api/application.update" \
             -H "accept: application/json" \
             -H "x-api-key: ${{ secrets.DOKPLOY_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{
               "applicationId": "${{ secrets.DOKPLOY_APP_ID }}",
               "env": "PORT=4001\nDATABASE_URL=${{ secrets.DATABASE_URL }}\nNODE_ENV=production"
-            }'      
+            }'
 
       - name: Trigger Dokploy deployment
         env:
@@ -87,7 +87,8 @@ jobs:
               --url "$DOKPLOY_URL/api/application.deploy" \
               --header "x-api-key: $DOKPLOY_API_KEY" \
               --header "Content-Type: application/json" \
-              --data "{\"applicationId\":\"$DOKPLOY_APP_ID\"}" || echo "Dokploy deployment trigger failed"
+              --data "{\"applicationId\":\"$DOKPLOY_APP_ID\"}"
           else
-            echo "Dokploy secrets not configured, skipping deployment trigger"
+            echo "Error: DOKPLOY_URL, DOKPLOY_API_KEY, or DOKPLOY_APP_ID not configured"
+            exit 1
           fi
