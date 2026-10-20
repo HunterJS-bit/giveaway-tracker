@@ -1,5 +1,11 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
+const auth = useAuth();
+
+// Initialize auth check on app load
+onMounted(() => {
+  auth.checkAuthStatus();
+});
 
 useSeoMeta({
   ogSiteName: 'Nagradne Igre Tracker',
