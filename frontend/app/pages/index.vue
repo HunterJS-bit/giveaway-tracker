@@ -19,6 +19,25 @@ useSeoMeta({
   ogDescription: description,
   ogUrl: config.public.siteUrl,
 })
+
+// Infinite scroll observer
+const loadMoreTrigger = ref<HTMLElement | null>(null);
+
+const { stop } = useIntersectionObserver(
+  loadMoreTrigger,
+  ([{ isIntersecting }]) => {
+    if (isIntersecting && hasMore.value && !isLoading.value) {
+      fetchGiveaways();
+    }
+  },
+  {
+    threshold: 0.1,
+  }
+);
+
+onUnmounted(() => {
+  stop();
+});
 </script>
 
 <template>
@@ -56,10 +75,12 @@ useSeoMeta({
         <p>Trenutno nema dostupnih nagradnih igara za odabrane kriterijume.</p>
       </div>
 
-      <div v-if="hasMore" class="pagination-wrap">
-        <button class="btn btn-dark" @click="fetchGiveaways()" :disabled="isLoading">
-          {{ isLoading ? 'Učitavanje...' : 'Učitaj još' }}
-        </button>
+      <!-- Infinite scroll trigger -->
+      <div ref="loadMoreTrigger" class="scroll-trigger">
+        <div v-if="isLoading && giveaways.length > 0" class="loading-spinner">
+          <div class="spinner"></div>
+          <p>Učitavanje...</p>
+        </div>
       </div>
     </section>
 
@@ -100,10 +121,33 @@ useSeoMeta({
   color: var(--text-muted);
 }
 
-.pagination-wrap {
-  margin-top: 60px;
+.scroll-trigger {
+  height: 100px;
   display: flex;
+  align-items: center;
   justify-content: center;
+  margin-top: 40px;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color, #eaeaea);
+  border-top-color: var(--accent-pink);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 @media (max-width: 768px) {
