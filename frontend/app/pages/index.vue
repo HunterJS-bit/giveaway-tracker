@@ -53,6 +53,24 @@ onUnmounted(() => {
       </div>
     </section>
 
+    <!-- Community Section -->
+    <section class="community-section">
+      <div class="container community-inner">
+        <h2 class="community-title">Pridruži se zajednici</h2>
+        <p class="community-subtitle">Delite nagradne igre sa drugima i prvo saznajte za nove prilike!</p>
+        <div class="community-buttons">
+          <a href="https://chat.viber.com/YOUR_VIBER_LINK" target="_blank" rel="noopener noreferrer" class="community-btn viber-btn">
+            <span class="btn-icon">💬</span>
+            <span class="btn-text">Viber Grupa</span>
+          </a>
+          <a href="https://t.me/YOUR_TELEGRAM_LINK" target="_blank" rel="noopener noreferrer" class="community-btn telegram-btn">
+            <span class="btn-icon">✈️</span>
+            <span class="btn-text">Telegram Grupa</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
     <!-- Filters -->
     <FeedFilters />
 
@@ -109,6 +127,66 @@ onUnmounted(() => {
   color: var(--text-muted);
   max-width: 600px;
   margin: 0 auto 30px;
+}
+
+.community-section {
+  padding: 40px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  margin-bottom: 20px;
+}
+
+.community-inner {
+  text-align: center;
+}
+
+.community-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.community-subtitle {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 30px;
+}
+
+.community-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.community-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  color: white;
+}
+
+.community-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.viber-btn {
+  background: #7360f2;
+}
+
+.telegram-btn {
+  background: #0088cc;
+}
+
+.btn-icon {
+  font-size: 20px;
 }
 
 .feed-section {
