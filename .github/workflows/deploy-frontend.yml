@@ -45,4 +45,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy client/dist/public --project-name=giveaway
+          command: pages deploy client/.output/public --project-name=giveaway --commit-dirty=true
