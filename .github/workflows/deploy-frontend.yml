@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'client/**'
+      - 'frontend/**'
       - '.github/workflows/deploy-frontend.yml'
   workflow_dispatch:
 
