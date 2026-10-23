@@ -55,9 +55,30 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Update Environment Variables in Dokploy
+        env:
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          DOKPLOY_APP_ID: ${{ secrets.DOKPLOY_FRONTEND_APP_ID }}
+        run: |
+          if [ -n "$DOKPLOY_URL" ] && [ -n "$DOKPLOY_API_KEY" ] && [ -n "$DOKPLOY_APP_ID" ]; then
+            echo "Updating environment variables for application ID: $DOKPLOY_APP_ID"
+            curl --fail -X POST "${DOKPLOY_URL}/api/application.update" \
+              -H "accept: application/json" \
+              -H "x-api-key: $DOKPLOY_API_KEY" \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"applicationId\": \"$DOKPLOY_APP_ID\",
+                \"env\": \"NUXT_PUBLIC_API_BASE=${{ vars.API_BASE_URL }}\nNUXT_PUBLIC_SITE_URL=${{ vars.SITE_URL }}\nNODE_ENV=production\"
+              }"
+          else
+            echo "Error: DOKPLOY_URL, DOKPLOY_API_KEY, or DOKPLOY_APP_ID not configured"
+            exit 1
+          fi
+
       - name: Trigger Dokploy deployment
         env:
-          DOKPLOY_URL: ${{ secrets.DOKPLOY_FRONTEND_URL }}
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
           DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
           DOKPLOY_APP_ID: ${{ secrets.DOKPLOY_FRONTEND_APP_ID }}
         run: |
