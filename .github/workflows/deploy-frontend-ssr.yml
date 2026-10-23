@@ -1,11 +1,11 @@
-name: Deploy Frontend
+name: Deploy Frontend as SSR to Dokploy
 
 on:
   push:
     branches: [master]
     paths:
       - 'client/**'
-      - '.github/workflows/deploy-frontend.yml'
+      - '.github/workflows/deploy-frontend-ssr.yml'
   workflow_dispatch:
 
 jobs:
