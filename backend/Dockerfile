@@ -13,6 +13,7 @@ COPY --from=build /app/package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=build /app/src ./src
 
 EXPOSE 3000
 CMD ["sh", "-c", "npx drizzle-kit push && npm start"]
