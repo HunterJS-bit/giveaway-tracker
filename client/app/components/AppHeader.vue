@@ -7,6 +7,12 @@ const auth = useAuth();
 // Check auth status on mount
 onMounted(() => {
   auth.checkAuthStatus();
+  console.log('Auth state after check:', {
+    isAuthenticated: auth.isAuthenticated.value,
+    isAdmin: auth.isAdmin.value,
+    user: auth.user.value,
+    token: auth.token.value
+  });
 });
 
 const toggleTheme = () => {
