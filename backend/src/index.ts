@@ -23,6 +23,9 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Trust proxy when behind reverse proxy (Dokploy, Cloudflare, etc.)
+app.set('trust proxy', true);
+
 // HTTP request logging with Pino
 const httpLogger = pino({
     logger: loggerInstance,
