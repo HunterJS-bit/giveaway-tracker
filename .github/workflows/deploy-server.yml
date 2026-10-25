@@ -95,7 +95,7 @@ jobs:
 
       - name: Wait for deployment and health check
         env:
-          API_URL: ${{ vars.API_URL }}
+          API_URL: ${{ vars.API_BASE_URL }}
         run: |
           echo "Waiting for deployment to complete..."
           sleep 30
@@ -103,7 +103,7 @@ jobs:
           echo "Starting health check..."
           MAX_RETRIES=10
           RETRY_COUNT=0
-          HEALTH_URL="${API_URL}/api/health"
+          HEALTH_URL="${API_BASE_URL}/api/health"
 
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
             echo "Health check attempt $((RETRY_COUNT + 1))/$MAX_RETRIES"
