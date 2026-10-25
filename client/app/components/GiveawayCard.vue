@@ -2,6 +2,7 @@
 import { UseElementVisibility } from '@vueuse/components';
 import { useFavorites } from '~/composables/useFavorites';
 import { useToast } from '~/composables/useToast';
+import { useCountdown } from '~/composables/useCountdown';
 
 interface Giveaway {
   id: string;
@@ -28,41 +29,16 @@ const props = defineProps<{
 
 const { isFavorite, toggleFavorite } = useFavorites();
 const { addToast } = useToast();
+const { registerCountdown, unregisterCountdown, getCountdown } = useCountdown();
 
-const timeLeft = ref('');
-let timer: any = null;
-
-const updateTimer = () => {
-  const end = new Date(props.giveaway.endDate).getTime();
-  const now = new Date().getTime();
-  const diff = end - now;
-
-  if (diff <= 0) {
-    timeLeft.value = 'Završeno';
-    clearInterval(timer);
-    return;
-  }
-
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-
-  if (days > 0) {
-    timeLeft.value = `${days}d ${hours}h`;
-  } else if (hours > 0) {
-    timeLeft.value = `${hours}h ${minutes}m`;
-  } else {
-    timeLeft.value = `${minutes}m`;
-  }
-};
+const timeLeft = computed(() => getCountdown(props.giveaway.id));
 
 onMounted(() => {
-  updateTimer();
-  timer = setInterval(updateTimer, 60000); // Update every minute
+  registerCountdown(props.giveaway.id, props.giveaway.endDate);
 });
 
 onUnmounted(() => {
-  if (timer) clearInterval(timer);
+  unregisterCountdown(props.giveaway.id);
 });
 
 const shareCard = async () => {
@@ -89,7 +65,17 @@ const getCategoryColor = (category: string) => {
       <template v-if="isVisible || preload">
         <div class="card-image-wrap">
           <NuxtLink :to="`/giveaways/${giveaway.id}`">
-            <NuxtImg :src="giveaway.imageUrl" :alt="giveaway.title" class="card-image" :style="{ viewTransitionName: 'giveaway-' + giveaway.id }" format="webp" :loading="preload ? 'eager' : 'lazy'" :preload="preload" :fetchpriority="preload ? 'high' : 'auto'" />
+            <NuxtImg 
+              :src="giveaway.imageUrl" 
+              :alt="giveaway.title" 
+              class="card-image" 
+              format="webp" 
+              :loading="preload ? 'eager' : 'lazy'" 
+              :preload="preload" 
+              :fetchpriority="preload ? 'high' : 'auto'"
+              placeholder
+              placeholder-class="image-placeholder"
+            />
           </NuxtLink>
           <div class="card-overlay">
             <NuxtLink :to="`/giveaways/${giveaway.id}`" class="btn btn-primary small">Detalji</NuxtLink>
