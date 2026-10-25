@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   build-test-deploy:
+    environment: prod
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -95,8 +96,16 @@ jobs:
 
       - name: Wait for deployment and health check
         env:
-          API_URL: ${{ vars.API_BASE_URL }}
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
         run: |
+          echo "API_BASE_URL is: '${API_BASE_URL}'"
+          
+          if [ -z "$API_BASE_URL" ]; then
+            echo "❌ Error: API_BASE_URL is not set or empty"
+            echo "Please add API_BASE_URL variable in GitHub Actions settings"
+            exit 1
+          fi
+
           echo "Waiting for deployment to complete..."
           sleep 30
 
@@ -104,6 +113,7 @@ jobs:
           MAX_RETRIES=10
           RETRY_COUNT=0
           HEALTH_URL="${API_BASE_URL}/api/health"
+          echo "Health check URL: $HEALTH_URL"
 
           while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
             echo "Health check attempt $((RETRY_COUNT + 1))/$MAX_RETRIES"
