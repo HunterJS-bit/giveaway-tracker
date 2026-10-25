@@ -20,23 +20,31 @@ useSeoMeta({
   ogUrl: config.public.siteUrl,
 })
 
-// Infinite scroll observer
+// Infinite scroll observer (client-side only)
 const loadMoreTrigger = ref<HTMLElement | null>(null);
+let stopObserver: (() => void) | null = null;
 
-const { stop } = useIntersectionObserver(
-  loadMoreTrigger,
-  ([{ isIntersecting }]) => {
-    if (isIntersecting && hasMore.value && !isLoading.value) {
-      fetchGiveaways();
-    }
-  },
-  {
-    threshold: 0.1,
+onMounted(() => {
+  if (process.client) {
+    const { stop } = useIntersectionObserver(
+      loadMoreTrigger,
+      ([{ isIntersecting }]) => {
+        if (isIntersecting && hasMore.value && !isLoading.value) {
+          fetchGiveaways();
+        }
+      },
+      {
+        threshold: 0.1,
+      }
+    );
+    stopObserver = stop;
   }
-);
+});
 
 onUnmounted(() => {
-  stop();
+  if (stopObserver) {
+    stopObserver();
+  }
 });
 </script>
 
