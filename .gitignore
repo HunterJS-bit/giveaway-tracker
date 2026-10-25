@@ -48,7 +48,8 @@ app.*.map.json
 /backend/dist
 /backend/drizzle
 /backend/.env
+/client/.env
+/.env
 
-
-# Build 
+# Build
 ./build/
