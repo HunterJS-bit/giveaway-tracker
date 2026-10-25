@@ -1,14 +1,12 @@
-import { useState } from '#imports';
-
 interface CountdownEntry {
   endDate: string;
   timeLeft: string;
 }
 
-const countdowns = useState<Map<string, CountdownEntry>>('countdowns', () => new Map());
-let timer: any = null;
-
 export const useCountdown = () => {
+  const countdowns = useState<Map<string, CountdownEntry>>('countdowns', () => new Map());
+  let timer: any = null;
+
   const getTimeLeft = (endDate: string): string => {
     const end = new Date(endDate).getTime();
     const now = new Date().getTime();
@@ -37,7 +35,7 @@ export const useCountdown = () => {
       timeLeft: getTimeLeft(endDate),
     });
 
-    // Start shared timer if not already running
+    // Start shared timer if not already running (client-side only)
     if (!timer && process.client) {
       timer = setInterval(() => {
         countdowns.value.forEach((entry, key) => {
