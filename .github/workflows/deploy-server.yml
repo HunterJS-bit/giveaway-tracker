@@ -92,3 +92,41 @@ jobs:
             echo "Error: DOKPLOY_URL, DOKPLOY_API_KEY, or DOKPLOY_APP_ID not configured"
             exit 1
           fi
+
+      - name: Wait for deployment and health check
+        env:
+          API_URL: ${{ vars.API_URL }}
+        run: |
+          echo "Waiting for deployment to complete..."
+          sleep 30
+
+          echo "Starting health check..."
+          MAX_RETRIES=10
+          RETRY_COUNT=0
+          HEALTH_URL="${API_URL}/api/health"
+
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            echo "Health check attempt $((RETRY_COUNT + 1))/$MAX_RETRIES"
+            
+            RESPONSE=$(curl -s -w "\n%{http_code}" "$HEALTH_URL" 2>/dev/null)
+            HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+            BODY=$(echo "$RESPONSE" | head -n-1)
+
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ Health check passed!"
+              echo "Response: $BODY"
+              exit 0
+            else
+              echo "❌ Health check failed (HTTP $HTTP_CODE)"
+              echo "Response: $BODY"
+            fi
+
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+              echo "Retrying in 10 seconds..."
+              sleep 10
+            fi
+          done
+
+          echo "❌ Health check failed after $MAX_RETRIES attempts"
+          exit 1
