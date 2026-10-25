@@ -73,7 +73,7 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{
               "applicationId": "${{ secrets.DOKPLOY_APP_ID }}",
-              "env": "PORT=4001\nDATABASE_URL=${{ secrets.DATABASE_URL }}\nNODE_ENV=production"
+              "env": "PORT=4001\nDATABASE_URL=${{ secrets.DATABASE_URL }}\nNODE_ENV=production\nFRONTEND_URL=https://svenagradneigre.rs,http://localhost:3001"
             }'
 
       - name: Trigger Dokploy deployment

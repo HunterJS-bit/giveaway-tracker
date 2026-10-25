@@ -32,7 +32,7 @@ const httpLogger = pino({
 });
 app.use(httpLogger);
 
-const allowedOrigins = [process.env.FRONTEND_URL || 'http://localhost:3001'];
+const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3001').split(',');
 app.use(cors({
     origin: (origin, callback) => {
         // Allow requests with no origin (like mobile apps, curl)
