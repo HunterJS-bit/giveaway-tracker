@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useIntersectionObserver } from '@vueuse/core';
+
 const { giveaways, isLoading, hasMore, fetchGiveaways } = useGiveaways();
 
 await useAsyncData('home-giveaways', async () => {
@@ -25,7 +27,7 @@ const loadMoreTrigger = ref<HTMLElement | null>(null);
 let stopObserver: (() => void) | null = null;
 
 onMounted(() => {
-  if (process.client) {
+  if (process.client && typeof useIntersectionObserver !== 'undefined') {
     const { stop } = useIntersectionObserver(
       loadMoreTrigger,
       ([{ isIntersecting }]) => {
