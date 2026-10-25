@@ -46,6 +46,11 @@ import { useRouter } from 'vue-router';
 import { useAuth } from '~/composables/useAuth';
 import { useRuntimeConfig } from '#app';
 
+// Server-side middleware guard
+definePageMeta({
+  middleware: 'auth'
+});
+
 interface Submission {
   id: string;
   url: string;
@@ -63,11 +68,6 @@ const router = useRouter();
 const config = useRuntimeConfig();
 
 onMounted(async () => {
-  // Client side guard
-  if (!auth.isAdmin.value) {
-    router.replace('/');
-    return;
-  }
   await fetchSubmissions();
 });
 
