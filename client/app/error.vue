@@ -1,6 +1,21 @@
 <script setup lang="ts">
 const error = useError();
 const is404 = computed(() => error.value?.statusCode === 404);
+const config = useRuntimeConfig();
+
+// Log error details to console for debugging (controlled by DEBUG_ERRORS env var)
+const debugErrors = config.public.debugErrors === 'true';
+
+if (error.value && debugErrors) {
+  console.error('Error details:', {
+    statusCode: error.value.statusCode,
+    statusMessage: error.value.statusMessage,
+    message: error.value.message,
+    url: error.value.url,
+    stack: error.value.stack,
+    data: error.value.data,
+  });
+}
 
 useSeoMeta({
   title: computed(() => is404.value ? 'Stranica nije pronađena - Fribbo' : 'Greška - Fribbo'),

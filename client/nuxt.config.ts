@@ -9,6 +9,7 @@ export default defineNuxtConfig({
       // Client + Server (accessible everywhere via useRuntimeConfig().public)
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3000',
       siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://nagradne-igre-tracker.com',
+      debugErrors: process.env.NUXT_PUBLIC_DEBUG_ERRORS || 'false',
     }
   },
   vite: {
