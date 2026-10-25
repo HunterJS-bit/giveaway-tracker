@@ -4,6 +4,11 @@ const colorMode = useColorMode();
 const isMenuOpen = ref(false);
 const auth = useAuth();
 
+// Check auth status on mount
+onMounted(() => {
+  auth.checkAuthStatus();
+});
+
 const toggleTheme = () => {
   colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark';
 };

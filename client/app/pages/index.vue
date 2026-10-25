@@ -3,14 +3,13 @@ import { useIntersectionObserver } from '@vueuse/core';
 
 const { giveaways, isLoading, hasMore, fetchGiveaways } = useGiveaways();
 
+// Fetch giveaways on initial load (SSR + client)
 await useAsyncData('home-giveaways', async () => {
-  if (giveaways.value.length === 0) {
-    await fetchGiveaways(true);
-  }
+  await fetchGiveaways(true);
   return true;
 });
 
-const title = 'Naslovna - Najveća baza nagradnih igara';
+const title = 'Naslovna - Najveća baza nagradnih igra';
 const description = 'Sve nagradne igre na jednom mestu u Srbiji, Hrvatskoj i BIH. Osvoji vredne nagrade!';
 const config = useRuntimeConfig();
 
