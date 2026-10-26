@@ -69,7 +69,7 @@ useSeoMeta({
 
         <h2>8. Kontakt</h2>
         <p>
-          Za sva pitanja vezana za ove Uslove, kontaktirajte nas putem <NuxtLink to="/contact" class="text-link">kontakt forme</NuxtLink> ili na email <strong>legal@fribbo.com</strong>.
+          Za sva pitanja vezana za ove Uslove, kontaktirajte nas putem <NuxtLink to="/contact" class="text-link">kontakt forme</NuxtLink> ili na email <strong>legal@svenagradneigre.rs</strong>.
         </p>
       </div>
     </div>

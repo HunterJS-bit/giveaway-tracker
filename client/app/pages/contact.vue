@@ -53,7 +53,7 @@ const handleSubmit = async () => {
               <span class="icon">📧</span>
               <div>
                 <strong>Email</strong>
-                <p>info@fribbo.com</p>
+                <p>info@svenagradneigre.rs<</p>
               </div>
             </div>
             
@@ -61,7 +61,7 @@ const handleSubmit = async () => {
               <span class="icon">🤝</span>
               <div>
                 <strong>Saradnja</strong>
-                <p>marketing@fribbo.com</p>
+                <p>marketing@svenagradneigre.rs</p>
               </div>
             </div>
           </div>

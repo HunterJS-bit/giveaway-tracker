@@ -100,7 +100,7 @@ useSeoMeta({
           <li>Zatražite brisanje vaših podataka.</li>
           <li>Povučete saglasnost za obradu podataka u bilo kom trenutku.</li>
         </ul>
-        <p>Za ostvarivanje ovih prava, kontaktirajte nas na: <strong>privacy@fribbo.com</strong></p>
+        <p>Za ostvarivanje ovih prava, kontaktirajte nas na: <strong>privacy@svenagradneigre.rs</strong></p>
 
         <h2>6. Kontakt</h2>
         <p>

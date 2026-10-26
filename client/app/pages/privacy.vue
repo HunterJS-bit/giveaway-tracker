@@ -58,7 +58,7 @@ useSeoMeta({
 
         <h2>6. Kontakt</h2>
         <p>
-          Ukoliko imate bilo kakva pitanja u vezi sa našom Politikom privatnosti, kontaktirajte nas putem <NuxtLink to="/contact" class="text-link">kontakt forme</NuxtLink> ili na email <strong>privacy@fribbo.com</strong>.
+          Ukoliko imate bilo kakva pitanja u vezi sa našom Politikom privatnosti, kontaktirajte nas putem <NuxtLink to="/contact" class="text-link">kontakt forme</NuxtLink> ili na email <strong>privacy@svenagradneigre.rs</strong>.
         </p>
       </div>
     </div>
