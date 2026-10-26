@@ -4,7 +4,10 @@ const colorMode = useColorMode();
 const isMenuOpen = ref(false);
 const auth = useAuth();
 
-// Check auth status on mount
+// Check auth status immediately (works on both SSR and client)
+auth.checkAuthStatus();
+
+// Check auth status on mount as well for client-side
 onMounted(() => {
   auth.checkAuthStatus();
   console.log('Auth state after check:', {
