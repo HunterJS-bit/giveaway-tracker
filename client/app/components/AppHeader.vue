@@ -11,7 +11,7 @@ auth.checkAuthStatus();
 onMounted(() => {
   auth.checkAuthStatus();
   console.log('Auth state after check:', {
-    isAuthenticated: auth.isAuthenticated.value,
+    isAuthenticated: auth.isAuthenticated.value || false,
     isAdmin: auth.isAdmin.value,
     user: auth.user.value,
     token: auth.token.value

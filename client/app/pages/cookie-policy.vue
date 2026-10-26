@@ -1,6 +1,6 @@
 <script setup lang="ts">
-const title = 'Politika Kolačića - Fribbo';
-const description = 'Saznajte koje kolačiće Fribbo koristi i kako možete upravljati njima u vašem pretraživaču.';
+const title = 'Politika Kolačića - Sve Nagradne Igre';
+const description = 'Saznajte koje kolačiće Sve Nagradne Igre koristi i kako možete upravljati njima u vašem pretraživaču.';
 const config = useRuntimeConfig();
 
 useSeoMeta({

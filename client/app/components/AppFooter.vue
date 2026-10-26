@@ -8,7 +8,7 @@ onMounted(() => fetchCategories());
     <div class="container footer-grid">
       <div class="footer-brand">
         <NuxtLink to="/" class="logo">
-          <span class="logo-text">Fribbo</span>
+          <span class="logo-text">Nagradne Igre</span>
           <div class="logo-underline"></div>
         </NuxtLink>
         <p class="brand-description">Najveća zajednica za ljubitelje nagradnih igara na Balkanu. Pronađite najbolje prilike za dobitak svaki dan.</p>

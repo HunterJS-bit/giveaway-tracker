@@ -10,7 +10,7 @@ const errorMsg = ref('');
 const successMsg = ref('');
 
 useSeoMeta({
-  title: 'Resetovanje lozinke - Fribbo',
+  title: 'Resetovanje lozinke - Sve Nagradne Igre',
 });
 
 const submitReset = async () => {

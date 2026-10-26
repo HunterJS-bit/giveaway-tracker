@@ -1,6 +1,6 @@
 <script setup lang="ts">
-const title = 'O Nama - Fribbo';
-const description = 'Saznajte više o Fribbo platformi, našoj misiji i kako vam pomažemo da pronađete najbolje nagradne igre na Balkanu.';
+const title = 'O Nama - Sve Nagradne Igre';
+const description = 'Saznajte više o Sve Nagradne Igre platformi, našoj misiji i kako vam pomažemo da pronađete najbolje nagradne igre na Balkanu.';
 const config = useRuntimeConfig();
 
 useSeoMeta({
@@ -25,7 +25,7 @@ useSeoMeta({
       <div class="content-card glass">
         <h2>Naša misija</h2>
         <p>
-          Fribbo je nastao sa jednostavnom idejom: da na jednom mestu okupi sve aktuelne nagradne igre i olakša korisnicima učestvovanje. Svesni smo koliko je teško pratiti stotine različitih profila i sajtova kako biste pronašli validne nagradne igre. Zato mi to radimo za vas!
+          Sve Nagradne Igre je nastao sa jednostavnom idejom: da na jednom mestu okupi sve aktuelne nagradne igre i olakša korisnicima učestvovanje. Svesni smo koliko je teško pratiti stotine različitih profila i sajtova kako biste pronašli validne nagradne igre. Zato mi to radimo za vas!
         </p>
         
         <h2>Šta radimo?</h2>

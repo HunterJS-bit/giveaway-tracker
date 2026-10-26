@@ -6,7 +6,7 @@ const errorMsg = ref('');
 const successMsg = ref('');
 
 useSeoMeta({
-  title: 'Zaboravljena lozinka - Fribbo',
+  title: 'Zaboravljena lozinka - Sve Nagradne Igre',
 });
 
 const submitForgot = async () => {

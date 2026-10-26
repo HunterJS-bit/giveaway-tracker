@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const title = 'Kontakt - Fribbo';
+const title = 'Kontakt - Sve Nagradne Igre';
 const description = 'Imate pitanje, sugestiju ili želite da ostvarimo saradnju? Kontaktirajte Fribbo tim.';
 const config = useRuntimeConfig();
 

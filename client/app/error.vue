@@ -18,7 +18,7 @@ if (error.value && debugErrors) {
 }
 
 useSeoMeta({
-  title: computed(() => is404.value ? 'Stranica nije pronađena - Fribbo' : 'Greška - Fribbo'),
+  title: computed(() => is404.value ? 'Stranica nije pronađena' : 'Greška'),
 });
 
 const handleError = () => clearError({ redirect: '/' });

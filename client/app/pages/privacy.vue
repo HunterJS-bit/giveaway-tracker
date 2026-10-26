@@ -1,6 +1,6 @@
 <script setup lang="ts">
-const title = 'Politika Privatnosti - Fribbo';
-const description = 'Pročitajte kako Fribbo štiti vašu privatnost i obrađuje vaše podatke.';
+const title = 'Politika Privatnosti - Sve Nagradne Igre';
+const description = 'Pročitajte kako Sve Nagradne Igre štiti vašu privatnost i obrađuje vaše podatke.';
 const config = useRuntimeConfig();
 
 useSeoMeta({
@@ -25,12 +25,12 @@ useSeoMeta({
       <div class="content-card glass">
         <h2>1. Uvod</h2>
         <p>
-          Dobrodošli na Fribbo. Poštujemo vašu privatnost i posvećeni smo zaštiti vaših ličnih podataka. Ova Politika privatnosti objašnjava kako prikupljamo, koristimo i štitimo vaše informacije kada posetite naš sajt.
+          Dobrodošli na nas sajt Nagradne Igre. Poštujemo vašu privatnost i posvećeni smo zaštiti vaših ličnih podataka. Ova Politika privatnosti objašnjava kako prikupljamo, koristimo i štitimo vaše informacije kada posetite naš sajt.
         </p>
 
         <h2>2. Prikupljanje podataka</h2>
         <p>
-          Kao platforma koja prevashodno agregira linkove ka eksternim nagradnim igrama, Fribbo trenutno prikuplja minimalne informacije o korisnicima:
+          Kao platforma koja prevashodno agregira linkove ka eksternim nagradnim igrama, Sve Nagradne Igre trenutno prikuplja minimalne informacije o korisnicima:
         </p>
         <ul>
           <li><strong>Tehnički podaci:</strong> Anonimizovani podaci poput tipa pretraživača, IP adrese (privremeno) i podataka o poseti (putem standardnih analitičkih alata).</li>
@@ -53,7 +53,7 @@ useSeoMeta({
 
         <h2>5. Linkovi ka eksternim sajtovima</h2>
         <p>
-          Fribbo sadrži linkove ka nagradnim igrama na sajtovima trećih lica (poput Instagrama, Facebooka ili zvaničnih sajtova brendova). Klikom na te linkove napuštate naš sajt. Mi nemamo kontrolu nad politikom privatnosti i praksom tih eksternih sajtova, te vam savetujemo da ih pročitate pre učešća u nagradnim igrama.
+          Nagradne Igre platforma sadrži linkove ka nagradnim igrama na sajtovima trećih lica (poput Instagrama, Facebooka ili zvaničnih sajtova brendova). Klikom na te linkove napuštate naš sajt. Mi nemamo kontrolu nad politikom privatnosti i praksom tih eksternih sajtova, te vam savetujemo da ih pročitate pre učešća u nagradnim igrama.
         </p>
 
         <h2>6. Kontakt</h2>

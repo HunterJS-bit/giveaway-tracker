@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const title = 'Uslovi Korišćenja - Fribbo';
+const title = 'Uslovi Korišćenja - Sve Nagradne Igre';
 const description = 'Pročitajte uslove korišćenja platforme Fribbo pre nego što počnete da koristite naše usluge.';
 const config = useRuntimeConfig();
 
