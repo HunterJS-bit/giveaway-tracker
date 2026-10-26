@@ -1,4 +1,4 @@
-# Fribbo Giveaway Tracker - robots.txt
+# Sve Nagradne Igre rs - robots.txt
 
 User-agent: *
 Allow: /
@@ -8,4 +8,4 @@ Disallow: /admin/
 Disallow: /api/
 
 # Sitemap location
-Sitemap: https://fribbo.rs/sitemap.xml
+Sitemap: https://svenagradneigre.rs/sitemap.xml

@@ -39,7 +39,7 @@ watch(() => route.path, closeMenu);
   <header class="app-header glass">
     <div class="container header-inner">
       <NuxtLink to="/" class="logo" @click="closeMenu">
-        <span class="logo-text">Fribbo</span>
+        <span class="logo-text">Sve Nagradne Igre</span>
         <div class="logo-underline"></div>
       </NuxtLink>
 

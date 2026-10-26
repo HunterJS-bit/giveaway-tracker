@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const title = 'Kontakt - Sve Nagradne Igre';
-const description = 'Imate pitanje, sugestiju ili želite da ostvarimo saradnju? Kontaktirajte Fribbo tim.';
+const description = 'Imate pitanje, sugestiju ili želite da ostvarimo saradnju? Kontaktirajte Sve Nagradne Igre tim.';
 const config = useRuntimeConfig();
 
 useSeoMeta({

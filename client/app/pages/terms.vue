@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const title = 'Uslovi Korišćenja - Sve Nagradne Igre';
-const description = 'Pročitajte uslove korišćenja platforme Fribbo pre nego što počnete da koristite naše usluge.';
+const description = 'Pročitajte uslove korišćenja platforme Sve Nagradne Igre pre nego što počnete da koristite naše usluge.';
 const config = useRuntimeConfig();
 
 useSeoMeta({
@@ -25,21 +25,21 @@ useSeoMeta({
       <div class="content-card glass">
         <h2>1. Prihvatanje Uslova</h2>
         <p>
-          Korišćenjem platforme Fribbo ("Platforma", "mi", "nas") slažete se sa ovim Uslovima korišćenja. Ako se ne slažete sa nekim od ovih uslova, molimo vas da prestanete sa korišćenjem Platforme.
+          Korišćenjem platforme Sve Nagradne Igre ("Platforma", "mi", "nas") slažete se sa ovim Uslovima korišćenja. Ako se ne slažete sa nekim od ovih uslova, molimo vas da prestanete sa korišćenjem Platforme.
         </p>
 
         <h2>2. Opis Usluge</h2>
         <p>
-          Fribbo je platforma za agregaciju nagradnih igara koja prikuplja i objavljuje informacije o aktuelnim nagradnim igrama sa Balkana i regiona. Mi nismo organizatori nagradnih igara koje su prikazane na sajtu, već ih isključivo prenosimo i agregiramo sa javnih izvora.
+          Sve Nagradne Igre je platforma za agregaciju nagradnih igara koja prikuplja i objavljuje informacije o aktuelnim nagradnim igrama sa Balkana i regiona. Mi nismo organizatori nagradnih igara koje su prikazane na sajtu, već ih isključivo prenosimo i agregiramo sa javnih izvora.
         </p>
 
         <h2>3. Odricanje od Odgovornosti</h2>
         <p>
-          Fribbo nastoji da prikaže tačne i ažurne informacije, ali ne garantuje tačnost, potpunost ni aktuelnost sadržaja. Svakom nagradnom igrom upravljaju njeni organizatori, te:
+          Sve Nagradne Igre nastoji da prikaže tačne i ažurne informacije, ali ne garantuje tačnost, potpunost ni aktuelnost sadržaja. Svakom nagradnom igrom upravljaju njeni organizatori, te:
         </p>
         <ul>
-          <li>Fribbo ne odgovara za uslove, pravila ni isplatu nagrada pojedinih nagradnih igara.</li>
-          <li>Fribbo ne odgovara za gubitke nastale učešćem u nagradnim igrama prikazanim na platformi.</li>
+          <li>Sve Nagradne Igre ne odgovara za uslove, pravila ni isplatu nagrada pojedinih nagradnih igara.</li>
+          <li>Sve Nagradne Igre ne odgovara za gubitke nastale učešćem u nagradnim igrama prikazanim na platformi.</li>
           <li>Preporučujemo da uvek pročitate zvanična pravila organizatora pre učešća.</li>
         </ul>
 
@@ -54,12 +54,12 @@ useSeoMeta({
 
         <h2>5. Predlaganje Nagradnih Igara</h2>
         <p>
-          Korisnici mogu predlagati nagradne igre putem forme na sajtu. Slanjem predloga potvrđujete da ste vlasnik ili imate pravo da delite navedene informacije, da predlog ne narušava autorska prava trećih lica, te da Fribbo ima pravo da predlog odbaci bez obrazloženja.
+          Korisnici mogu predlagati nagradne igre putem forme na sajtu. Slanjem predloga potvrđujete da ste vlasnik ili imate pravo da delite navedene informacije, da predlog ne narušava autorska prava trećih lica, te da Sve Nagradne Igre ima pravo da predlog odbaci bez obrazloženja.
         </p>
 
         <h2>6. Intelektualna Svojina</h2>
         <p>
-          Dizajn, kod, logo i originalni sadržaj platforme su vlasništvo Fribbo tima i zaštićeni su odgovarajućim zakonima. Logoi i zaštitni znakovi brendova prikazanih u nagradnim igrama su vlasništvo njihovih vlasnika.
+          Dizajn, kod, logo i originalni sadržaj platforme su vlasništvo Nagradne Igre tima i zaštićeni su odgovarajućim zakonima. Logoi i zaštitni znakovi brendova prikazanih u nagradnim igrama su vlasništvo njihovih vlasnika.
         </p>
 
         <h2>7. Promene Uslova</h2>

@@ -60,8 +60,8 @@ const loadMore = async () => {
 
 // Dynamic SEO per category
 useSeoMeta({
-  title: () => category.value ? `${category.value.icon} ${category.value.name} Giveaways - Fribbo` : 'Kategorija - Fribbo',
-  description: () => category.value?.description ?? 'Pronađite najbolje nagradne igre na Fribbo.',
+  title: () => category.value ? `${category.value.icon} ${category.value.name} Giveaways - Sve Nagradne Igre` : 'Kategorija - Sve Nagradne Igre',
+  description: () => category.value?.description ?? 'Pronađite najbolje nagradne igre na SveNagradneIgre.rs',
   ogTitle: () => category.value ? `${category.value.icon} ${category.value.name} Giveaways` : 'Giveaways',
   ogDescription: () => category.value?.description ?? '',
   ogImage: () => allGiveaways.value[0]?.imageUrl ?? null,

@@ -45,7 +45,7 @@ useSeoMeta({
 
         <p class="signature">
           Srećno u osvajanju nagrada!<br>
-          <strong>Vaš Fribbo Tim</strong>
+          <strong>Vaš SveNagradneIgre.rs Tim</strong>
         </p>
       </div>
     </div>

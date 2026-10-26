@@ -60,7 +60,7 @@ const handleSubmit = async () => {
           <ul class="note-list">
             <li>Unesite link do posta (Instagram, Facebook, TikTok) gde se nalazi nagradna igra.</li>
             <li>Naš tim će pregledati link u najkraćem roku.</li>
-            <li>Ukoliko je nagradna igra validna, biće objavljena na Fribbo platformi.</li>
+            <li>Ukoliko je nagradna igra validna, biće objavljena na Sve Nagradne Igre platformi.</li>
           </ul>
         </div>
       </div>
