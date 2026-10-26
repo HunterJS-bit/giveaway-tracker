@@ -11,21 +11,23 @@ onMounted(() => fetchCategories());
           <span class="logo-text">Nagradne Igre</span>
           <div class="logo-underline"></div>
         </NuxtLink>
-        <p class="brand-description">Najveća zajednica za ljubitelje nagradnih igara na Balkanu. Pronađite najbolje prilike za dobitak svaki dan.</p>
+        <p class="brand-description">
+          Najveća zajednica za ljubitelje nagradnih igara na Balkanu. Pronađite najbolje prilike za dobitak svaki dan.
+        </p>
         <div class="social-links">
           <a href="#" class="social-icon" aria-label="Instagram">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+            <!-- SVG -->
           </a>
           <a href="#" class="social-icon" aria-label="Facebook">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+            <!-- SVG -->
           </a>
           <a href="#" class="social-icon" aria-label="TikTok">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg>
+            <!-- SVG -->
           </a>
         </div>
       </div>
 
-      <div class="footer-nav">
+      <nav class="footer-nav" aria-label="Quick Links">
         <h4>Brzi Linkovi</h4>
         <ul>
           <li><NuxtLink to="/">Početna</NuxtLink></li>
@@ -33,18 +35,18 @@ onMounted(() => fetchCategories());
           <li><NuxtLink to="/">Sve Nagradne Igre</NuxtLink></li>
           <li><NuxtLink to="/">Pobednici</NuxtLink></li>
         </ul>
-      </div>
+      </nav>
 
-      <div class="footer-nav">
+      <nav class="footer-nav" aria-label="Categories">
         <h4>Kategorije</h4>
         <ul>
           <li v-for="cat in categories" :key="cat.slug">
             <NuxtLink :to="`/category/${cat.slug}`">{{ cat.icon }} {{ cat.name }}</NuxtLink>
           </li>
         </ul>
-      </div>
+      </nav>
 
-      <div class="footer-nav">
+      <nav class="footer-nav" aria-label="Legal Information">
         <h4>Pravne Informacije</h4>
         <ul>
           <li><NuxtLink to="/terms">Uslovi Korišćenja</NuxtLink></li>
@@ -53,12 +55,12 @@ onMounted(() => fetchCategories());
           <li><NuxtLink to="/about">O Nama</NuxtLink></li>
           <li><NuxtLink to="/contact">Kontakt</NuxtLink></li>
         </ul>
-      </div>
+      </nav>
     </div>
-    
+
     <div class="footer-bottom">
       <div class="container">
-        <p>&copy; 2026 Fribbo Giveaway Tracker. Sva prava zadržana. Proizvedeno sa ❤️ na Balkanu.</p>
+        <p>&copy; {{ new Date().getFullYear() }} Sve Nagradne Igre. Sva prava zadržana. Proizvedeno sa ❤️ na Balkanu.</p>
       </div>
     </div>
   </footer>
