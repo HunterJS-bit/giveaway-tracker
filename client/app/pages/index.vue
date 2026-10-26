@@ -61,25 +61,6 @@ onUnmounted(() => {
         </div>
       </div>
     </section>
-
-    <!-- Community Section -->
-    <section class="community-section">
-      <div class="container community-inner">
-        <h2 class="community-title">Pridruži se zajednici</h2>
-        <p class="community-subtitle">Delite nagradne igre sa drugima i prvo saznajte za nove prilike!</p>
-        <div class="community-buttons">
-          <a href="https://chat.viber.com/YOUR_VIBER_LINK" target="_blank" rel="noopener noreferrer" class="community-btn viber-btn">
-            <span class="btn-icon">💬</span>
-            <span class="btn-text">Viber Grupa</span>
-          </a>
-          <a href="https://t.me/YOUR_TELEGRAM_LINK" target="_blank" rel="noopener noreferrer" class="community-btn telegram-btn">
-            <span class="btn-icon">✈️</span>
-            <span class="btn-text">Telegram Grupa</span>
-          </a>
-        </div>
-      </div>
-    </section>
-
     <!-- Filters -->
     <FeedFilters />
 
@@ -113,6 +94,25 @@ onUnmounted(() => {
 
     <!-- Newsletter -->
     <NewsletterSignup />
+
+        <!-- Community Section -->
+    <section class="community-section">
+      <div class="container community-inner">
+        <h2 class="community-title">Pridruži se zajednici</h2>
+        <p class="community-subtitle">Delite nagradne igre sa drugima i prvo saznajte za nove prilike!</p>
+        <div class="community-buttons">
+          <a href="https://chat.viber.com/YOUR_VIBER_LINK" target="_blank" rel="noopener noreferrer" class="community-btn viber-btn">
+            <span class="btn-icon">💬</span>
+            <span class="btn-text">Viber Grupa</span>
+          </a>
+          <a href="https://t.me/YOUR_TELEGRAM_LINK" target="_blank" rel="noopener noreferrer" class="community-btn telegram-btn">
+            <span class="btn-icon">✈️</span>
+            <span class="btn-text">Telegram Grupa</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
   </div>
 </template>
 

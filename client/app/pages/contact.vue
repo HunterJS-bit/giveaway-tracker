@@ -53,7 +53,7 @@ const handleSubmit = async () => {
               <span class="icon">📧</span>
               <div>
                 <strong>Email</strong>
-                <p>info@svenagradneigre.rs<</p>
+                <p>info@svenagradneigre.rs</p>
               </div>
             </div>
             
