@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 import pino from 'pino-http';
 import path from 'path';
 import fs from 'fs';
@@ -25,6 +26,45 @@ const port = process.env.PORT || 3000;
 
 // Trust proxy when behind reverse proxy (Dokploy, Cloudflare, etc.)
 app.set('trust proxy', true);
+
+// Security middleware to block reconnaissance requests
+app.use((req, res, next) => {
+  const path = req.path;
+
+  // Block common reconnaissance paths
+  const blockedPatterns = [
+    '/internal/',
+    '/.env',
+    '/env',
+    '/config',
+    '/secrets',
+    '/latest/meta-data',
+    '/actuator',
+    '/admin',
+    '/wp-admin',
+    '/phpmyadmin',
+    '/.git',
+    '/.svn',
+  ];
+
+  const isBlocked = blockedPatterns.some(pattern => path.startsWith(pattern));
+
+  if (isBlocked) {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  next();
+});
+
+// Security headers with Helmet
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for now as it may break the app
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
+}));
 
 // HTTP request logging with Pino
 const httpLogger = pino({
