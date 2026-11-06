@@ -99,7 +99,7 @@ const handleError = () => clearError({ redirect: '/' });
 .blob-2 {
   width: 400px;
   height: 400px;
-  background: #7c3aed;
+  background: #ff8a5c;
   bottom: -50px;
   left: -100px;
 }
@@ -114,7 +114,7 @@ const handleError = () => clearError({ redirect: '/' });
   font-size: 140px;
   font-weight: 900;
   line-height: 1;
-  background: linear-gradient(135deg, var(--accent-pink), #7c3aed);
+  background: linear-gradient(135deg, var(--accent-pink), #ff8a5c);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
