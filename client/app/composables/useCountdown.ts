@@ -63,5 +63,6 @@ export const useCountdown = () => {
     registerCountdown,
     unregisterCountdown,
     getCountdown,
+    getTimeLeft,
   };
 };
