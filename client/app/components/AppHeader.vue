@@ -1,21 +1,12 @@
 <script setup lang="ts">
-
 const colorMode = useColorMode();
 const isMenuOpen = ref(false);
-const auth = useAuth();
+const { isAuthenticated, checkAuthStatus } = useAuth();
 
-// Check auth status immediately (works on both SSR and client)
-auth.checkAuthStatus();
+checkAuthStatus();
 
-// Check auth status on mount as well for client-side
 onMounted(() => {
-  auth.checkAuthStatus();
-  console.log('Auth state after check:', {
-    isAuthenticated: auth.isAuthenticated.value || false,
-    isAdmin: auth.isAdmin.value,
-    user: auth.user.value,
-    token: auth.token.value
-  });
+  checkAuthStatus();
 });
 
 const toggleTheme = () => {
@@ -30,45 +21,62 @@ const closeMenu = () => {
   isMenuOpen.value = false;
 };
 
-// Close menu on route change
 const route = useRoute();
 watch(() => route.path, closeMenu);
 </script>
 
 <template>
-  <header class="app-header glass">
+  <header class="app-header">
     <div class="container header-inner">
-      <NuxtLink to="/" class="logo" @click="closeMenu">
-        <span class="logo-text">Sve Nagradne Igre</span>
-        <div class="logo-underline"></div>
+      <NuxtLink to="/" class="logo" aria-label="Sve Nagradne Igre — početna" @click="closeMenu">
+        <span class="logo-mark">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M20 12v8.25a.75.75 0 0 1-.75.75H4.75a.75.75 0 0 1-.75-.75V12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            <path d="M3 7.5h18v4.5H3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+            <path d="M12 7.5V21M12 7.5S10.8 3 8.25 3 5.25 7.5 8.25 7.5H12Zm0 0s1.2-4.5 3.75-4.5 3 4.5 0 4.5H12Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </span>
+        <span class="logo-copy">
+          <span class="logo-text">Sve Nagradne Igre</span>
+          <span class="logo-tagline">tvoj put do nagrade</span>
+        </span>
       </NuxtLink>
 
       <!-- Desktop nav -->
-      <nav class="nav-links desktop-nav">
+      <nav class="nav-links desktop-nav" aria-label="Glavna navigacija">
         <NuxtLink to="/" class="nav-link">Početna</NuxtLink>
         <NuxtLink to="/about" class="nav-link">O nama</NuxtLink>
         <NuxtLink to="/contact" class="nav-link">Kontakt</NuxtLink>
-        
-        <NuxtLink v-if="auth.isAdmin" to="/admin" class="nav-link">Admin</NuxtLink>
 
-        <button @click="toggleTheme" class="theme-toggle" aria-label="Toggle Dark Mode">
-          <svg v-if="colorMode.value === 'light'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <button @click="toggleTheme" class="theme-toggle" aria-label="Promeni temu">
+          <svg class="theme-icon icon-moon" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+          <svg class="theme-icon icon-sun" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" />
+          </svg>
         </button>
-        
-        <NuxtLink v-if="!auth.isAuthenticated" to="/login" class="nav-link">Login</NuxtLink>
-        <button v-else @click="auth.logout" class="nav-link" style="background:none; border:none; cursor:pointer;">Logout</button>
-        
-        <NuxtLink to="/submit" class="nav-link btn btn-primary">Predloži</NuxtLink>
+
+        <NuxtLink v-if="!isAuthenticated" to="/login" class="nav-link nav-login">Prijava</NuxtLink>
+
+        <NuxtLink to="/submit" class="btn btn-primary nav-cta">
+          Predloži nagradnu igru
+        </NuxtLink>
       </nav>
 
       <!-- Mobile controls -->
       <div class="mobile-controls">
-        <button @click="toggleTheme" class="theme-toggle" aria-label="Toggle Dark Mode">
-          <svg v-if="colorMode.value === 'light'" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        <button @click="toggleTheme" class="theme-toggle" aria-label="Promeni temu">
+          <svg class="theme-icon icon-moon" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+          <svg class="theme-icon icon-sun" xmlns="http://www.w3.org/2000/svg" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" />
+          </svg>
         </button>
-        <button @click="toggleMenu" class="hamburger" :class="{ open: isMenuOpen }" aria-label="Toggle Menu">
+        <button @click="toggleMenu" class="hamburger" :class="{ open: isMenuOpen }" aria-label="Otvori meni">
           <span></span>
           <span></span>
           <span></span>
@@ -78,20 +86,15 @@ watch(() => route.path, closeMenu);
 
     <!-- Mobile Drawer -->
     <Transition name="drawer">
-      <nav v-if="isMenuOpen" class="mobile-menu glass">
-        <NuxtLink to="/" class="mobile-link" @click="closeMenu">🏠 Početna</NuxtLink>
-        <NuxtLink to="/about" class="mobile-link" @click="closeMenu">ℹ️ O nama</NuxtLink>
-        <NuxtLink to="/contact" class="mobile-link" @click="closeMenu">📩 Kontakt</NuxtLink>
-        
-        <NuxtLink v-if="auth.isAdmin" to="/admin" class="mobile-link" @click="closeMenu">🛡️ Admin</NuxtLink>
-        <NuxtLink v-if="!auth.isAuthenticated" to="/login" class="mobile-link" @click="closeMenu">🔐 Login</NuxtLink>
-        <button v-else @click="() => { auth.logout(); closeMenu(); }" class="mobile-link" style="background:none; border:none; text-align:left; width:100%; cursor:pointer;">🚪 Logout</button>
-
-        <NuxtLink to="/submit" class="mobile-link btn btn-primary mobile-cta" @click="closeMenu">Predloži nagradnu igru</NuxtLink>
+      <nav v-if="isMenuOpen" class="mobile-menu" aria-label="Mobilna navigacija">
+        <NuxtLink to="/" class="mobile-link" @click="closeMenu">Početna</NuxtLink>
+        <NuxtLink to="/about" class="mobile-link" @click="closeMenu">O nama</NuxtLink>
+        <NuxtLink to="/contact" class="mobile-link" @click="closeMenu">Kontakt</NuxtLink>
+        <NuxtLink v-if="!isAuthenticated" to="/login" class="mobile-link" @click="closeMenu">Prijava</NuxtLink>
+        <NuxtLink to="/submit" class="mobile-link mobile-cta btn btn-primary" @click="closeMenu">Predloži nagradnu igru</NuxtLink>
       </nav>
     </Transition>
 
-    <!-- Backdrop -->
     <Transition name="fade">
       <div v-if="isMenuOpen" class="menu-backdrop" @click="closeMenu"></div>
     </Transition>
@@ -100,112 +103,163 @@ watch(() => route.path, closeMenu);
 
 <style scoped>
 .app-header {
-  height: var(--header-height);
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  inset: 0 0 auto;
   z-index: 200;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  height: var(--header-height);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .header-inner {
   height: var(--header-height);
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  width: 100%;
-}
-
-.logo {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-}
-
-.logo-text {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-main);
-}
-
-.logo-underline {
-  height: 3px;
-  width: 100%;
-  background-color: var(--accent-pink);
-  margin-top: -5px;
-}
-
-/* Desktop Nav */
-.desktop-nav {
-  display: flex;
-  align-items: center;
   gap: 28px;
 }
 
-.theme-toggle {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--text-main);
-  display: flex;
+.logo {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border-radius: 50%;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
-.theme-toggle:hover {
-  background-color: var(--bg-primary);
-  color: var(--accent-pink);
+.logo-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  background: linear-gradient(140deg, var(--primary) 20%, var(--lavender) 100%);
+  box-shadow: 0 10px 22px rgba(214, 65, 35, 0.26);
+  transition: transform 0.3s ease;
+}
+
+.logo:hover .logo-mark {
+  transform: rotate(-5deg) scale(1.04);
+}
+
+.logo-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+}
+
+.logo-text {
+  font-family: var(--font-heading);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--heading);
+}
+
+.logo-tagline {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-top: 4px;
+}
+
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .nav-link {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text-main);
+  position: relative;
+  padding: 9px 14px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-heading);
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--body);
+  transition: color 0.2s ease, background-color 0.2s ease;
 }
 
-.nav-link:not(.btn):hover {
-  color: var(--accent-pink);
+.nav-link:hover,
+.nav-link.router-link-active {
+  color: var(--primary);
+  background: var(--primary-softer);
 }
 
-/* Mobile Controls - hidden on desktop */
+.nav-login {
+  margin-left: 4px;
+}
+
+.nav-cta {
+  margin-left: 10px;
+}
+
+.theme-toggle {
+  width: 42px;
+  height: 42px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--heading);
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease, transform 0.2s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  background: var(--primary-softer);
+  transform: translateY(-1px);
+}
+
+.theme-icon {
+  display: none;
+}
+
+.icon-moon {
+  display: block;
+}
+
+:global(html.dark) .icon-moon {
+  display: none;
+}
+
+:global(html.dark) .icon-sun {
+  display: block;
+}
+
 .mobile-controls {
   display: none;
   align-items: center;
   gap: 8px;
 }
 
-/* Hamburger Button */
 .hamburger {
+  width: 42px;
+  height: 42px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 5px;
-  width: 40px;
-  height: 40px;
-  background: none;
-  border: none;
+  padding: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 50%;
   cursor: pointer;
-  padding: 8px;
-  border-radius: var(--radius-sm);
-  transition: background 0.2s ease;
-}
-
-.hamburger:hover {
-  background: var(--bg-primary);
 }
 
 .hamburger span {
   display: block;
   height: 2px;
   width: 100%;
-  background: var(--text-main);
+  background: var(--heading);
   border-radius: 2px;
   transition: all 0.3s cubic-bezier(0.77, 0.2, 0.05, 1);
   transform-origin: center;
@@ -224,64 +278,64 @@ watch(() => route.path, closeMenu);
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* Mobile Drawer */
 .mobile-menu {
   position: absolute;
   top: var(--header-height);
-  left: 0;
-  right: 0;
+  left: 12px;
+  right: 12px;
   display: flex;
   flex-direction: column;
-  padding: 20px;
   gap: 4px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
   z-index: 199;
-  border-top: 1px solid rgba(0,0,0,0.05);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
 .mobile-link {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-main);
   padding: 14px 16px;
   border-radius: var(--radius-sm);
-  transition: background 0.2s ease, color 0.2s ease;
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--heading);
 }
 
 .mobile-link:hover {
-  background: var(--bg-primary);
-  color: var(--accent-pink);
+  background: var(--primary-softer);
+  color: var(--primary);
 }
 
 .mobile-cta {
-  margin-top: 10px;
+  margin-top: 6px;
+  color: #fff !important;
   text-align: center;
 }
 
-/* Backdrop */
 .menu-backdrop {
   position: fixed;
-  inset: 0;
-  top: var(--header-height);
-  background: rgba(0,0,0,0.3);
+  inset: var(--header-height) 0 0;
+  background: rgba(15, 16, 24, 0.38);
+  backdrop-filter: blur(2px);
   z-index: 198;
 }
 
-/* Transitions */
 .drawer-enter-active,
 .drawer-leave-active {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
 .drawer-enter-from,
 .drawer-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-8px);
 }
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 
 .fade-enter-from,
@@ -289,17 +343,28 @@ watch(() => route.path, closeMenu);
   opacity: 0;
 }
 
-@media (max-width: 768px) {
-  .logo-text {
-    font-size: 24px;
-  }
-
+@media (max-width: 980px) {
   .desktop-nav {
     display: none;
   }
 
   .mobile-controls {
     display: flex;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-text {
+    font-size: 17px;
+  }
+
+  .logo-tagline {
+    font-size: 9px;
+  }
+
+  .logo-mark {
+    width: 40px;
+    height: 40px;
   }
 }
 </style>
