@@ -58,8 +58,7 @@ export default defineNuxtConfig({
   },
   fonts: {
     families: [
-      { name: 'Outfit', provider: 'google' },
-      { name: 'Inter', provider: 'google' }
+      { name: 'Figtree', provider: 'google' }
     ]
   },
   delayHydration: {
