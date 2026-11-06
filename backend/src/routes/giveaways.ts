@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { giveaways, comments } from '../db/schema';
-import { eq, desc, asc, ne, and, sql, count } from 'drizzle-orm';
+import { eq, desc, asc, ne, and, or, sql, count } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { requireAdmin, AuthRequest } from '../middleware/auth';
 import { asyncHandler, ApiError } from '../middleware/errorHandler';
@@ -28,6 +28,7 @@ router.get('/', asyncHandler(async (req, res) => {
     const offsetStr = req.query.offset as string;
     const sort = req.query.sort as string;
     const categoryFilter = req.query.category as string;
+    const platformFilter = req.query.platform as string;
     const search = req.query.search as string;
 
     let orderClause = [desc(giveaways.isFeatured), asc(giveaways.endDate)];
@@ -44,6 +45,16 @@ router.get('/', asyncHandler(async (req, res) => {
     }
     if (search) {
         whereConditions.push(sql`(${giveaways.title} ILIKE ${`%${search}%`} OR ${giveaways.brand} ILIKE ${`%${search}%`})`);
+    }
+    if (platformFilter && platformFilter !== 'All') {
+        if (platformFilter === 'Website') {
+            whereConditions.push(sql`(${giveaways.entryUrl} NOT ILIKE '%instagram.com%' AND ${giveaways.entryUrl} NOT ILIKE '%facebook.com%' AND ${giveaways.entryUrl} NOT ILIKE '%fb.com%' AND ${giveaways.entryUrl} NOT ILIKE '%tiktok.com%')`);
+        } else {
+            const aliases = platformFilter === 'Facebook'
+                ? ['facebook.com', 'fb.com']
+                : [`${platformFilter.toLowerCase()}.com`];
+            whereConditions.push(or(...aliases.map(alias => sql`${giveaways.entryUrl} ILIKE ${`%${alias}%`}`)));
+        }
     }
     whereConditions.push(eq(giveaways.status, 'active'));
 
