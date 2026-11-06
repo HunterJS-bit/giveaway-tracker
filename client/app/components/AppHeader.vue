@@ -57,8 +57,8 @@ watch(() => route.path, closeMenu);
             <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41" />
           </svg>
         </button>
-
-        <NuxtLink v-if="!isAuthenticated" to="/login" class="nav-link nav-login">Prijava</NuxtLink>
+<!-- 
+        <NuxtLink v-if="!isAuthenticated" to="/login" class="nav-link nav-login">Prijava</NuxtLink> -->
 
         <NuxtLink to="/submit" class="btn btn-primary nav-cta">
           Predloži nagradnu igru
@@ -90,7 +90,7 @@ watch(() => route.path, closeMenu);
         <NuxtLink to="/" class="mobile-link" @click="closeMenu">Početna</NuxtLink>
         <NuxtLink to="/about" class="mobile-link" @click="closeMenu">O nama</NuxtLink>
         <NuxtLink to="/contact" class="mobile-link" @click="closeMenu">Kontakt</NuxtLink>
-        <NuxtLink v-if="!isAuthenticated" to="/login" class="mobile-link" @click="closeMenu">Prijava</NuxtLink>
+        <!-- <NuxtLink v-if="!isAuthenticated" to="/login" class="mobile-link" @click="closeMenu">Prijava</NuxtLink> -->
         <NuxtLink to="/submit" class="mobile-link mobile-cta btn btn-primary" @click="closeMenu">Predloži nagradnu igru</NuxtLink>
       </nav>
     </Transition>
