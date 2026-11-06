@@ -4,6 +4,7 @@ export const useGiveaways = () => {
     const isLoading = useState<boolean>('giveaways-loading', () => false);
     const hasMore = useState<boolean>('giveaways-has-more', () => true);
     const offset = useState<number>('giveaways-offset', () => 0);
+    const totalCount = useState<number>('giveaways-total', () => 0);
     const limit = 12;
 
     // Filtering State
@@ -41,6 +42,7 @@ export const useGiveaways = () => {
 
             const fetchedData = response.data || [];
             const fetchedCount = response.totalCount || 0;
+            totalCount.value = fetchedCount;
 
             if (refresh) {
                 giveaways.value = fetchedData;
@@ -80,6 +82,7 @@ export const useGiveaways = () => {
         giveaways,
         isLoading,
         hasMore,
+        totalCount,
         category,
         platform,
         searchQuery,

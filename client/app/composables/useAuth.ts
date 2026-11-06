@@ -47,8 +47,8 @@ export const useAuth = () => {
     return {
         user,
         token,
-        isAuthenticated: computed(() => !!user.value) || false,
-        isAdmin: computed(() => user.value?.role === 'admin') || false,
+        isAuthenticated: computed(() => !!user.value),
+        isAdmin: computed(() => user.value?.role === 'admin'),
         checkAuthStatus,
         setSession,
         logout

@@ -8,14 +8,12 @@ export interface Category {
     giveawayCount?: number;
 }
 
-const BASE_URL = ''; // resolved at runtime via useRuntimeConfig
-
-// Module-level cache so categories are fetched once per app session
-const _categories = ref<Category[]>([]);
-const _loaded = ref(false);
-
 export const useCategories = () => {
     const config = useRuntimeConfig();
+    // useState keeps the cache SSR-safe: the server-fetched list is serialized
+    // into the payload so the client hydrates with the same categories.
+    const _categories = useState<Category[]>('categories', () => []);
+    const _loaded = useState<boolean>('categories-loaded', () => false);
     const isLoading = ref(false);
     const error = ref<string | null>(null);
 
