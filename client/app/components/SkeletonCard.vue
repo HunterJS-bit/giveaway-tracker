@@ -9,8 +9,8 @@
       <div class="skeleton-text title"></div>
       <div class="skeleton-text title short"></div>
       <div class="skeleton-footer">
-        <div class="skeleton-text small"></div>
-        <div class="skeleton-text small"></div>
+        <div class="skeleton-text tiny"></div>
+        <div class="skeleton-text tiny"></div>
       </div>
     </div>
   </div>
@@ -18,21 +18,22 @@
 
 <style scoped>
 .skeleton-card {
-  background: var(--bg-secondary);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
-  min-height: 380px;
+  min-height: 390px;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
 }
 
 .skeleton-image-wrap {
   width: 100%;
-  aspect-ratio: 16/10;
-  background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(100deg, var(--bg-muted) 20%, var(--surface-2) 40%, var(--bg-muted) 60%);
   background-size: 200% 100%;
-  animation: loading 1.5s infinite;
+  animation: loading 1.4s infinite linear;
 }
 
 .skeleton-content {
@@ -45,34 +46,39 @@
 .skeleton-meta {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .skeleton-text {
   height: 14px;
-  background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+  border-radius: 6px;
+  background: linear-gradient(100deg, var(--bg-muted) 20%, var(--surface-2) 40%, var(--bg-muted) 60%);
   background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-  border-radius: 4px;
+  animation: loading 1.4s infinite linear;
 }
 
 .skeleton-text.small {
-  width: 60px;
+  width: 70px;
 }
 
 .skeleton-text.title {
   height: 20px;
-  margin-bottom: 8px;
+  margin-bottom: 9px;
 }
 
 .skeleton-text.title.short {
-  width: 60%;
+  width: 62%;
+}
+
+.skeleton-text.tiny {
+  width: 84px;
+  height: 12px;
 }
 
 .skeleton-footer {
   margin-top: auto;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
 }
@@ -80,11 +86,5 @@
 @keyframes loading {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
-}
-
-html.dark .skeleton-text,
-html.dark .skeleton-image-wrap {
-  background: linear-gradient(90deg, #2a2a2a 25%, #333 50%, #2a2a2a 75%);
-  background-size: 200% 100%;
 }
 </style>
