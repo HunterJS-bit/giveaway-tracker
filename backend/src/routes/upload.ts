@@ -2,17 +2,9 @@ import { Router } from 'express';
 import { requireAdmin, AuthRequest } from '../middleware/auth';
 import { asyncHandler, ApiError } from '../middleware/errorHandler';
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import sharp from 'sharp';
+import { uploadImage } from '../utils/storage';
 
 const router = Router();
-
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
 
 // Multer storage config
 const storage = multer.memoryStorage();
@@ -27,20 +19,12 @@ router.post('/', requireAdmin as any, upload.single('image'), asyncHandler(async
         throw new ApiError(400, 'No file uploaded');
     }
 
-    // Process with sharp
+    // Generate unique filename
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     const filename = uniqueSuffix + '.webp';
-    const outputPath = path.join(uploadsDir, filename);
 
-    await sharp(req.file.buffer)
-        .resize({ width: 1200, withoutEnlargement: true }) // resize large images
-        .webp({ quality: 80 }) // compress into webp
-        .toFile(outputPath);
-
-    // Return full URL
-    const protocol = req.protocol;
-    const host = req.get('host');
-    const fileUrl = `${protocol}://${host}/uploads/${filename}`;
+    // Upload to R2 or local storage
+    const fileUrl = await uploadImage(req.file.buffer, filename);
 
     res.status(201).json({ url: fileUrl });
 }));
