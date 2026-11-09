@@ -91,6 +91,62 @@ if (result.value) {
   throw createError({ statusCode: 404, statusMessage: 'Nije pronađeno' });
 }
 
+// Dynamic SEO meta tags
+const currentGiveaway = computed(() => giveaway.value || result.value as Giveaway);
+const seoTitle = computed(() => `${currentGiveaway.value?.title || 'Nagradna igra'} - Osvoji ${currentGiveaway.value?.formattedPrizeValue || currentGiveaway.value?.prizeValue || 'nagradu'}`);
+const seoDescription = computed(() => currentGiveaway.value?.description || `Učestvuj u nagradnoj igri i osvoji ${currentGiveaway.value?.formattedPrizeValue || currentGiveaway.value?.prizeValue} od ${currentGiveaway.value?.brand}. Završava se: ${new Date(currentGiveaway.value?.endDate).toLocaleDateString('sr-RS')}.`);
+const seoImage = computed(() => currentGiveaway.value?.imageUrl || '/og-image.jpg');
+
+useSeoMeta({
+  title: seoTitle,
+  ogTitle: seoTitle,
+  description: seoDescription,
+  ogDescription: seoDescription,
+  ogImage: seoImage,
+  ogUrl: `${config.public.siteUrl}/giveaways/${id}`,
+  twitterCard: 'summary_large_image',
+});
+
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: `${config.public.siteUrl}/giveaways/${id}`
+    }
+  ]
+});
+
+// JSON-LD structured data for SEO
+const jsonLd = computed(() => ({
+  '@context': 'https://schema.org',
+  '@type': 'Promotion',
+  name: currentGiveaway.value?.title,
+  description: currentGiveaway.value?.description,
+  image: currentGiveaway.value?.imageUrl,
+  url: `${config.public.siteUrl}/giveaways/${id}`,
+  brand: {
+    '@type': 'Brand',
+    name: currentGiveaway.value?.brand
+  },
+  offers: {
+    '@type': 'Offer',
+    price: currentGiveaway.value?.prizeValue,
+    priceCurrency: currentGiveaway.value?.currency || 'RSD',
+    availability: 'https://schema.org/InStock',
+    validFrom: currentGiveaway.value?.startDate,
+    validThrough: currentGiveaway.value?.endDate
+  }
+}));
+
+useHead({
+  script: [
+    {
+      type: 'application/ld+json',
+      children: jsonLd.value
+    }
+  ]
+});
+
 const { data: similarData } = await useAsyncData(
   `similar-${id}`,
   () => $fetch<Giveaway[]>(`${config.public.apiBase}/api/giveaways/${id}/similar`)
