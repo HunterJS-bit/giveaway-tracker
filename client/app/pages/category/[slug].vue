@@ -42,6 +42,27 @@ const allGiveaways = ref<Giveaway[]>(giveaways.value);
 const hasMore = ref(allGiveaways.value.length < initialTotalCount.value);
 const offset = ref(24);
 
+// Dynamic SEO meta tags
+const seoTitle = computed(() => `${category.value?.name || slug} - Nagradne igre | Sve Nagradne Igre`);
+const seoDescription = computed(() => `Pronađi sve nagradne igre iz kategorije ${category.value?.name || slug}. Osvoj vredne nagrade od najboljih brendova.`);
+
+useSeoMeta({
+  title: seoTitle,
+  ogTitle: seoTitle,
+  description: seoDescription,
+  ogDescription: seoDescription,
+  ogUrl: `${config.public.siteUrl}/category/${slug}`,
+});
+
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: `${config.public.siteUrl}/category/${slug}`
+    }
+  ]
+});
+
 const loadMore = async () => {
   if (isLoading.value || !hasMore.value) return;
   isLoading.value = true;

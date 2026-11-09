@@ -3,9 +3,14 @@
 User-agent: *
 Allow: /
 
-# Block admin and API routes from crawlers
+# Block admin and auth routes from crawlers
 Disallow: /admin/
 Disallow: /api/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /submit
 
 # Sitemap location
 Sitemap: https://svenagradneigre.rs/sitemap.xml
