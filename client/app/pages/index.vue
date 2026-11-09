@@ -22,6 +22,15 @@ useSeoMeta({
   ogUrl: config.public.siteUrl,
 });
 
+useHead({
+  link: [
+    {
+      rel: 'canonical',
+      href: config.public.siteUrl
+    }
+  ]
+});
+
 const statCount = computed(() => (totalCount.value > 0 ? totalCount.value : giveaways.value.length));
 const statCategories = computed(() => categories.value.length || 8);
 
