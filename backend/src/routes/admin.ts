@@ -10,33 +10,63 @@ import { z } from 'zod';
 const router = Router();
 
 // --- Admin Giveaway Creation ---
+// All fields are optional: the admin form can be submitted with partial data
+// and missing/blank values fall back to sensible defaults.
+const blankToUndefined = (val: unknown) => {
+    // HTML form inputs submit empty strings when left blank — treat as missing
+    if (typeof val === 'string' && val.trim() === '') return undefined;
+    return val;
+};
+
+const optionalText = (max: number, fallback = '') =>
+    z.preprocess(blankToUndefined, z.string().max(max).optional().default(fallback));
+
+const optionalUrl = (fallback = '') =>
+    z.preprocess(blankToUndefined, z.string().url().optional().default(fallback));
+
+const optionalDate = z.preprocess(blankToUndefined, z.coerce.date().optional());
+
 const CreateGiveawaySchema = z.object({
-    title: z.string().min(3).max(200),
-    brand: z.string().min(1).max(100),
-    brandLogoUrl: z.string().url(),
-    imageUrl: z.string().url(),
-    description: z.string().min(10).max(2000),
-    prize: z.string().min(1).max(200),
-    prizeValue: z.number().positive(),
-    currency: z.string().default('RSD'),
-    country: z.string().default('RS'),
-    category: z.string().min(1).max(50),
-    entryUrl: z.string().url(),
-    startDate: z.string().transform((val) => new Date(val)),
-    endDate: z.string().transform((val) => new Date(val)),
+    title: optionalText(200),
+    brand: optionalText(100),
+    brandLogoUrl: optionalUrl(),
+    imageUrl: optionalUrl(),
+    description: optionalText(2000),
+    prize: optionalText(200),
+    prizeValue: z.preprocess(blankToUndefined, z.coerce.number().nonnegative().optional().default(0)),
+    currency: optionalText(10, 'RSD'),
+    country: optionalText(10, 'RS'),
+    category: optionalText(50),
+    entryUrl: optionalUrl(),
+    startDate: optionalDate,
+    endDate: optionalDate,
     isFeatured: z.boolean().default(false),
     isVerified: z.boolean().default(false),
 });
 
+// Default giveaway length when no end date is provided
+const DEFAULT_GIVEAWAY_DAYS = 7;
+
 router.post('/giveaways', requireAdmin as any, asyncHandler(async (req, res) => {
-    const validated = CreateGiveawaySchema.parse(req.body);
-    
-    const id = uuidv4();
+    const result = CreateGiveawaySchema.safeParse(req.body);
+    if (!result.success) {
+        const issues = result.error.issues.map(i => `${i.path.join('.') || 'form'}: ${i.message}`).join('; ');
+        throw new ApiError(400, `Neispravni podaci: ${issues}`);
+    }
+    const validated = result.data;
+
     const now = new Date();
-    
+    const startDate = validated.startDate ?? now;
+    const endDate = validated.endDate ?? new Date(startDate.getTime() + DEFAULT_GIVEAWAY_DAYS * 24 * 60 * 60 * 1000);
+
+    // Fall back to the prize name, then a generic title, when no title is given
+    const title = validated.title || validated.prize || 'Nagradna igra';
+
+    const id = uuidv4();
+
     const [newGiveaway] = await db.insert(giveaways).values({
         id,
-        title: validated.title,
+        title,
         brand: validated.brand,
         brandLogoUrl: validated.brandLogoUrl,
         imageUrl: validated.imageUrl,
@@ -47,8 +77,8 @@ router.post('/giveaways', requireAdmin as any, asyncHandler(async (req, res) => 
         country: validated.country,
         category: validated.category,
         entryUrl: validated.entryUrl,
-        startDate: validated.startDate,
-        endDate: validated.endDate,
+        startDate,
+        endDate,
         isFeatured: validated.isFeatured,
         isVerified: validated.isVerified,
         status: 'active',
@@ -56,7 +86,7 @@ router.post('/giveaways', requireAdmin as any, asyncHandler(async (req, res) => 
         createdAt: now,
         updatedAt: now,
     }).returning();
-    
+
     res.status(201).json(newGiveaway);
 }));
 

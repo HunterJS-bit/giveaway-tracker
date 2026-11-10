@@ -16,35 +16,37 @@
     </div>
 
     <form v-else @submit.prevent="handleSubmit" class="giveaway-form">
+      <p class="form-note">Sva polja su opcionalna — popuni ono što znaš, ostalo se može dopuniti kasnije.</p>
+
       <div class="form-section">
         <h3>Osnovne Informacije</h3>
-        
+
         <div class="form-group">
-          <label for="title">Naslov *</label>
-          <input type="text" id="title" v-model="form.title" required placeholder="Npr: Osvoji iPhone 15 Pro" />
+          <label for="title">Naslov</label>
+          <input type="text" id="title" v-model="form.title" placeholder="Npr: Osvoji iPhone 15 Pro" />
         </div>
 
         <div class="form-group">
-          <label for="brand">Brend *</label>
-          <input type="text" id="brand" v-model="form.brand" required placeholder="Npr: Apple" />
+          <label for="brand">Brend</label>
+          <input type="text" id="brand" v-model="form.brand" placeholder="Npr: Apple" />
         </div>
 
         <div class="form-group">
-          <label for="brandLogoUrl">URL Logotipa Brend *</label>
-          <input type="url" id="brandLogoUrl" v-model="form.brandLogoUrl" required placeholder="https://..." />
+          <label for="brandLogoUrl">URL Logotipa Brend</label>
+          <input type="url" id="brandLogoUrl" v-model="form.brandLogoUrl" placeholder="https://..." />
         </div>
 
         <div class="form-group">
-          <label for="category">Kategorija *</label>
-          <select id="category" v-model="form.category" required>
+          <label for="category">Kategorija</label>
+          <select id="category" v-model="form.category">
             <option value="">Izaberi kategoriju</option>
             <option v-for="cat in categories" :key="cat.slug" :value="cat.name">{{ cat.name }}</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="country">Zemlja *</label>
-          <select id="country" v-model="form.country" required>
+          <label for="country">Zemlja</label>
+          <select id="country" v-model="form.country">
             <option value="RS">Srbija</option>
             <option value="HR">Hrvatska</option>
             <option value="BA">Bosna i Hercegovina</option>
@@ -58,8 +60,8 @@
         <h3>Slika</h3>
 
         <div class="form-group">
-          <label for="imageUrl">URL Slike *</label>
-          <input type="url" id="imageUrl" v-model="form.imageUrl" required placeholder="https://..." />
+          <label for="imageUrl">URL Slike</label>
+          <input type="url" id="imageUrl" v-model="form.imageUrl" placeholder="https://..." />
           <p class="help-text">Ili uploaduj sliku sa računara:</p>
 
           <label
@@ -99,20 +101,20 @@
 
       <div class="form-section">
         <h3>Nagrada</h3>
-        
+
         <div class="form-group">
-          <label for="prize">Naziv Nagrade *</label>
-          <input type="text" id="prize" v-model="form.prize" required placeholder="Npr: iPhone 15 Pro" />
+          <label for="prize">Naziv Nagrade</label>
+          <input type="text" id="prize" v-model="form.prize" placeholder="Npr: iPhone 15 Pro" />
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label for="prizeValue">Vrednost *</label>
-            <input type="number" id="prizeValue" v-model="form.prizeValue" required min="0" step="0.01" />
+            <label for="prizeValue">Vrednost</label>
+            <input type="number" id="prizeValue" v-model="form.prizeValue" min="0" step="0.01" />
           </div>
           <div class="form-group">
-            <label for="currency">Valuta *</label>
-            <select id="currency" v-model="form.currency" required>
+            <label for="currency">Valuta</label>
+            <select id="currency" v-model="form.currency">
               <option value="RSD">RSD</option>
               <option value="EUR">EUR</option>
               <option value="USD">USD</option>
@@ -123,31 +125,32 @@
 
       <div class="form-section">
         <h3>Detalji</h3>
-        
+
         <div class="form-group">
-          <label for="description">Opis *</label>
-          <textarea id="description" v-model="form.description" required rows="4" placeholder="Opis nagradne igre..."></textarea>
+          <label for="description">Opis</label>
+          <textarea id="description" v-model="form.description" rows="4" placeholder="Opis nagradne igre..."></textarea>
         </div>
 
         <div class="form-group">
-          <label for="entryUrl">Link za Učešće *</label>
-          <input type="url" id="entryUrl" v-model="form.entryUrl" required placeholder="https://..." />
+          <label for="entryUrl">Link za Učešće</label>
+          <input type="url" id="entryUrl" v-model="form.entryUrl" placeholder="https://..." />
         </div>
       </div>
 
       <div class="form-section">
         <h3>Datumi</h3>
-        
+
         <div class="form-row">
           <div class="form-group">
-            <label for="startDate">Datum Početka *</label>
-            <input type="datetime-local" id="startDate" v-model="form.startDate" required />
+            <label for="startDate">Datum Početka</label>
+            <input type="datetime-local" id="startDate" v-model="form.startDate" />
           </div>
           <div class="form-group">
-            <label for="endDate">Datum Završetka *</label>
-            <input type="datetime-local" id="endDate" v-model="form.endDate" required />
+            <label for="endDate">Datum Završetka</label>
+            <input type="datetime-local" id="endDate" v-model="form.endDate" />
           </div>
         </div>
+        <p class="help-text">Ako datumi nisu uneti: početni datum je danas, a završni +7 dana.</p>
       </div>
 
       <div class="form-section">
@@ -397,6 +400,16 @@ const handleSubmit = async () => {
   box-shadow: 0 4px 12px rgba(0,0,0,0.03);
   max-width: 800px;
   margin: 0 auto;
+}
+
+.form-note {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  background: rgba(111, 66, 193, 0.06);
+  border: 1px solid rgba(111, 66, 193, 0.15);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
 }
 
 .form-section {
