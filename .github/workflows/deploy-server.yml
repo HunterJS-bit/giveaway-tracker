@@ -66,15 +66,72 @@ jobs:
           DOKPLOY_APP_ID: ${{ secrets.DOKPLOY_APP_ID }}
 
       - name: Update Environment Variables via Dokploy API
+        env:
+          DOKPLOY_URL: ${{ secrets.DOKPLOY_URL }}
+          DOKPLOY_API_KEY: ${{ secrets.DOKPLOY_API_KEY }}
+          DOKPLOY_APP_ID: ${{ secrets.DOKPLOY_APP_ID }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          API_BASE_URL: ${{ vars.API_BASE_URL }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
         run: |
-          curl --fail -X POST "${{ secrets.DOKPLOY_URL }}/api/application.update" \
+          ENV_JSON=$(python3 - <<'EOF'
+          import json
+          import os
+
+          env_lines = [
+              "PORT=4001",
+              f"DATABASE_URL={os.environ['DATABASE_URL']}",
+              "NODE_ENV=production",
+              "FRONTEND_URL=https://svenagradneigre.rs,http://localhost:3001",
+          ]
+
+          def add(name, value):
+              if value:
+                  env_lines.append(f"{name}={value}")
+
+          # Auth
+          add("JWT_SECRET", os.environ.get("JWT_SECRET"))
+          add("GOOGLE_CLIENT_ID", os.environ.get("GOOGLE_CLIENT_ID"))
+
+          # Public base URL for locally uploaded images (absolute URLs)
+          add("PUBLIC_URL", os.environ.get("API_BASE_URL"))
+
+          # Cloudflare R2 — when all five are set, image uploads go to R2;
+          # otherwise the API falls back to local ./uploads storage.
+          r2 = [os.environ.get(v) for v in (
+              "R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY",
+              "R2_BUCKET_NAME", "R2_PUBLIC_URL",
+          )]
+          if all(r2):
+              for name, value in zip(
+                  ("R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY",
+                   "R2_BUCKET_NAME", "R2_PUBLIC_URL"), r2
+              ):
+                  env_lines.append(f"{name}={value}")
+              print("::notice::R2 fully configured - uploads will go to Cloudflare R2")
+          else:
+              print("::warning::R2 secrets not fully set - image uploads will use local ./uploads storage")
+
+          payload = {
+              "applicationId": os.environ["DOKPLOY_APP_ID"],
+              "env": "\n".join(env_lines) + "\n",
+          }
+          print(json.dumps(payload))
+          EOF
+          )
+
+          echo "Updating environment variables (values hidden)..."
+          curl --fail -X POST "$DOKPLOY_URL/api/application.update" \
             -H "accept: application/json" \
-            -H "x-api-key: ${{ secrets.DOKPLOY_API_KEY }}" \
+            -H "x-api-key: $DOKPLOY_API_KEY" \
             -H "Content-Type: application/json" \
-            -d '{
-              "applicationId": "${{ secrets.DOKPLOY_APP_ID }}",
-              "env": "PORT=4001\nDATABASE_URL=${{ secrets.DATABASE_URL }}\nNODE_ENV=production\nFRONTEND_URL=https://svenagradneigre.rs,http://localhost:3001"
-            }'
+            -d "$ENV_JSON"
 
       - name: Trigger Dokploy deployment
         env:
