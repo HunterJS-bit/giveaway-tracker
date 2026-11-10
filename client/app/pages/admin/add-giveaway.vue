@@ -56,13 +56,44 @@
 
       <div class="form-section">
         <h3>Slika</h3>
-        
+
         <div class="form-group">
           <label for="imageUrl">URL Slike *</label>
           <input type="url" id="imageUrl" v-model="form.imageUrl" required placeholder="https://..." />
-          <p class="help-text">Ili uploaduj sliku:</p>
-          <input type="file" @change="handleImageUpload" accept="image/*" />
-          <p v-if="uploadingImage" class="uploading-text">Upload u toku...</p>
+          <p class="help-text">Ili uploaduj sliku sa računara:</p>
+
+          <label
+            for="imageUpload"
+            class="upload-dropzone"
+            :class="{ 'is-dragging': isDragging, 'is-uploading': uploadingImage }"
+            @dragover.prevent="isDragging = true"
+            @dragleave.prevent="isDragging = false"
+            @drop.prevent="handleDrop"
+          >
+            <input
+              id="imageUpload"
+              type="file"
+              class="upload-input"
+              @change="handleImageUpload"
+              accept="image/jpeg,image/png,image/webp,image/gif,image/avif"
+            />
+            <template v-if="uploadingImage">
+              <div class="spinner small-spinner"></div>
+              <span class="upload-text">Upload u toku...</span>
+            </template>
+            <template v-else>
+              <span class="upload-icon" aria-hidden="true">🖼️</span>
+              <span class="upload-text">Prevuci sliku ovde ili klikni da izabereš</span>
+              <span class="upload-hint">JPG, PNG, WebP, GIF ili AVIF — max 5MB</span>
+            </template>
+          </label>
+
+          <p v-if="imageUploaded && !uploadingImage" class="success-text">✓ Slika je uspešno uploadovana</p>
+
+          <div v-if="form.imageUrl" class="image-preview">
+            <img :src="form.imageUrl" alt="Pregled slike" />
+            <span class="preview-caption">Pregled slike</span>
+          </div>
         </div>
       </div>
 
@@ -187,6 +218,11 @@ const form = ref({
 const loading = ref(false);
 const error = ref('');
 const uploadingImage = ref(false);
+const imageUploaded = ref(false);
+const isDragging = ref(false);
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB (must match backend multer limit)
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
 
 onMounted(async () => {
   // Ensure auth status is checked
@@ -201,13 +237,45 @@ onMounted(async () => {
   }
 });
 
+const handleDrop = (event: DragEvent) => {
+  isDragging.value = false;
+  const file = event.dataTransfer?.files?.[0];
+  if (!file) return;
+
+  const input = document.getElementById('imageUpload') as HTMLInputElement | null;
+  if (input) {
+    // Sync the dropped file into the input so it stays consistent
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    input.files = dt.files;
+  }
+
+  uploadFile(file);
+};
+
 const handleImageUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0];
   if (!file) return;
 
-  uploadingImage.value = true;
+  await uploadFile(file);
+};
+
+const uploadFile = async (file: File) => {
   error.value = '';
+  imageUploaded.value = false;
+
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    error.value = 'Nepodržan tip slike. Koristite JPG, PNG, WebP, GIF ili AVIF.';
+    return;
+  }
+
+  if (file.size > MAX_IMAGE_SIZE) {
+    error.value = 'Slika je prevelika. Maksimalna veličina je 5MB.';
+    return;
+  }
+
+  uploadingImage.value = true;
 
   try {
     const formData = new FormData();
@@ -223,10 +291,15 @@ const handleImageUpload = async (event: Event) => {
     });
 
     form.value.imageUrl = response.url;
+    imageUploaded.value = true;
   } catch (err: any) {
     error.value = err.data?.error || 'Greška pri uploadu slike';
   } finally {
     uploadingImage.value = false;
+
+    // Allow picking the same file again after an error
+    const input = document.getElementById('imageUpload') as HTMLInputElement | null;
+    if (input) input.value = '';
   }
 };
 
@@ -382,6 +455,88 @@ const handleSubmit = async () => {
   font-size: 0.85rem;
   color: var(--text-muted);
   margin-top: 0.5rem;
+}
+
+.upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 2rem 1rem;
+  margin-top: 0.5rem;
+  border: 2px dashed var(--border-color, #eaeaea);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone.is-dragging {
+  border-color: var(--primary-color);
+  background-color: rgba(111, 66, 193, 0.05);
+}
+
+.upload-dropzone.is-uploading {
+  cursor: progress;
+  border-color: var(--primary-color);
+}
+
+.upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.upload-icon {
+  font-size: 1.8rem;
+}
+
+.upload-text {
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.upload-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.small-spinner {
+  width: 28px;
+  height: 28px;
+  border-width: 3px;
+  margin-bottom: 0;
+}
+
+.success-text {
+  font-size: 0.85rem;
+  color: #10b981;
+  margin-top: 0.5rem;
+}
+
+.image-preview {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.image-preview img {
+  width: 100%;
+  max-height: 260px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--border-color, #eaeaea);
+}
+
+.preview-caption {
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 .uploading-text {
