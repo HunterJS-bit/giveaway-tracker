@@ -25,6 +25,7 @@ const config = useRuntimeConfig();
 const { giveaways } = useGiveaways();
 const { isFavorite, toggleFavorite } = useFavorites();
 const { registerCountdown, unregisterCountdown, getCountdown, getTimeLeft } = useCountdown();
+const { sanitizeHtml } = useSanitize();
 
 const giveaway = computed<Giveaway | null>(() => giveaways.value.find((g: Giveaway) => g.id === id) || null);
 
@@ -390,7 +391,7 @@ useHead({
                 </span>
                 <h2>O ovoj nagradnoj igri</h2>
               </div>
-              <div class="description" v-html="giveaway.description || 'Nema opisa za ovu nagradnu igru.'"></div>
+              <div class="description" v-html="sanitizeHtml(giveaway.description) || 'Nema opisa za ovu nagradnu igru.'"></div>
             </section>
 
             <section class="rules-card reveal" style="--delay: 0.24s">
@@ -1004,6 +1005,41 @@ useHead({
   height: auto;
   border-radius: var(--radius-sm);
   margin: 12px 0;
+}
+
+.description :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.description :deep(th),
+.description :deep(td) {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.description :deep(th) {
+  background: var(--primary-soft);
+  font-weight: 600;
+  color: var(--heading);
+}
+
+.description :deep(tr:last-child td) {
+  border-bottom: none;
+}
+
+.description :deep(blockquote) {
+  margin: 16px 0;
+  padding: 12px 20px;
+  border-left: 4px solid var(--primary);
+  background: var(--primary-soft);
+  color: var(--body);
+  font-style: italic;
 }
 
 .rules-list {
