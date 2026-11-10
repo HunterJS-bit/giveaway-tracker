@@ -245,6 +245,7 @@ useHead({
         <section class="detail-hero">
           <div class="hero-media reveal" style="--delay: 0.06s">
             <NuxtImg
+              v-if="giveaway.imageUrl"
               :src="giveaway.imageUrl"
               :alt="giveaway.title"
               class="main-image"
@@ -252,6 +253,9 @@ useHead({
               preload
               fetchpriority="high"
             />
+            <div v-else class="main-image main-image-placeholder">
+              <span class="placeholder-icon" aria-hidden="true">🎁</span>
+            </div>
             <div class="media-badges">
               <span class="media-category">
                 {{ categoryLabel }}
@@ -327,7 +331,7 @@ useHead({
             </div>
 
             <a
-              v-if="!isExpired"
+              v-if="!isExpired && giveaway.entryUrl"
               :href="giveaway.entryUrl"
               target="_blank"
               rel="noopener noreferrer"
@@ -453,7 +457,7 @@ useHead({
               </ul>
 
               <a
-                v-if="!isExpired"
+                v-if="!isExpired && giveaway.entryUrl"
                 :href="giveaway.entryUrl"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -595,6 +599,21 @@ useHead({
   min-height: 460px;
   max-height: 620px;
   object-fit: cover;
+}
+
+.main-image-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--primary) 18%, transparent), transparent 55%),
+    radial-gradient(circle at 75% 80%, color-mix(in srgb, var(--accent, var(--primary)) 15%, transparent), transparent 60%),
+    var(--bg-muted);
+}
+
+.main-image-placeholder .placeholder-icon {
+  font-size: 4.5rem;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.15));
 }
 
 .media-badges {
