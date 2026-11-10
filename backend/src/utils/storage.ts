@@ -1,5 +1,7 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
+import path from 'path';
+import fs from 'fs';
 
 // Check if R2 is configured
 const isR2Configured = !!(
@@ -26,7 +28,8 @@ if (isR2Configured) {
 
 export const uploadImage = async (
   buffer: Buffer,
-  filename: string
+  filename: string,
+  publicBaseUrl?: string
 ): Promise<string> => {
   // Process image with sharp
   const processedBuffer = await sharp(buffer)
@@ -37,9 +40,8 @@ export const uploadImage = async (
   // Use R2 if configured, otherwise fall back to local storage
   if (isR2Configured && s3Client) {
     return uploadToR2(processedBuffer, filename);
-  } else {
-    return uploadToLocal(processedBuffer, filename);
   }
+  return uploadToLocal(processedBuffer, filename, publicBaseUrl);
 };
 
 const uploadToR2 = async (buffer: Buffer, filename: string): Promise<string> => {
@@ -59,10 +61,7 @@ const uploadToR2 = async (buffer: Buffer, filename: string): Promise<string> => 
   return `${process.env.R2_PUBLIC_URL}/${filename}`;
 };
 
-const uploadToLocal = async (buffer: Buffer, filename: string): Promise<string> => {
-  const path = require('path');
-  const fs = require('fs');
-
+const uploadToLocal = async (buffer: Buffer, filename: string, publicBaseUrl?: string): Promise<string> => {
   const uploadsDir = path.join(__dirname, '../../uploads');
   if (!fs.existsSync(uploadsDir)) {
     fs.mkdirSync(uploadsDir, { recursive: true });
@@ -71,6 +70,8 @@ const uploadToLocal = async (buffer: Buffer, filename: string): Promise<string> 
   const outputPath = path.join(uploadsDir, filename);
   await fs.promises.writeFile(outputPath, buffer);
 
-  // Return relative URL - the frontend will construct full URL
-  return `/uploads/${filename}`;
+  // Build an absolute URL so it passes API validation (z.string().url())
+  // and renders correctly in <NuxtImg> on the frontend.
+  const base = (publicBaseUrl || process.env.PUBLIC_URL || `http://localhost:${process.env.PORT || 3000}`).replace(/\/+$/, '');
+  return `${base}/uploads/${filename}`;
 };
