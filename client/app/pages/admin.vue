@@ -1,9 +1,14 @@
 <template>
   <div class="admin-container container">
     <div class="admin-header">
-      <h1 class="page-title">Admin Dashboard</h1>
-      <p class="subtitle">Review and manage pending giveaway submissions.</p>
-      <NuxtLink to="/admin/add-giveaway" class="btn primary-btn add-btn">Dodaj Nagradnu Igru</NuxtLink>
+      <div class="header-left">
+        <h1 class="page-title">Admin Dashboard</h1>
+        <p class="subtitle">Review and manage pending giveaway submissions.</p>
+      </div>
+      <div class="header-actions">
+        <NuxtLink to="/admin/add-giveaway" class="btn primary-btn add-btn">Dodaj Nagradnu Igru</NuxtLink>
+        <button @click="handleLogout" class="btn secondary-btn logout-btn">Odjavi se</button>
+      </div>
     </div>
 
     <div v-if="loading" class="loading-state">
@@ -119,6 +124,10 @@ const handleAction = async (id: string, action: 'approve' | 'reject') => {
 const approveSubmission = (id: string) => handleAction(id, 'approve');
 const rejectSubmission = (id: string) => handleAction(id, 'reject');
 
+const handleLogout = () => {
+  auth.logout();
+};
+
 </script>
 
 <style scoped>
@@ -138,6 +147,16 @@ const rejectSubmission = (id: string) => handleAction(id, 'reject');
   gap: 1rem;
 }
 
+.header-left {
+  flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
 .page-title {
   font-size: 2rem;
   color: var(--text-color);
@@ -149,6 +168,11 @@ const rejectSubmission = (id: string) => handleAction(id, 'reject');
 }
 
 .add-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+}
+
+.logout-btn {
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
 }

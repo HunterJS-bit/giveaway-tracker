@@ -184,6 +184,9 @@ const error = ref('');
 const uploadingImage = ref(false);
 
 onMounted(async () => {
+  // Fetch categories
+  await categories.fetchCategories();
+  
   // Verify admin role
   if (!auth.isAdmin.value) {
     router.push('/');
