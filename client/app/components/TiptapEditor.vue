@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
-import Table from '@tiptap/extension-table';
-import TableRow from '@tiptap/extension-table-row';
-import TableCell from '@tiptap/extension-table-cell';
-import TableHeader from '@tiptap/extension-table-header';
 import TextAlign from '@tiptap/extension-text-align';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -22,12 +18,6 @@ const editor = useEditor({
   content: props.modelValue,
   extensions: [
     StarterKit,
-    Table.configure({
-      resizable: true,
-    }),
-    TableRow,
-    TableHeader,
-    TableCell,
     TextAlign.configure({
       types: ['heading', 'paragraph'],
     }),
@@ -107,50 +97,6 @@ const addImage = () => {
   if (url) {
     editor.value?.chain().focus().setImage({ src: url }).run();
   }
-};
-
-const insertTable = () => {
-  editor.value?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
-};
-
-const deleteTable = () => {
-  editor.value?.chain().focus().deleteTable().run();
-};
-
-const addColumnBefore = () => {
-  editor.value?.chain().focus().addColumnBefore().run();
-};
-
-const addColumnAfter = () => {
-  editor.value?.chain().focus().addColumnAfter().run();
-};
-
-const deleteColumn = () => {
-  editor.value?.chain().focus().deleteColumn().run();
-};
-
-const addRowBefore = () => {
-  editor.value?.chain().focus().addRowBefore().run();
-};
-
-const addRowAfter = () => {
-  editor.value?.chain().focus().addRowAfter().run();
-};
-
-const deleteRow = () => {
-  editor.value?.chain().focus().deleteRow().run();
-};
-
-const toggleHeaderColumn = () => {
-  editor.value?.chain().focus().toggleHeaderColumn().run();
-};
-
-const toggleHeaderCell = () => {
-  editor.value?.chain().focus().toggleHeaderCell().run();
-};
-
-const toggleHeaderRow = () => {
-  editor.value?.chain().focus().toggleHeaderRow().run();
 };
 
 onBeforeUnmount(() => {
@@ -295,42 +241,6 @@ onBeforeUnmount(() => {
           </svg>
         </button>
       </div>
-
-      <!-- Table -->
-      <div class="toolbar-group">
-        <button
-          type="button"
-          @click="insertTable"
-          title="Insert Table"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M20 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 2v3H4V5h16zm0 5v4h-5v-4h5zm-7 0v4H4v-4h9zm7 7v3h-5v-3h5zm-7 0v3H4v-3h9z"/>
-          </svg>
-        </button>
-        <button
-          type="button"
-          @click="deleteTable"
-          title="Delete Table"
-          :disabled="!isActive('table')"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Table Actions -->
-      <div class="toolbar-group" v-if="isActive('table')">
-        <button type="button" @click="addColumnBefore" title="Add Column Before">+Col</button>
-        <button type="button" @click="addColumnAfter" title="Add Column After">Col+</button>
-        <button type="button" @click="deleteColumn" title="Delete Column">-Col</button>
-        <button type="button" @click="addRowBefore" title="Add Row Before">+Row</button>
-        <button type="button" @click="addRowAfter" title="Add Row After">Row+</button>
-        <button type="button" @click="deleteRow" title="Delete Row">-Row</button>
-        <button type="button" @click="toggleHeaderColumn" title="Toggle Header Column">HC</button>
-        <button type="button" @click="toggleHeaderCell" title="Toggle Header Cell">HCell</button>
-        <button type="button" @click="toggleHeaderRow" title="Toggle Header Row">HRow</button>
-      </div>
     </div>
 
     <EditorContent :editor="editor" />
@@ -397,46 +307,6 @@ onBeforeUnmount(() => {
 
 :deep(.ProseMirror) {
   min-height: 200px;
-}
-
-:deep(.ProseMirror table) {
-  border-collapse: collapse;
-  table-layout: fixed;
-  width: 100%;
-  margin: 1rem 0;
-  overflow: hidden;
-}
-
-:deep(.ProseMirror table td),
-:deep(.ProseMirror table th) {
-  min-width: 1em;
-  border: 1px solid #ddd;
-  padding: 8px;
-  vertical-align: top;
-  box-sizing: border-box;
-  position: relative;
-}
-
-:deep(.ProseMirror table th) {
-  font-weight: bold;
-  text-align: left;
-  background: #f3f4f6;
-}
-
-:deep(.ProseMirror table .selectedCell:after) {
-  z-index: 2;
-  position: absolute;
-  content: "";
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  background: rgba(200, 200, 255, 0.4);
-  pointer-events: none;
-}
-
-:deep(.ProseMirror table .column-selected) {
-  background: rgba(200, 200, 255, 0.4);
 }
 
 :deep(.ProseMirror p) {
