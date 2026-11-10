@@ -3,6 +3,7 @@
     <div class="admin-header">
       <h1 class="page-title">Admin Dashboard</h1>
       <p class="subtitle">Review and manage pending giveaway submissions.</p>
+      <NuxtLink to="/admin/add-giveaway" class="btn primary-btn add-btn">Dodaj Nagradnu Igru</NuxtLink>
     </div>
 
     <div v-if="loading" class="loading-state">
@@ -130,6 +131,11 @@ const rejectSubmission = (id: string) => handleAction(id, 'reject');
   margin-bottom: 2rem;
   border-bottom: 1px solid var(--border-color, #eaeaea);
   padding-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .page-title {
@@ -140,6 +146,11 @@ const rejectSubmission = (id: string) => handleAction(id, 'reject');
 
 .subtitle {
   color: var(--text-muted);
+}
+
+.add-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
 }
 
 .loading-state, .error-state, .empty-state {
