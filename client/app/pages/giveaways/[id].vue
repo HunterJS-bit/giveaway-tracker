@@ -214,43 +214,11 @@ useSeoMeta({
   twitterImage: () => giveaway.value?.imageUrl,
 });
 
-const jsonLd = computed(() => {
-  if (!giveaway.value) return null;
-
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Event',
-    'name': giveaway.value.title,
-    'description': giveaway.value.description?.replace(/<[^>]*>?/gm, '').substring(0, 160) || giveaway.value.title,
-    'image': giveaway.value.imageUrl,
-    'startDate': giveaway.value.startDate || new Date().toISOString(),
-    'endDate': giveaway.value.endDate || new Date().toISOString(),
-    'eventAttendanceMode': 'https://schema.org/OnlineEventAttendanceMode',
-    'eventStatus': giveaway.value.status === 'expired' ? 'https://schema.org/EventCancelled' : 'https://schema.org/EventScheduled',
-    'location': {
-      '@type': 'VirtualLocation',
-      'url': giveaway.value.entryUrl
-    },
-    'organizer': {
-      '@type': 'Organization',
-      'name': giveaway.value.brand
-    },
-    'offers': {
-      '@type': 'Offer',
-      'url': giveaway.value.entryUrl,
-      'price': '0',
-      'priceCurrency': giveaway.value.currency || 'RSD',
-      'availability': giveaway.value.status === 'expired' ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
-      'validFrom': giveaway.value.startDate || new Date().toISOString()
-    }
-  };
-});
-
 useHead({
   script: [
     {
       type: 'application/ld+json',
-      innerHTML: () => JSON.stringify(jsonLd.value)
+      children: jsonLd.value
     }
   ]
 });
