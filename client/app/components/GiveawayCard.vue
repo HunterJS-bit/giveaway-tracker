@@ -75,6 +75,7 @@ const categoryIcon = computed(() => {
         <div class="card-media">
           <NuxtLink :to="`/giveaways/${giveaway.id}`" class="media-link" :aria-label="giveaway.title">
             <NuxtImg
+              v-if="giveaway.imageUrl"
               :src="giveaway.imageUrl"
               :alt="giveaway.title"
               class="card-image"
@@ -85,6 +86,9 @@ const categoryIcon = computed(() => {
               placeholder
               placeholder-class="image-placeholder"
             />
+            <div v-else class="card-image-placeholder" :aria-label="giveaway.title">
+              <span class="placeholder-icon" aria-hidden="true">{{ categoryIcon }}</span>
+            </div>
           </NuxtLink>
 
           <div class="media-top">
@@ -222,6 +226,23 @@ const categoryIcon = computed(() => {
   height: 100%;
   object-fit: cover;
   transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 55%),
+    radial-gradient(circle at 75% 80%, color-mix(in srgb, var(--accent, var(--primary)) 14%, transparent), transparent 60%),
+    var(--bg-muted);
+}
+
+.placeholder-icon {
+  font-size: 3.2rem;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.15));
 }
 
 .giveaway-card:hover .card-image {
