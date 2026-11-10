@@ -32,9 +32,10 @@ export const useAuth = () => {
     };
 
     const logout = () => {
-        token.value = null;
+        const tokenCookie = useCookie('auth_token');
+        tokenCookie.value = null;
         user.value = null;
-        if (process.client) {
+        if (import.meta.client) {
             window.location.href = '/';
         }
     };

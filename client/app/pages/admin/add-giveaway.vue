@@ -1,8 +1,13 @@
 <template>
   <div class="admin-container container">
     <div class="admin-header">
-      <h1 class="page-title">Dodaj Nagradnu Igru</h1>
-      <p class="subtitle">Kreiraj novu nagradnu igru za bazu.</p>
+      <div class="header-left">
+        <h1 class="page-title">Dodaj Nagradnu Igru</h1>
+        <p class="subtitle">Kreiraj novu nagradnu igru za bazu.</p>
+      </div>
+      <div class="header-actions">
+        <button @click="$router.push('/admin')" class="btn secondary-btn back-btn">Nazad</button>
+      </div>
     </div>
 
     <div v-if="loading" class="loading-state">
@@ -184,6 +189,9 @@ const error = ref('');
 const uploadingImage = ref(false);
 
 onMounted(async () => {
+  // Ensure auth status is checked
+  await auth.checkAuthStatus();
+  
   // Fetch categories
   await categories.fetchCategories();
   
@@ -255,6 +263,21 @@ const handleSubmit = async () => {
   margin-bottom: 2rem;
   border-bottom: 1px solid var(--border-color, #eaeaea);
   padding-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.header-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
 }
 
 .page-title {
@@ -265,6 +288,11 @@ const handleSubmit = async () => {
 
 .subtitle {
   color: var(--text-muted);
+}
+
+.back-btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
 }
 
 .loading-state {
