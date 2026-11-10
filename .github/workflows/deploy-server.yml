@@ -80,9 +80,16 @@ jobs:
           R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
           R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
         run: |
-          ENV_JSON=$(python3 - <<'EOF'
+          PAYLOAD_FILE="$RUNNER_TEMP/dokploy-payload.json"
+          RESPONSE_FILE="$RUNNER_TEMP/dokploy-response.txt"
+
+          # Build the JSON payload with python for safe escaping of secret
+          # values (quotes, slashes, etc.). The JSON goes to a file so that
+          # nothing else can pollute the request body.
+          python3 - <<'EOF' > "$PAYLOAD_FILE"
           import json
           import os
+          import sys
 
           env_lines = [
               "PORT=4001",
@@ -104,34 +111,53 @@ jobs:
 
           # Cloudflare R2 — when all five are set, image uploads go to R2;
           # otherwise the API falls back to local ./uploads storage.
-          r2 = [os.environ.get(v) for v in (
+          r2_names = (
               "R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY",
               "R2_BUCKET_NAME", "R2_PUBLIC_URL",
-          )]
-          if all(r2):
-              for name, value in zip(
-                  ("R2_ACCOUNT_ID", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY",
-                   "R2_BUCKET_NAME", "R2_PUBLIC_URL"), r2
-              ):
+          )
+          r2_values = [os.environ.get(name, "") for name in r2_names]
+          if all(r2_values):
+              for name, value in zip(r2_names, r2_values):
                   env_lines.append(f"{name}={value}")
-              print("::notice::R2 fully configured - uploads will go to Cloudflare R2")
-          else:
-              print("::warning::R2 secrets not fully set - image uploads will use local ./uploads storage")
 
           payload = {
-              "env": "\n".join(env_lines) + "\n",
+              "applicationId": os.environ["DOKPLOY_APP_ID"],
+              "env": "\n".join(env_lines),
           }
-          print(json.dumps(payload))
-          EOF
-          )
+          json.dump(payload, sys.stdout)
 
-          echo "Updating environment variables (values hidden)..."
-          echo "Payload: $ENV_JSON"
-          curl --fail -X PUT "$DOKPLOY_URL/api/application/$DOKPLOY_APP_ID/env" \
+          # Diagnostics on stderr: variable NAMES only, never values
+          print("Setting env keys: " + ", ".join(l.split("=", 1)[0] for l in env_lines), file=sys.stderr)
+          EOF
+
+          if [ -n "$R2_ACCOUNT_ID" ] && [ -n "$R2_ACCESS_KEY_ID" ] && [ -n "$R2_SECRET_ACCESS_KEY" ] && [ -n "$R2_BUCKET_NAME" ] && [ -n "$R2_PUBLIC_URL" ]; then
+            echo "::notice::R2 fully configured - image uploads will go to Cloudflare R2"
+          else
+            echo "::warning::R2 secrets not fully set - image uploads will use local ./uploads storage"
+          fi
+
+          echo "Updating environment variables in Dokploy..."
+          HTTP_CODE=$(curl -sS -o "$RESPONSE_FILE" -w "%{http_code}" \
+            -X POST "$DOKPLOY_URL/api/application.update" \
             -H "accept: application/json" \
             -H "x-api-key: $DOKPLOY_API_KEY" \
             -H "Content-Type: application/json" \
-            -d "$ENV_JSON"
+            --data-binary @"$PAYLOAD_FILE")
+
+          echo "Dokploy responded with HTTP $HTTP_CODE"
+
+          case "$HTTP_CODE" in
+            2*)
+              echo "Environment variables updated."
+              ;;
+            *)
+              echo "::error::Failed to update environment variables (HTTP $HTTP_CODE)"
+              echo "--- Dokploy response ---"
+              cat "$RESPONSE_FILE" 2>/dev/null || true
+              echo
+              exit 1
+              ;;
+          esac
 
       - name: Trigger Dokploy deployment
         env:
@@ -141,10 +167,27 @@ jobs:
         run: |
           if [ -n "$DOKPLOY_URL" ] && [ -n "$DOKPLOY_API_KEY" ] && [ -n "$DOKPLOY_APP_ID" ]; then
             echo "Triggering deployment for application ID: $DOKPLOY_APP_ID"
-            curl --fail --request POST \
-              --url "$DOKPLOY_URL/api/application/$DOKPLOY_APP_ID/deploy" \
+            HTTP_CODE=$(curl -sS -o "$RUNNER_TEMP/deploy-response.txt" -w "%{http_code}" \
+              --request POST \
+              --url "$DOKPLOY_URL/api/application.deploy" \
               --header "x-api-key: $DOKPLOY_API_KEY" \
-              --header "Content-Type: application/json"
+              --header "Content-Type: application/json" \
+              --data "{\"applicationId\":\"$DOKPLOY_APP_ID\"}")
+
+            echo "Deploy trigger responded with HTTP $HTTP_CODE"
+
+            case "$HTTP_CODE" in
+              2*)
+                echo "Deployment triggered."
+                ;;
+              *)
+                echo "::error::Failed to trigger deployment (HTTP $HTTP_CODE)"
+                echo "--- Dokploy response ---"
+                cat "$RUNNER_TEMP/deploy-response.txt" 2>/dev/null || true
+                echo
+                exit 1
+                ;;
+            esac
           else
             echo "Error: DOKPLOY_URL, DOKPLOY_API_KEY, or DOKPLOY_APP_ID not configured"
             exit 1
