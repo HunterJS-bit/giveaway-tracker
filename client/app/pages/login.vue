@@ -1,8 +1,8 @@
 <template>
   <div class="login-container">
     <div class="login-card">
-      <h1 class="page-title">{{ isRegister ? 'Create an Account' : 'Welcome Back' }}</h1>
-      <p class="subtitle">{{ isRegister ? 'Sign up to manage your giveaways and interact.' : 'Log in to your account.' }}</p>
+      <h1 class="page-title">Welcome Back</h1>
+      <p class="subtitle">Log in to your account.</p>
 
       <form @submit.prevent="submitForm" class="auth-form">
         <div class="form-group">
@@ -17,27 +17,13 @@
         <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
 
         <button type="submit" class="btn primary-btn" :disabled="loading">
-          {{ loading ? 'Processing...' : (isRegister ? 'Sign Up' : 'Log In') }}
+          {{ loading ? 'Processing...' : 'Log In' }}
         </button>
         
-        <div class="forgot-password-link" v-if="!isRegister">
+        <div class="forgot-password-link">
           <NuxtLink to="/forgot-password" class="text-link">Zaboravili ste lozinku?</NuxtLink>
         </div>
       </form>
-
-      <div class="divider">
-        <span>OR</span>
-      </div>
-
-      <div class="google-auth">
-        <GoogleLogin :callback="handleGoogleLogin" />
-      </div>
-
-      <div class="toggle-mode">
-        <button type="button" class="btn text-btn" @click="toggleMode">
-          {{ isRegister ? 'Already have an account? Log In' : 'Need an account? Sign Up' }}
-        </button>
-      </div>
     </div>
   </div>
 </template>
@@ -48,7 +34,6 @@ import { useRouter } from 'vue-router';
 import { useAuth } from '~/composables/useAuth';
 import { useRuntimeConfig } from '#app';
 
-const isRegister = ref(false);
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
@@ -58,18 +43,12 @@ const router = useRouter();
 const auth = useAuth();
 const config = useRuntimeConfig();
 
-const toggleMode = () => {
-  isRegister.value = !isRegister.value;
-  errorMessage.value = '';
-};
-
 const submitForm = async () => {
   loading.value = true;
   errorMessage.value = '';
   
   try {
-    const endpoint = isRegister.value ? '/api/auth/register' : '/api/auth/login';
-    const response = await $fetch<any>(endpoint, {
+    const response = await $fetch<any>('/api/auth/login', {
       baseURL: config.public.apiBase,
       method: 'POST',
       body: { email: email.value, password: password.value }
@@ -81,28 +60,6 @@ const submitForm = async () => {
     }
   } catch (error: any) {
     errorMessage.value = error.data?.error || 'Authentication failed. Please try again.';
-  } finally {
-    loading.value = false;
-  }
-};
-
-const handleGoogleLogin = async (response: any) => {
-  loading.value = true;
-  errorMessage.value = '';
-  
-  try {
-    const res = await $fetch<any>('/api/auth/google', {
-      baseURL: config.public.apiBase,
-      method: 'POST',
-      body: { credential: response.credential }
-    });
-
-    if (res && res.token) {
-      auth.setSession(res.token, res.user);
-      router.push('/');
-    }
-  } catch (error: any) {
-    errorMessage.value = 'Google authentication failed.';
   } finally {
     loading.value = false;
   }
