@@ -32,11 +32,6 @@
         </div>
 
         <div class="form-group">
-          <label for="brandLogoUrl">URL Logotipa Brend</label>
-          <input type="url" id="brandLogoUrl" v-model="form.brandLogoUrl" placeholder="https://..." />
-        </div>
-
-        <div class="form-group">
           <label for="category">Kategorija</label>
           <select id="category" v-model="form.category">
             <option value="">Izaberi kategoriju</option>
@@ -203,7 +198,6 @@ const { categories } = useCategories();
 const form = ref({
   title: '',
   brand: '',
-  brandLogoUrl: '',
   imageUrl: '',
   description: '',
   prize: '',
