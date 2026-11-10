@@ -96,6 +96,9 @@ router.post('/google', asyncHandler(async (req, res) => {
 }));
 
 router.get('/me', requireAuth as any, (req: AuthRequest, res) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
     res.json({ user: req.user });
 });
 
