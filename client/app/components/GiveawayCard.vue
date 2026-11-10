@@ -128,9 +128,9 @@ const categoryIcon = computed(() => {
         </div>
 
         <div class="card-content">
-          <div class="card-topline">
-            <span class="brand-name">{{ giveaway.brand }}</span>
-            <span class="prize-value">
+          <div class="card-topline" v-if="giveaway.brand || (giveaway.prizeValue && giveaway.currency)">
+            <span class="brand-name" v-if="giveaway.brand">{{ giveaway.brand }}</span>
+            <span class="prize-value" v-if="giveaway.prizeValue && giveaway.currency">
               <span class="prize-label">Nagrada</span>
               {{ giveaway.formattedPrizeValue || giveaway.prizeValue }} {{ giveaway.currency }}
             </span>
