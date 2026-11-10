@@ -119,7 +119,6 @@ jobs:
               print("::warning::R2 secrets not fully set - image uploads will use local ./uploads storage")
 
           payload = {
-              "applicationId": os.environ["DOKPLOY_APP_ID"],
               "env": "\n".join(env_lines) + "\n",
           }
           print(json.dumps(payload))
@@ -128,7 +127,7 @@ jobs:
 
           echo "Updating environment variables (values hidden)..."
           echo "Payload: $ENV_JSON"
-          curl --fail -X POST "$DOKPLOY_URL/api/application/update" \
+          curl --fail -X PUT "$DOKPLOY_URL/api/application/$DOKPLOY_APP_ID/env" \
             -H "accept: application/json" \
             -H "x-api-key: $DOKPLOY_API_KEY" \
             -H "Content-Type: application/json" \
@@ -143,10 +142,9 @@ jobs:
           if [ -n "$DOKPLOY_URL" ] && [ -n "$DOKPLOY_API_KEY" ] && [ -n "$DOKPLOY_APP_ID" ]; then
             echo "Triggering deployment for application ID: $DOKPLOY_APP_ID"
             curl --fail --request POST \
-              --url "$DOKPLOY_URL/api/application/deploy" \
+              --url "$DOKPLOY_URL/api/application/$DOKPLOY_APP_ID/deploy" \
               --header "x-api-key: $DOKPLOY_API_KEY" \
-              --header "Content-Type: application/json" \
-              --data "{\"applicationId\":\"$DOKPLOY_APP_ID\"}"
+              --header "Content-Type: application/json"
           else
             echo "Error: DOKPLOY_URL, DOKPLOY_API_KEY, or DOKPLOY_APP_ID not configured"
             exit 1
