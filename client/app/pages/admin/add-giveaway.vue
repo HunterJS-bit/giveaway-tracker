@@ -123,7 +123,7 @@
 
         <div class="form-group">
           <label for="description">Opis</label>
-          <textarea id="description" v-model="form.description" rows="4" placeholder="Opis nagradne igre..."></textarea>
+          <TiptapEditor v-model="form.description" />
         </div>
 
         <div class="form-group">
