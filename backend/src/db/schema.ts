@@ -78,3 +78,18 @@ export const comments = pgTable('comments', {
         giveawayIdIdx: index('comment_giveaway_id_idx').on(table.giveawayId),
     };
 });
+
+export const contactMessages = pgTable('contact_messages', {
+    id: text('id').primaryKey(),
+    name: text('name').notNull(),
+    email: text('email').notNull(),
+    subject: text('subject').notNull(),
+    message: text('message').notNull(),
+    status: text('status').default('unread').notNull(), // unread, read, replied
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => {
+    return {
+        statusIdx: index('contact_status_idx').on(table.status),
+        createdAtIdx: index('contact_created_at_idx').on(table.createdAt),
+    };
+});

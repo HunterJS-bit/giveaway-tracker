@@ -18,6 +18,7 @@ import giveawaysRoutes from './routes/giveaways';
 import submissionsRoutes from './routes/submissions';
 import adminRoutes from './routes/admin';
 import uploadRoutes from './routes/upload';
+import contactRoutes from './routes/contact';
 
 dotenv.config();
 
@@ -117,6 +118,7 @@ app.use('/api/giveaways', giveawaysRoutes);
 app.use('/api/submissions', submissionsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/contact', contactRoutes);
 app.use('/', (req, res) => {
     res.status(404).json({ msg: 'GiveAway API v1.1.0' });
 });
