@@ -1,6 +1,6 @@
 {
-  "name": "Nagradne Igre Tracker",
-  "short_name": "NagraTracker",
+  "name": "Sve nagradne Igre",
+  "short_name": "SveNagradneIgre",
   "description": "Najveća baza nagradnih igara na Balkanu",
   "start_url": "/",
   "display": "standalone",
