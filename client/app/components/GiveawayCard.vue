@@ -77,7 +77,7 @@ const categoryIcon = computed(() => {
             <NuxtImg
               v-if="giveaway.imageUrl"
               :src="giveaway.imageUrl"
-              :alt="giveaway.title"
+              :alt="`${giveaway.brand ? giveaway.brand + ' - ' : ''}${giveaway.title} - ${giveaway.category} nagradna igra`"
               class="card-image"
               format="webp"
               :loading="preload ? 'eager' : 'lazy'"
