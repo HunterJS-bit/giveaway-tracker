@@ -19,7 +19,6 @@ const form = ref({
   subject: '',
   message: ''
 });
-const config = useRuntimeConfig();
 
 const handleSubmit = async () => {
   isSubmitting.value = true;
