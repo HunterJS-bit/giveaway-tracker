@@ -312,7 +312,7 @@ useHead({
                   <path d="M12 7.5V21M12 7.5S10.8 3 8.25 3 5.25 7.5 8.25 7.5H12Zm0 0s1.2-4.5 3.75-4.5 3 4.5 0 4.5H12Z" />
                 </svg>
               </span>
-              <div class="prize-copy">
+              <div class="prize-copy" v-if="giveaway.prizeValue">
                 <span class="prize-label">Vrednost nagrade</span>
                 <strong>{{ giveaway.formattedPrizeValue || giveaway.prizeValue }} {{ giveaway.currency }}</strong>
               </div>
@@ -441,7 +441,7 @@ useHead({
                   <span>Zemlja</span>
                   <strong>{{ giveaway.country }}</strong>
                 </li>
-                <li>
+                <li v-if="giveaway.prizeValue">
                   <span>Nagrada</span>
                   <strong>{{ giveaway.formattedPrizeValue || giveaway.prizeValue }} {{ giveaway.currency }}</strong>
                 </li>
