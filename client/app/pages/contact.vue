@@ -19,17 +19,25 @@ const form = ref({
   subject: '',
   message: ''
 });
+const config = useRuntimeConfig();
 
 const handleSubmit = async () => {
   isSubmitting.value = true;
   message.value = { text: '', type: '' };
-  
-  // Simulate API call
-  setTimeout(() => {
-    isSubmitting.value = false;
+
+  try {
+    const response = await $fetch(`${config.public.apiBase}/api/contact`, {
+      method: 'POST',
+      body: form.value,
+    });
+
     message.value = { text: 'Vaša poruka je uspešno poslata! Odgovorićemo vam u najkraćem mogućem roku.', type: 'success' };
     form.value = { name: '', email: '', subject: '', message: '' };
-  }, 1000);
+  } catch (error: any) {
+    message.value = { text: error?.data?.message || 'Došlo je do greške prilikom slanja poruke. Pokušajte ponovo.', type: 'error' };
+  } finally {
+    isSubmitting.value = false;
+  }
 };
 </script>
 
@@ -46,26 +54,8 @@ const handleSubmit = async () => {
       <div class="contact-grid">
         <div class="contact-info glass">
           <h2>Informacije</h2>
-          <p>Imate pitanje o nagradnim igrama, želite da prijavite problem ili ste zainteresovani za poslovnu saradnju?</p>
-          
-          <div class="info-blocks">
-            <div class="info-item">
-              <span class="icon">📧</span>
-              <div>
-                <strong>Email</strong>
-                <p>info@svenagradneigre.rs</p>
-              </div>
-            </div>
-            
-            <div class="info-item">
-              <span class="icon">🤝</span>
-              <div>
-                <strong>Saradnja</strong>
-                <p>marketing@svenagradneigre.rs</p>
-              </div>
-            </div>
-          </div>
-          
+          <p>Imate pitanje o nagradnim igrama, želite da prijavite problem ili ste zainteresovani za poslovnu saradnju? Koristite formular ispod da nas kontaktirate.</p>
+
           <div class="social-links-contact">
             <h3>Pratite nas</h3>
             <div class="social-icons">
