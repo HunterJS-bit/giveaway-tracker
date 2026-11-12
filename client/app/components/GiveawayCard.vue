@@ -29,13 +29,22 @@ const props = defineProps<{
 
 const { isFavorite, toggleFavorite } = useFavorites();
 const { addToast } = useToast();
-const { registerCountdown, unregisterCountdown, getCountdown } = useCountdown();
+const { registerCountdown, unregisterCountdown, getCountdown, getTimeLeft } = useCountdown();
 
-const timeLeft = computed(() => getCountdown(props.giveaway.id) || 'Uskoro');
-const isUrgent = computed(() =>
-  props.giveaway.isEndingSoon ||
-  (timeLeft.value !== 'Uskoro' && timeLeft.value !== 'Završeno' && !timeLeft.value.includes('d'))
-);
+// Fall back to computing from endDate so the label is correct during SSR and
+// on the expired page (where expired giveaways should read "Završeno").
+const timeLeft = computed(() => {
+  const registered = getCountdown(props.giveaway.id);
+  if (registered) return registered;
+  if (!props.giveaway.endDate) return 'Aktuelno';
+  return getTimeLeft(props.giveaway.endDate);
+});
+
+const isUrgent = computed(() => {
+  if (props.giveaway.isEndingSoon) return true;
+  const label = timeLeft.value;
+  return label !== 'Uskoro' && label !== 'Završeno' && label !== 'Aktuelno' && !label.includes('d');
+});
 
 onMounted(() => {
   registerCountdown(props.giveaway.id, props.giveaway.endDate);

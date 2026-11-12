@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { useIntersectionObserver } from '@vueuse/core';
-
-const { giveaways, isLoading, hasMore, totalCount, fetchGiveaways } = useGiveaways();
+const { giveaways, isLoading, totalCount, page, totalPages, limit, fetchGiveaways } = useGiveaways();
 const { categories } = useCategories();
 
 const config = useRuntimeConfig();
@@ -34,27 +32,15 @@ useHead({
 const statCount = computed(() => (totalCount.value > 0 ? totalCount.value : giveaways.value.length));
 const statCategories = computed(() => categories.value.length || 8);
 
-const loadMoreTrigger = ref<HTMLElement | null>(null);
-let stopObserver: (() => void) | null = null;
+const handlePageChange = async (nextPage: number) => {
+  await fetchGiveaways(nextPage);
 
-onMounted(() => {
-  if (process.client && typeof useIntersectionObserver !== 'undefined') {
-    const { stop } = useIntersectionObserver(
-      loadMoreTrigger,
-      ([{ isIntersecting }]) => {
-        if (isIntersecting && hasMore.value && !isLoading.value) {
-          fetchGiveaways();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    stopObserver = stop;
+  if (process.client) {
+    nextTick(() => {
+      document.getElementById('giveaways')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
-});
-
-onUnmounted(() => {
-  if (stopObserver) stopObserver();
-});
+};
 </script>
 
 <template>
@@ -132,9 +118,9 @@ onUnmounted(() => {
             <h2 class="section-title">Nagradne igre koje traju sada</h2>
             <p class="section-subtitle">Pažljivo izabrane i proverene prilike — pronađi svoju i učestvuj pre nego što istekne rok.</p>
           </div>
-          <div v-if="giveaways.length" class="feed-count">
-            <strong>{{ giveaways.length }}</strong>
-            <span>prikazano</span>
+          <div v-if="totalCount" class="feed-count">
+            <strong>{{ totalCount }}</strong>
+            <span>ukupno</span>
           </div>
         </div>
 
@@ -158,12 +144,20 @@ onUnmounted(() => {
           <NuxtLink to="/submit" class="btn btn-primary">Predloži nagradnu igru</NuxtLink>
         </div>
 
-        <div ref="loadMoreTrigger" class="scroll-trigger">
-          <div v-if="isLoading && giveaways.length > 0" class="loading-spinner">
-            <div class="spinner"></div>
-            <p>Učitavanje novih nagradnih igara...</p>
-          </div>
+        <div v-if="isLoading && giveaways.length > 0" class="loading-spinner">
+          <div class="spinner"></div>
+          <p>Učitavanje nagradnih igara...</p>
         </div>
+
+        <PaginationControls
+          v-if="giveaways.length > 0"
+          :page="page"
+          :total-pages="totalPages"
+          :total-items="totalCount"
+          :page-size="limit"
+          :loading="isLoading"
+          @change="handlePageChange"
+        />
       </div>
     </section>
 
@@ -472,19 +466,12 @@ html.dark .hero-grid-pattern {
   color: var(--text-muted);
 }
 
-.scroll-trigger {
-  min-height: 84px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 34px;
-}
-
 .loading-spinner {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  margin-top: 34px;
   color: var(--text-muted);
   font-size: 14px;
 }

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { submissions, giveaways } from '../db/schema';
-import { eq, asc } from 'drizzle-orm';
+import { submissions, giveaways, categories } from '../db/schema';
+import { eq, asc, or, sql } from 'drizzle-orm';
 import { requireAdmin } from '../middleware/auth';
 import { asyncHandler, ApiError } from '../middleware/errorHandler';
 import { v4 as uuidv4 } from 'uuid';
@@ -47,6 +47,25 @@ const CreateGiveawaySchema = z.object({
 // Default giveaway length when no end date is provided
 const DEFAULT_GIVEAWAY_DAYS = 7;
 
+// Giveaways are linked to categories by their slug (e.g. "Tech"), because
+// filtering, counts and category pages all compare against the slug. Accept a
+// slug or a display name from the admin form and always store the slug.
+const resolveCategorySlug = async (input: string): Promise<string> => {
+    const value = input.trim();
+    if (!value) return '';
+
+    const [match] = await db
+        .select({ slug: categories.slug })
+        .from(categories)
+        .where(or(
+            sql`lower(${categories.slug}) = lower(${value})`,
+            sql`lower(${categories.name}) = lower(${value})`,
+        ));
+
+    // Unknown category: keep the value as-is so nothing is silently dropped.
+    return match?.slug ?? value;
+};
+
 router.post('/giveaways', requireAdmin as any, asyncHandler(async (req, res) => {
     const result = CreateGiveawaySchema.safeParse(req.body);
     if (!result.success) {
@@ -62,6 +81,10 @@ router.post('/giveaways', requireAdmin as any, asyncHandler(async (req, res) => 
     // Fall back to the prize name, then a generic title, when no title is given
     const title = validated.title || validated.prize || 'Nagradna igra';
 
+    // Store the canonical category slug so the giveaway shows up in filters,
+    // category pages and category counts.
+    const category = await resolveCategorySlug(validated.category);
+
     const id = uuidv4();
 
     const [newGiveaway] = await db.insert(giveaways).values({
@@ -75,7 +98,7 @@ router.post('/giveaways', requireAdmin as any, asyncHandler(async (req, res) => 
         prizeValue: validated.prizeValue,
         currency: validated.currency,
         country: validated.country,
-        category: validated.category,
+        category,
         entryUrl: validated.entryUrl,
         startDate,
         endDate,

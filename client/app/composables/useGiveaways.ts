@@ -1,11 +1,13 @@
+export const GIVEAWAYS_PAGE_SIZE = 9;
+
 export const useGiveaways = () => {
     const config = useRuntimeConfig();
     const giveaways = useState<any[]>('giveaways', () => []);
     const isLoading = useState<boolean>('giveaways-loading', () => false);
-    const hasMore = useState<boolean>('giveaways-has-more', () => true);
-    const offset = useState<number>('giveaways-offset', () => 0);
     const totalCount = useState<number>('giveaways-total', () => 0);
-    const limit = 12;
+    const page = useState<number>('giveaways-page', () => 1);
+
+    const limit = GIVEAWAYS_PAGE_SIZE;
 
     // Filtering State
     const category = useState<string>('giveaways-category', () => 'All');
@@ -16,19 +18,25 @@ export const useGiveaways = () => {
     const apiBase = config.public.apiBase || 'http://localhost:3000';
     const baseUrl = `${apiBase}/api`;
 
-    const fetchGiveaways = async (refresh = false) => {
-        if (isLoading.value || (!hasMore.value && !refresh)) return;
+    const totalPages = computed(() => Math.max(1, Math.ceil(totalCount.value / limit)));
+
+    /**
+     * Fetch one page of giveaways, replacing the current list.
+     *
+     * @param target Page to load. Pass `true` to reset to the first page
+     *               (used when filters/search/sort change).
+     */
+    const fetchGiveaways = async (target: number | true = page.value) => {
+        if (isLoading.value) return;
+
+        const nextPage = target === true ? 1 : Math.max(1, target);
 
         isLoading.value = true;
-        if (refresh) {
-            offset.value = 0;
-            hasMore.value = true;
-        }
 
         try {
             const queryParams: any = {
                 limit,
-                offset: offset.value,
+                offset: (nextPage - 1) * limit,
             };
 
             if (category.value !== 'All') queryParams.category = category.value;
@@ -40,26 +48,19 @@ export const useGiveaways = () => {
                 query: queryParams,
             });
 
-            const fetchedData = response.data || [];
-            const fetchedCount = response.totalCount || 0;
-            totalCount.value = fetchedCount;
-
-            if (refresh) {
-                giveaways.value = fetchedData;
-            } else {
-                giveaways.value.push(...fetchedData);
-            }
-
-            if (giveaways.value.length >= fetchedCount || fetchedData.length < limit) {
-                hasMore.value = false;
-            } else {
-                offset.value += limit;
-            }
+            giveaways.value = response.data || [];
+            totalCount.value = response.totalCount || 0;
+            page.value = nextPage;
         } catch (error) {
             console.error('Error fetching giveaways:', error);
         } finally {
             isLoading.value = false;
         }
+    };
+
+    const goToPage = async (nextPage: number) => {
+        if (nextPage < 1 || nextPage > totalPages.value || nextPage === page.value) return;
+        await fetchGiveaways(nextPage);
     };
 
     const submitGiveaway = async (url: string) => {
@@ -81,13 +82,16 @@ export const useGiveaways = () => {
     return {
         giveaways,
         isLoading,
-        hasMore,
         totalCount,
+        page,
+        totalPages,
+        limit,
         category,
         platform,
         searchQuery,
         sort,
         fetchGiveaways,
+        goToPage,
         submitGiveaway,
     };
 };
