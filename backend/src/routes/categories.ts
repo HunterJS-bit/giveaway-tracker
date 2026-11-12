@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { giveaways, categories } from '../db/schema';
-import { eq, desc, asc, and, count } from 'drizzle-orm';
+import { eq, desc, asc, and, or, count, gt, isNull } from 'drizzle-orm';
 import { asyncHandler, ApiError } from '../middleware/errorHandler';
 
 const router = Router();
@@ -15,7 +15,11 @@ router.get('/', asyncHandler(async (req, res) => {
             const [result] = await db
                 .select({ count: count() })
                 .from(giveaways)
-                .where(and(eq(giveaways.category, cat.slug), eq(giveaways.status, 'active')));
+                .where(and(
+                    eq(giveaways.category, cat.slug),
+                    eq(giveaways.status, 'active'),
+                    or(isNull(giveaways.endDate), gt(giveaways.endDate, new Date()))
+                ));
             return { ...cat, giveawayCount: result?.count ?? 0 };
         })
     );
@@ -42,7 +46,11 @@ router.get('/:slug/giveaways', asyncHandler(async (req, res) => {
         orderClause = [desc(giveaways.isFeatured), desc(giveaways.prizeValue)];
     }
 
-    const combinedWhere = and(eq(giveaways.category, slug), eq(giveaways.status, 'active'));
+    const combinedWhere = and(
+        eq(giveaways.category, slug),
+        eq(giveaways.status, 'active'),
+        or(isNull(giveaways.endDate), gt(giveaways.endDate, new Date()))
+    );
 
     const [countResult] = await db.select({ count: count() }).from(giveaways).where(combinedWhere);
     const totalCount = countResult?.count ?? 0;
