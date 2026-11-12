@@ -35,7 +35,7 @@
           <label for="category">Kategorija</label>
           <select id="category" v-model="form.category">
             <option value="">Izaberi kategoriju</option>
-            <option v-for="cat in categories" :key="cat.slug" :value="cat.name">{{ cat.name }}</option>
+            <option v-for="cat in categories" :key="cat.slug" :value="cat.slug">{{ cat.name }}</option>
           </select>
         </div>
 
@@ -193,7 +193,7 @@ definePageMeta({
 const router = useRouter();
 const auth = useAuth();
 const config = useRuntimeConfig();
-const { categories } = useCategories();
+const { categories, fetchCategories } = useCategories();
 
 const form = ref({
   title: '',
@@ -226,7 +226,7 @@ onMounted(async () => {
   await auth.checkAuthStatus();
   
   // Fetch categories
-  await categories.fetchCategories();
+  await fetchCategories();
   
   // Verify admin role
   if (!auth.isAdmin.value) {
