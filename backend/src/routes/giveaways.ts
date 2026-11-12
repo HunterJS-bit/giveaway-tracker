@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { giveaways, comments } from '../db/schema';
-import { eq, desc, asc, ne, and, or, sql, count } from 'drizzle-orm';
+import { eq, desc, asc, ne, and, or, sql, count, lt, gt, isNull } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { requireAdmin, AuthRequest } from '../middleware/auth';
 import { asyncHandler, ApiError } from '../middleware/errorHandler';
@@ -58,6 +58,11 @@ router.get('/', asyncHandler(async (req, res) => {
     }
     whereConditions.push(eq(giveaways.status, 'active'));
 
+    // Only future (or undated) giveaways belong in the active feed; anything
+    // past its end date is shown on the expired page instead.
+    const now = new Date();
+    whereConditions.push(or(isNull(giveaways.endDate), gt(giveaways.endDate, now)));
+
     const combinedWhere = whereConditions.length > 0 ? and(...whereConditions) : undefined;
 
     const [countResult] = await db.select({ count: count() }).from(giveaways).where(combinedWhere);
@@ -79,6 +84,39 @@ router.get('/', asyncHandler(async (req, res) => {
 
     const allGiveaways = await query;
     res.json({ data: allGiveaways, totalCount });
+}));
+
+// Get expired giveaways: status is "expired" or the end date has already passed.
+// This route must be declared before "/:id" so "expired" is not treated as an ID.
+router.get('/expired', asyncHandler(async (req, res) => {
+    const limitStr = req.query.limit as string;
+    const offsetStr = req.query.offset as string;
+
+    const now = new Date();
+    const combinedWhere = or(
+        eq(giveaways.status, 'expired'),
+        lt(giveaways.endDate, now)
+    );
+
+    const [countResult] = await db.select({ count: count() }).from(giveaways).where(combinedWhere);
+    const totalCount = countResult?.count ?? 0;
+
+    let query = db.select().from(giveaways)
+        .where(combinedWhere)
+        .$dynamic()
+        .orderBy(desc(giveaways.endDate));
+
+    if (limitStr) {
+        const limit = parseInt(limitStr, 10);
+        if (!isNaN(limit)) query = query.limit(limit);
+    }
+    if (offsetStr) {
+        const offset = parseInt(offsetStr, 10);
+        if (!isNaN(offset)) query = query.offset(offset);
+    }
+
+    const expiredGiveaways = await query;
+    res.json({ data: expiredGiveaways, totalCount });
 }));
 
 // Get a single giveaway by ID
@@ -108,7 +146,8 @@ router.get('/:id/similar', asyncHandler(async (req, res) => {
         .where(and(
             eq(giveaways.category, giveaway.category),
             ne(giveaways.id, id),
-            eq(giveaways.status, 'active')
+            eq(giveaways.status, 'active'),
+            or(isNull(giveaways.endDate), gt(giveaways.endDate, new Date()))
         ))
         .orderBy(desc(giveaways.createdAt))
         .limit(3);

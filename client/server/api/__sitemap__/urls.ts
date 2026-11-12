@@ -6,7 +6,9 @@ export default defineEventHandler(async () => {
             $fetch<any[]>(`${config.apiBase}/api/categories`)
         ]);
 
-        const urls: { loc: string, lastmod?: string }[] = [];
+        const urls: { loc: string, lastmod?: string }[] = [
+            { loc: '/expired' }
+        ];
 
         if (Array.isArray(giveaways)) {
             giveaways.forEach((g) => {
