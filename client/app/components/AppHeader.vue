@@ -45,6 +45,7 @@ watch(() => route.path, closeMenu);
       <!-- Desktop nav -->
       <nav class="nav-links desktop-nav" aria-label="Glavna navigacija">
         <NuxtLink to="/" class="nav-link">Početna</NuxtLink>
+        <NuxtLink to="/expired" class="nav-link">Istekle igre</NuxtLink>
         <NuxtLink to="/about" class="nav-link">O nama</NuxtLink>
         <NuxtLink to="/contact" class="nav-link">Kontakt</NuxtLink>
 
@@ -88,6 +89,7 @@ watch(() => route.path, closeMenu);
     <Transition name="drawer">
       <nav v-if="isMenuOpen" class="mobile-menu" aria-label="Mobilna navigacija">
         <NuxtLink to="/" class="mobile-link" @click="closeMenu">Početna</NuxtLink>
+        <NuxtLink to="/expired" class="mobile-link" @click="closeMenu">Istekle igre</NuxtLink>
         <NuxtLink to="/about" class="mobile-link" @click="closeMenu">O nama</NuxtLink>
         <NuxtLink to="/contact" class="mobile-link" @click="closeMenu">Kontakt</NuxtLink>
         <!-- <NuxtLink v-if="!isAuthenticated" to="/login" class="mobile-link" @click="closeMenu">Prijava</NuxtLink> -->

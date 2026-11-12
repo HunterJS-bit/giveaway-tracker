@@ -74,6 +74,7 @@ const socials = [
           <li><NuxtLink to="/">Početna</NuxtLink></li>
           <li><NuxtLink to="/submit">Predloži nagradnu igru</NuxtLink></li>
           <li><NuxtLink to="/#giveaways">Sve nagradne igre</NuxtLink></li>
+          <li><NuxtLink to="/expired">Istekle nagradne igre</NuxtLink></li>
           <li><NuxtLink to="/#blog">Blog</NuxtLink></li>
           <li><NuxtLink to="/about">O nama</NuxtLink></li>
         </ul>
