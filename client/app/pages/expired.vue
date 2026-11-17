@@ -114,10 +114,6 @@ useHead({
         </div>
 
         <div class="hero-stats">
-          <div class="hero-stat">
-            <strong>{{ totalCount }}</strong>
-            <span>{{ totalCount === 1 ? 'istekla igra' : 'isteklih igara' }}</span>
-          </div>
           <span class="stat-divider" aria-hidden="true"></span>
           <div class="hero-stat">
             <strong>3</strong>
