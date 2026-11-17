@@ -31,10 +31,10 @@ router.get('/', asyncHandler(async (req, res) => {
     const platformFilter = req.query.platform as string;
     const search = req.query.search as string;
 
-    let orderClause = [desc(giveaways.isFeatured), asc(giveaways.endDate)];
+    let orderClause = [desc(giveaways.isFeatured), desc(giveaways.createdAt)];
 
-    if (sort === 'newest') {
-        orderClause = [desc(giveaways.isFeatured), desc(giveaways.createdAt)];
+    if (sort === 'endingSoon') {
+        orderClause = [desc(giveaways.isFeatured), asc(giveaways.endDate)];
     } else if (sort === 'highestValue') {
         orderClause = [desc(giveaways.isFeatured), desc(giveaways.prizeValue)];
     }
