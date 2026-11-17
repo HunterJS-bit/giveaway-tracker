@@ -42,16 +42,25 @@ const allGiveaways = ref<Giveaway[]>(giveaways.value);
 const hasMore = ref(allGiveaways.value.length < initialTotalCount.value);
 const offset = ref(24);
 
-// Dynamic SEO meta tags
-const seoTitle = computed(() => `${category.value?.name || slug} - Nagradne igre | Sve Nagradne Igre`);
-const seoDescription = computed(() => `Pronađi sve nagradne igre iz kategorije ${category.value?.name || slug}. Osvoj vredne nagrade od najboljih brendova.`);
+const seoTitle = computed(() => category.value
+  ? `${category.value.name} - Nagradne igre | Nagradne Igre Tracker`
+  : 'Kategorija - Nagradne Igre Tracker');
+const seoDescription = computed(() => {
+  const base = category.value?.description?.trim();
+  if (base && base.length > 20) return base.slice(0, 160);
+  const name = category.value?.name || slug;
+  return `Pregled aktivnih nagradnih igara u kategoriji ${name}. Pronađi i učestvuj u aktuelnim nagradnim igrama na svenagradneigre.rs.`.slice(0, 160);
+});
 
 useSeoMeta({
   title: seoTitle,
   ogTitle: seoTitle,
   description: seoDescription,
   ogDescription: seoDescription,
-  ogUrl: `${config.public.siteUrl}/category/${slug}`,
+  ogImage: () => allGiveaways.value[0]?.imageUrl || `${config.public.siteUrl}/og-image.jpg`,
+  ogUrl: () => `${config.public.siteUrl}/category/${slug}`,
+  ogType: 'website',
+  twitterCard: 'summary_large_image',
 });
 
 useHead({
@@ -78,18 +87,6 @@ const loadMore = async () => {
     isLoading.value = false;
   }
 };
-
-// Dynamic SEO per category
-useSeoMeta({
-  title: () => category.value ? `${category.value.icon} ${category.value.name} Giveaways - Sve Nagradne Igre` : 'Kategorija - Sve Nagradne Igre',
-  description: () => category.value?.description ?? 'Pronađite najbolje nagradne igre na SveNagradneIgre.rs',
-  ogTitle: () => category.value ? `${category.value.icon} ${category.value.name} Giveaways` : 'Giveaways',
-  ogDescription: () => category.value?.description ?? '',
-  ogImage: () => allGiveaways.value[0]?.imageUrl ?? null,
-  ogUrl: () => `${config.public.siteUrl}/category/${slug}`,
-  ogType: 'website',
-  twitterCard: 'summary_large_image',
-});
 </script>
 
 <template>
