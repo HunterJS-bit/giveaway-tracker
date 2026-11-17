@@ -56,7 +56,13 @@ const submitForm = async () => {
 
     if (response && response.token) {
       auth.setSession(response.token, response.user);
-      router.push('/');
+      
+      // Redirect to admin if user is admin, otherwise home
+      if (response.user.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
     }
   } catch (error: any) {
     errorMessage.value = error.data?.error || 'Authentication failed. Please try again.';

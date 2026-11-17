@@ -8,7 +8,14 @@ interface User {
 
 export const useAuth = () => {
     const config = useRuntimeConfig();
-    const token = useCookie<string | null>('auth_token', { maxAge: 60 * 60 * 24 * 7 });
+    const isProduction = config.public.apiBase?.includes('https') || import.meta.env.PROD;
+    
+    const token = useCookie<string | null>('auth_token', {
+        maxAge: 60 * 60 * 24 * 7,
+        secure: isProduction, // Only secure in production (HTTPS)
+        sameSite: 'lax',
+        httpOnly: false // Needed for client-side access
+    });
     const user = useState<User | null>('auth_user', () => null);
 
     const checkAuthStatus = async () => {
