@@ -158,26 +158,31 @@ router.get('/:id/similar', asyncHandler(async (req, res) => {
 // Create a new giveaway (Admin or Internal)
 router.post('/', requireAdmin as any, asyncHandler(async (req, res) => {
     const data = req.body;
-    const [newGiveaway] = await db.insert(giveaways).values({
+
+    const giveawayData: any = {
         id: uuidv4(),
         title: data.title,
-        brand: data.brand,
-        brandLogoUrl: data.brandLogoUrl,
         imageUrl: data.imageUrl,
         description: data.description,
-        prize: data.prize,
-        prizeValue: Number(data.prizeValue),
-        currency: data.currency,
         country: data.country,
         category: data.category,
         entryUrl: data.entryUrl,
-        startDate: new Date(data.startDate),
-        endDate: new Date(data.endDate),
         isFeatured: data.isFeatured ?? false,
         isVerified: data.isVerified ?? false,
         status: data.status ?? 'active',
         entryCount: data.entryCount ?? 0,
-    }).returning();
+    };
+
+    // Optional fields - only include if provided
+    if (data.brand) giveawayData.brand = data.brand;
+    if (data.brandLogoUrl) giveawayData.brandLogoUrl = data.brandLogoUrl;
+    if (data.prize) giveawayData.prize = data.prize;
+    if (data.prizeValue) giveawayData.prizeValue = Number(data.prizeValue);
+    if (data.currency) giveawayData.currency = data.currency;
+    if (data.startDate) giveawayData.startDate = new Date(data.startDate);
+    if (data.endDate) giveawayData.endDate = new Date(data.endDate);
+
+    const [newGiveaway] = await db.insert(giveaways).values(giveawayData).returning();
 
     res.status(201).json(newGiveaway);
 }));
