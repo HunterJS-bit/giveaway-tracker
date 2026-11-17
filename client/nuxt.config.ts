@@ -8,7 +8,7 @@ export default defineNuxtConfig({
     public: {
       // Client + Server (accessible everywhere via useRuntimeConfig().public)
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3000',
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://nagradne-igre-tracker.com',
+      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://svenagradneigre.rs',
       debugErrors: process.env.NUXT_PUBLIC_DEBUG_ERRORS || 'false',
     }
   },
@@ -23,6 +23,9 @@ export default defineNuxtConfig({
   app: {
     pageTransition: { name: 'page', mode: 'out-in' },
     head: {
+      htmlAttrs: {
+        lang: 'sr'
+      },
       title: 'Nagradne Igre Tracker',
       titleTemplate: '%s | Nagradne Igre Tracker',
       meta: [
@@ -30,6 +33,7 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: 'Najveća baza aktivnih nagradnih igara na Balkanu.' },
         { property: 'og:type', content: 'website' },
+        { property: 'og:locale', content: 'sr_RS' },
         { property: 'og:site_name', content: 'Nagradne Igre Tracker' },
         { name: 'twitter:card', content: 'summary_large_image' }
       ],
@@ -48,7 +52,7 @@ export default defineNuxtConfig({
     '@nuxtjs/sitemap'
   ],
   site: {
-    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://nagradne-igre-tracker.com',
+    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://svenagradneigre.rs',
     name: 'Nagradne Igre Tracker'
   },
   sitemap: {
