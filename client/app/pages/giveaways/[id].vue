@@ -1323,5 +1323,8 @@ useHead({
   .share-row {
     grid-template-columns: 1fr;
   }
+  .detail-sidebar {
+    display: none;
+  }
 }
 </style>
