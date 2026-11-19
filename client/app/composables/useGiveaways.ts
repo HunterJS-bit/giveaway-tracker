@@ -13,7 +13,7 @@ export const useGiveaways = () => {
     const category = useState<string>('giveaways-category', () => 'All');
     const platform = useState<string>('giveaways-platform', () => 'All');
     const searchQuery = useState<string>('giveaways-search', () => '');
-    const sort = useState<string>('giveaways-sort', () => 'endingSoonest');
+    const sort = useState<string>('giveaways-sort', () => '');
 
     const apiBase = config.public.apiBase || 'http://localhost:3000';
     const baseUrl = `${apiBase}/api`;
