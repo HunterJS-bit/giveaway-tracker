@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { getCategoryPlaceholderImage } from '~/utils/categoryImages';
+
 interface Giveaway {
   id: string;
   title: string;
@@ -28,6 +30,18 @@ const { registerCountdown, unregisterCountdown, getCountdown, getTimeLeft } = us
 const { sanitizeHtml } = useSanitize();
 
 const giveaway = computed<Giveaway | null>(() => giveaways.value.find((g: Giveaway) => g.id === id) || null);
+
+const imageError = ref(false);
+const displayImage = computed(() => {
+  if (imageError.value || !giveaway.value?.imageUrl) {
+    return getCategoryPlaceholderImage(giveaway.value?.category || '');
+  }
+  return giveaway.value.imageUrl;
+});
+
+const handleImageError = () => {
+  imageError.value = true;
+};
 
 const showToast = ref(false);
 const toastMessage = ref('');
@@ -246,17 +260,14 @@ useHead({
         <section class="detail-hero">
           <div class="hero-media reveal" style="--delay: 0.06s">
             <NuxtImg
-              v-if="giveaway.imageUrl"
-              :src="giveaway.imageUrl"
+              :src="displayImage"
               :alt="`${giveaway.brand ? giveaway.brand + ' - ' : ''}${giveaway.title} - ${giveaway.category} nagradna igra ${giveaway.prize ? 'sa nagradom ' + giveaway.prize : ''}`"
               class="main-image"
               format="webp"
               preload
               fetchpriority="high"
+              @error="handleImageError"
             />
-            <div v-else class="main-image main-image-placeholder">
-              <span class="placeholder-icon" aria-hidden="true">🎁</span>
-            </div>
             <div class="media-badges">
               <span class="media-category">
                 {{ categoryLabel }}

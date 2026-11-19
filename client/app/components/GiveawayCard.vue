@@ -3,6 +3,7 @@ import { UseElementVisibility } from '@vueuse/components';
 import { useFavorites } from '~/composables/useFavorites';
 import { useToast } from '~/composables/useToast';
 import { useCountdown } from '~/composables/useCountdown';
+import { getCategoryPlaceholderImage } from '~/utils/categoryImages';
 
 interface Giveaway {
   id: string;
@@ -46,6 +47,18 @@ const isUrgent = computed(() => {
   return label !== 'Uskoro' && label !== 'Završeno' && label !== 'Aktuelno' && !label.includes('d');
 });
 
+const imageError = ref(false);
+const displayImage = computed(() => {
+  if (imageError.value || !props.giveaway.imageUrl) {
+    return getCategoryPlaceholderImage(props.giveaway.category);
+  }
+  return props.giveaway.imageUrl;
+});
+
+const handleImageError = () => {
+  imageError.value = true;
+};
+
 onMounted(() => {
   registerCountdown(props.giveaway.id, props.giveaway.endDate);
 });
@@ -84,8 +97,7 @@ const categoryIcon = computed(() => {
         <div class="card-media">
           <NuxtLink :to="`/giveaways/${giveaway.id}`" class="media-link" :aria-label="giveaway.title">
             <NuxtImg
-              v-if="giveaway.imageUrl"
-              :src="giveaway.imageUrl"
+              :src="displayImage"
               :alt="`${giveaway.brand ? giveaway.brand + ' - ' : ''}${giveaway.title} - ${giveaway.category} nagradna igra`"
               class="card-image"
               format="webp"
@@ -94,10 +106,8 @@ const categoryIcon = computed(() => {
               :fetchpriority="preload ? 'high' : 'auto'"
               placeholder
               placeholder-class="image-placeholder"
+              @error="handleImageError"
             />
-            <div v-else class="card-image-placeholder" :aria-label="giveaway.title">
-              <span class="placeholder-icon" aria-hidden="true">{{ categoryIcon }}</span>
-            </div>
           </NuxtLink>
 
           <div class="media-top">
