@@ -161,8 +161,8 @@ const setSort = (event: Event) => {
           <span class="select-copy">
             <span class="select-label">Sortiraj</span>
             <select :value="sort" class="select-control" @change="setSort">
-              <option value="endingSoonest">Uskoro ističe</option>
-              <option value="newest">Najnovije</option>
+              <option value="endingSoon">Uskoro ističe</option>
+              <option value="">Najnovije</option>
               <option value="highestValue">Najveća vrednost</option>
             </select>
           </span>

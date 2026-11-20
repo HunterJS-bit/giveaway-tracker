@@ -305,10 +305,15 @@ const handleSubmit = async () => {
   error.value = '';
 
   try {
+    // Remove empty date fields to prevent auto-population
+    const payload = { ...form.value };
+    if (!payload.startDate) delete payload.startDate;
+    if (!payload.endDate) delete payload.endDate;
+
     await $fetch('/api/admin/giveaways', {
       baseURL: config.public.apiBase,
       method: 'POST',
-      body: form.value,
+      body: payload,
       headers: {
         Authorization: `Bearer ${auth.token.value}`
       }
