@@ -31,7 +31,7 @@ const CreateGiveawaySchema = z.object({
     brand: optionalText(100),
     brandLogoUrl: optionalUrl(),
     imageUrl: optionalUrl(),
-    description: optionalText(2000),
+    description: optionalText(50000),
     prize: optionalText(200),
     prizeValue: z.preprocess(blankToUndefined, z.coerce.number().nonnegative().optional().default(0)),
     currency: optionalText(10, 'RSD'),
