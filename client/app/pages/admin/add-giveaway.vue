@@ -138,11 +138,27 @@
         <div class="form-row">
           <div class="form-group">
             <label for="startDate">Datum Početka</label>
-            <input type="datetime-local" id="startDate" v-model="form.startDate" />
+            <VueDatePicker
+              v-model="form.startDate"
+              :format="'dd.MM.yyyy HH:mm'"
+              :timezone="'Europe/Belgrade'"
+              :enable-time-picker="true"
+              :text-input="true"
+              :placeholder="'Izaberi datum početka'"
+              class="date-picker"
+            />
           </div>
           <div class="form-group">
             <label for="endDate">Datum Završetka</label>
-            <input type="datetime-local" id="endDate" v-model="form.endDate" />
+            <VueDatePicker
+              v-model="form.endDate"
+              :format="'dd.MM.yyyy HH:mm'"
+              :timezone="'Europe/Belgrade'"
+              :enable-time-picker="true"
+              :text-input="true"
+              :placeholder="'Izaberi datum završetka'"
+              class="date-picker"
+            />
           </div>
         </div>
         <p class="help-text">Ako datumi nisu uneti: početni datum je danas, a završni +7 dana.</p>
@@ -184,6 +200,8 @@ import { useRouter } from 'vue-router';
 import { useAuth } from '~/composables/useAuth';
 import { useRuntimeConfig } from '#app';
 import { useCategories } from '~/composables/useCategories';
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 
 // Server-side middleware guard
 definePageMeta({
@@ -307,6 +325,8 @@ const handleSubmit = async () => {
   try {
     // Remove empty date fields to prevent auto-population
     const payload = { ...form.value };
+    if (payload.startDate) payload.startDate = (payload.startDate as Date).toISOString();
+    if (payload.endDate) payload.endDate = (payload.endDate as Date).toISOString();
     if (!payload.startDate) delete payload.startDate;
     if (!payload.endDate) delete payload.endDate;
 
@@ -332,6 +352,32 @@ const handleSubmit = async () => {
 .admin-container {
   padding: 2rem 0;
   min-height: calc(100vh - 200px);
+}
+
+.date-picker {
+  width: 100%;
+}
+
+:deep(.dp__main) {
+  border: 1px solid var(--border-color, #eaeaea);
+  border-radius: 8px;
+  font-family: var(--font-body, system-ui, sans-serif);
+}
+
+:deep(.dp__input) {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border-color, #eaeaea);
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-color, #333);
+  background: var(--surface-color, #fff);
+  transition: border-color 0.2s ease;
+}
+
+:deep(.dp__input:focus) {
+  outline: none;
+  border-color: var(--primary-color, #6366f1);
 }
 
 .admin-header {
