@@ -37,12 +37,12 @@ export const useGiveaways = () => {
             const queryParams: any = {
                 limit,
                 offset: (nextPage - 1) * limit,
+                sort: sort.value,
             };
 
             if (category.value !== 'All') queryParams.category = category.value;
             if (platform.value !== 'All') queryParams.platform = platform.value;
             if (searchQuery.value) queryParams.search = searchQuery.value;
-            queryParams.sort = sort.value;
 
             const response: any = await $fetch(`${baseUrl}/giveaways`, {
                 query: queryParams,
