@@ -4,6 +4,7 @@ import { useFavorites } from '~/composables/useFavorites';
 import { useToast } from '~/composables/useToast';
 import { useCountdown } from '~/composables/useCountdown';
 import { getCategoryPlaceholderImage } from '~/utils/categoryImages';
+import { getCategoryIcon, getCategoryLabel } from '~/utils/categories';
 
 interface Giveaway {
   id: string;
@@ -20,7 +21,7 @@ interface Giveaway {
   entryCount: number;
   isFeatured?: boolean;
   isEndingSoon?: boolean;
-  endDate: string;
+  endDate?: string | null;
 }
 
 const props = defineProps<{
@@ -31,6 +32,7 @@ const props = defineProps<{
 const { isFavorite, toggleFavorite } = useFavorites();
 const { addToast } = useToast();
 const { registerCountdown, unregisterCountdown, getCountdown, getTimeLeft } = useCountdown();
+const { categories } = useCategories();
 
 // Fall back to computing from endDate so the label is correct during SSR and
 // on the expired page (where expired giveaways should read "Završeno").
@@ -76,18 +78,9 @@ const shareCard = async () => {
   }
 };
 
-const categoryIcon = computed(() => {
-  const cat = props.giveaway.category?.toLowerCase();
-  if (cat?.includes('tech')) return '💻';
-  if (cat?.includes('beauty')) return '💄';
-  if (cat?.includes('cars')) return '🚗';
-  if (cat?.includes('travel')) return '✈️';
-  if (cat?.includes('food')) return '🍕';
-  if (cat?.includes('gaming')) return '🎮';
-  if (cat?.includes('fashion')) return '👗';
-  if (cat?.includes('home')) return '🏠';
-  return '🎁';
-});
+// Categories are stored by slug (e.g. "Tech"); show the Serbian display name.
+const categoryLabel = computed(() => getCategoryLabel(props.giveaway.category, categories.value));
+const categoryIcon = computed(() => getCategoryIcon(props.giveaway.category, categories.value));
 </script>
 
 <template>
@@ -98,7 +91,7 @@ const categoryIcon = computed(() => {
           <NuxtLink :to="`/giveaways/${giveaway.id}`" class="media-link" :aria-label="giveaway.title">
             <NuxtImg
               :src="displayImage"
-              :alt="`${giveaway.brand ? giveaway.brand + ' - ' : ''}${giveaway.title} - ${giveaway.category} nagradna igra`"
+              :alt="`${giveaway.brand ? giveaway.brand + ' - ' : ''}${giveaway.title} - ${categoryLabel} nagradna igra`"
               class="card-image"
               format="webp"
               :loading="preload ? 'eager' : 'lazy'"
@@ -113,7 +106,7 @@ const categoryIcon = computed(() => {
           <div class="media-top">
             <span class="category-pill">
               <span aria-hidden="true">{{ categoryIcon }}</span>
-              {{ giveaway.category }}
+              {{ categoryLabel }}
             </span>
             <button
               class="favorite-btn"
