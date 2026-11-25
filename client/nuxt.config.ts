@@ -72,7 +72,10 @@ export default defineNuxtConfig({
     classSuffix: ''
   },
   routeRules: {
-    '/': { swr: 3600 },
+    // The homepage must reflect newly added giveaways immediately, so its
+    // server-rendered response is not cached. The giveaway API is only used
+    // for internal Nuxt routes and can stay briefly cached.
+    '/': { cache: false },
     '/api/**': { swr: 600 }
   },
   nitro: {
