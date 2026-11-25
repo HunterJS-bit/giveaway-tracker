@@ -3,13 +3,19 @@ interface CountdownEntry {
   timeLeft: string;
 }
 
+type EndDate = string | null | undefined;
+
 export const useCountdown = () => {
   const countdowns = useState<Map<string, CountdownEntry>>('countdowns', () => new Map());
   let timer: any = null;
 
-  const getTimeLeft = (endDate: string): string => {
+  const getTimeLeft = (endDate: EndDate): string => {
+    // Giveaways without an end date have no deadline to count down to.
+    if (!endDate) return 'Aktuelno';
+
     const end = new Date(endDate).getTime();
     const now = new Date().getTime();
+    if (Number.isNaN(end)) return 'Aktuelno';
     const diff = end - now;
 
     if (diff <= 0) {
@@ -29,7 +35,10 @@ export const useCountdown = () => {
     }
   };
 
-  const registerCountdown = (id: string, endDate: string) => {
+  const registerCountdown = (id: string, endDate: EndDate) => {
+    // Only dated giveaways need a live timer.
+    if (!endDate || Number.isNaN(new Date(endDate).getTime())) return;
+
     countdowns.value.set(id, {
       endDate,
       timeLeft: getTimeLeft(endDate),

@@ -44,9 +44,6 @@ const CreateGiveawaySchema = z.object({
     isVerified: z.boolean().default(false),
 });
 
-// Default giveaway length when no end date is provided
-const DEFAULT_GIVEAWAY_DAYS = 7;
-
 // Giveaways are linked to categories by their slug (e.g. "Tech"), because
 // filtering, counts and category pages all compare against the slug. Accept a
 // slug or a display name from the admin form and always store the slug.
@@ -76,7 +73,8 @@ router.post('/giveaways', requireAdmin as any, asyncHandler(async (req, res) => 
 
     const now = new Date();
     const startDate = validated.startDate ?? now;
-    const endDate = validated.endDate ?? new Date(startDate.getTime() + DEFAULT_GIVEAWAY_DAYS * 24 * 60 * 60 * 1000);
+    // An omitted end date means the giveaway has no deadline (stored as NULL).
+    const endDate = validated.endDate ?? null;
 
     // Fall back to the prize name, then a generic title, when no title is given
     const title = validated.title || validated.prize || 'Nagradna igra';
