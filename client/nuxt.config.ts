@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+const siteUrl = (process.env.NUXT_PUBLIC_SITE_URL || 'https://svenagradneigre.rs').replace(/\/+$/, '')
+
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
@@ -8,7 +10,7 @@ export default defineNuxtConfig({
     public: {
       // Client + Server (accessible everywhere via useRuntimeConfig().public)
       apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:3000',
-      siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'https://svenagradneigre.rs',
+      siteUrl,
       debugErrors: process.env.NUXT_PUBLIC_DEBUG_ERRORS || 'false',
     }
   },
@@ -39,7 +41,13 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'manifest', href: '/manifest.json' }
+        { rel: 'manifest', href: '/manifest.json' },
+        {
+          rel: 'alternate',
+          type: 'application/rss+xml',
+          title: 'Sve Nagradne Igre - RSS',
+          href: '/rss.xml'
+        }
       ]
     }
   },
@@ -52,12 +60,20 @@ export default defineNuxtConfig({
     '@nuxtjs/sitemap'
   ],
   site: {
-    url: process.env.NUXT_PUBLIC_SITE_URL || 'https://svenagradneigre.rs',
+    url: siteUrl,
     name: 'Nagradne Igre Tracker'
   },
   sitemap: {
     sources: [
       '/api/__sitemap__/urls'
+    ],
+    // Routes blocked in robots.txt should never be offered to crawlers here.
+    exclude: [
+      '/submit',
+      '/admin/**',
+      '/login',
+      '/forgot-password',
+      '/reset-password'
     ]
   },
   fonts: {
