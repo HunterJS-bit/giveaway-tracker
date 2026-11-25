@@ -39,6 +39,9 @@ jobs:
           npm ci
 
       - name: Build project
+        env:
+          NUXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL }}
+          NUXT_PUBLIC_API_BASE: ${{ vars.API_BASE_URL }}
         run: |
           cd client
           npm run build
@@ -72,6 +75,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            NUXT_PUBLIC_SITE_URL=${{ vars.SITE_URL }}
+            NUXT_PUBLIC_API_BASE=${{ vars.API_BASE_URL }}
 
       - name: Update Environment Variables in Dokploy
         env:

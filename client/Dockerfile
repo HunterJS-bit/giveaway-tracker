@@ -4,6 +4,12 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
+
+# Build-time values are baked into Nuxt's prerendered metadata (site URL, canonicals, sitemap).
+ARG NUXT_PUBLIC_SITE_URL
+ARG NUXT_PUBLIC_API_BASE
+ENV NUXT_PUBLIC_SITE_URL=$NUXT_PUBLIC_SITE_URL
+ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
 RUN npm run build
 
 # Production stage

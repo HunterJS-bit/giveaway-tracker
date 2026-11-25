@@ -3,8 +3,8 @@ const error = useError();
 const is404 = computed(() => error.value?.statusCode === 404);
 const config = useRuntimeConfig();
 
-// Log error details to console for debugging (controlled by DEBUG_ERRORS env var)
-const debugErrors = true;
+// Log error details to console only when explicitly enabled at runtime.
+const debugErrors = String(config.public.debugErrors) === 'true';
 
 if (error.value && debugErrors) {
   console.error('Error details:', {

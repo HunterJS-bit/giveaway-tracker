@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { UseElementVisibility } from '@vueuse/components';
+import { useElementVisibility } from '@vueuse/core';
 import { useFavorites } from '~/composables/useFavorites';
 import { useToast } from '~/composables/useToast';
 import { useCountdown } from '~/composables/useCountdown';
@@ -50,6 +50,11 @@ const isUrgent = computed(() => {
 });
 
 const imageError = ref(false);
+// Used only to decide when the image should load eagerly. Card content stays
+// in the server-rendered DOM so crawlers and assistive tech can read it.
+const mediaRef = ref<HTMLElement | null>(null);
+const isMediaVisible = useElementVisibility(mediaRef);
+
 const displayImage = computed(() => {
   if (imageError.value || !props.giveaway.imageUrl) {
     return getCategoryPlaceholderImage(props.giveaway.category);
@@ -84,107 +89,101 @@ const categoryIcon = computed(() => getCategoryIcon(props.giveaway.category, cat
 </script>
 
 <template>
-  <UseElementVisibility v-slot="{ isVisible }">
-    <article class="giveaway-card" :class="{ 'featured-card': giveaway.isFeatured }">
-      <template v-if="isVisible || preload">
-        <div class="card-media">
-          <NuxtLink :to="`/giveaways/${giveaway.id}`" class="media-link" :aria-label="giveaway.title">
-            <NuxtImg
-              :src="displayImage"
-              :alt="`${giveaway.brand ? giveaway.brand + ' - ' : ''}${giveaway.title} - ${categoryLabel} nagradna igra`"
-              class="card-image"
-              format="webp"
-              :loading="preload ? 'eager' : 'lazy'"
-              :preload="preload"
-              :fetchpriority="preload ? 'high' : 'auto'"
-              placeholder
-              placeholder-class="image-placeholder"
-              @error="handleImageError"
-            />
-          </NuxtLink>
+  <article class="giveaway-card" :class="{ 'featured-card': giveaway.isFeatured }">
+    <div ref="mediaRef" class="card-media">
+      <NuxtLink :to="`/giveaways/${giveaway.id}`" class="media-link" :aria-label="giveaway.title">
+        <NuxtImg
+          :src="displayImage"
+          :alt="`${giveaway.brand ? giveaway.brand + ' - ' : ''}${giveaway.title} - ${categoryLabel} nagradna igra`"
+          class="card-image"
+          format="webp"
+          :loading="preload || isMediaVisible ? 'eager' : 'lazy'"
+          :preload="preload"
+          :fetchpriority="preload ? 'high' : 'auto'"
+          placeholder
+          placeholder-class="image-placeholder"
+          @error="handleImageError"
+        />
+      </NuxtLink>
 
-          <div class="media-top">
-            <span class="category-pill">
-              <span aria-hidden="true">{{ categoryIcon }}</span>
-              {{ categoryLabel }}
-            </span>
-            <button
-              class="favorite-btn"
-              :class="{ 'is-favorite': isFavorite(giveaway.id) }"
-              :aria-label="isFavorite(giveaway.id) ? 'Ukloni iz omiljenih' : 'Dodaj u omiljene'"
-              @click.prevent="toggleFavorite(giveaway.id)"
-            >
-              <svg v-if="isFavorite(giveaway.id)" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M12 21s-7.5-4.6-9.7-9.2C.6 8.4 2.5 4.8 6.1 4.1c2-.4 4 .5 5.9 3 1.9-2.5 3.9-3.4 5.9-3 3.6.7 5.5 4.3 3.8 7.7C19.5 16.4 12 21 12 21Z" />
-              </svg>
-              <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true">
-                <path d="M12 21s-7.5-4.6-9.7-9.2C.6 8.4 2.5 4.8 6.1 4.1c2-.4 4 .5 5.9 3 1.9-2.5 3.9-3.4 5.9-3 3.6.7 5.5 4.3 3.8 7.7C19.5 16.4 12 21 12 21Z" />
-              </svg>
-            </button>
-          </div>
+      <div class="media-top">
+        <span class="category-pill">
+          <span aria-hidden="true">{{ categoryIcon }}</span>
+          {{ categoryLabel }}
+        </span>
+        <button
+          class="favorite-btn"
+          :class="{ 'is-favorite': isFavorite(giveaway.id) }"
+          :aria-label="isFavorite(giveaway.id) ? 'Ukloni iz omiljenih' : 'Dodaj u omiljene'"
+          @click.prevent="toggleFavorite(giveaway.id)"
+        >
+          <svg v-if="isFavorite(giveaway.id)" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 21s-7.5-4.6-9.7-9.2C.6 8.4 2.5 4.8 6.1 4.1c2-.4 4 .5 5.9 3 1.9-2.5 3.9-3.4 5.9-3 3.6.7 5.5 4.3 3.8 7.7C19.5 16.4 12 21 12 21Z" />
+          </svg>
+          <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 21s-7.5-4.6-9.7-9.2C.6 8.4 2.5 4.8 6.1 4.1c2-.4 4 .5 5.9 3 1.9-2.5 3.9-3.4 5.9-3 3.6.7 5.5 4.3 3.8 7.7C19.5 16.4 12 21 12 21Z" />
+          </svg>
+        </button>
+      </div>
 
-          <div v-if="giveaway.isFeatured" class="featured-pill">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2Z" />
+      <div v-if="giveaway.isFeatured" class="featured-pill">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="m12 2 2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2Z" />
+        </svg>
+        Izdvojeno
+      </div>
+
+      <div class="time-pill" :class="{ urgent: isUrgent }">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M12 7v5l3 2" />
+        </svg>
+        {{ timeLeft }}
+      </div>
+    </div>
+
+    <div class="card-content">
+      <div class="card-topline" v-if="giveaway.brand || (giveaway.prizeValue && giveaway.currency)">
+        <span class="brand-name" v-if="giveaway.brand">{{ giveaway.brand }}</span>
+        <span class="prize-value" v-if="giveaway.prizeValue && giveaway.currency">
+          <span class="prize-label">Nagrada</span>
+          {{ giveaway.formattedPrizeValue || giveaway.prizeValue }} {{ giveaway.currency }}
+        </span>
+      </div>
+
+      <NuxtLink :to="`/giveaways/${giveaway.id}`" class="title-link">
+        <h3 class="card-title">{{ giveaway.title }}</h3>
+      </NuxtLink>
+
+      <div class="card-footer">
+        <span class="entry-count">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
+            <path d="M16 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20" />
+            <circle cx="9" cy="7" r="3.2" />
+            <path d="M22 20v-1.5a4 4 0 0 0-3-3.87M16.5 4.2a3.2 3.2 0 0 1 0 6.1" />
+          </svg>
+          {{ giveaway.entryCount }} prijava
+        </span>
+
+        <div class="card-actions">
+          <button class="share-btn" aria-label="Podeli nagradnu igru" @click.prevent="shareCard">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="18" cy="5" r="2.6" />
+              <circle cx="6" cy="12" r="2.6" />
+              <circle cx="18" cy="19" r="2.6" />
+              <path d="m8.3 10.7 7.4-4.3M8.3 13.3l7.4 4.3" />
             </svg>
-            Izdvojeno
-          </div>
-
-          <div class="time-pill" :class="{ urgent: isUrgent }">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 7v5l3 2" />
+          </button>
+          <NuxtLink :to="`/giveaways/${giveaway.id}`" class="details-link">
+            Detalji
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
             </svg>
-            {{ timeLeft }}
-          </div>
-        </div>
-
-        <div class="card-content">
-          <div class="card-topline" v-if="giveaway.brand || (giveaway.prizeValue && giveaway.currency)">
-            <span class="brand-name" v-if="giveaway.brand">{{ giveaway.brand }}</span>
-            <span class="prize-value" v-if="giveaway.prizeValue && giveaway.currency">
-              <span class="prize-label">Nagrada</span>
-              {{ giveaway.formattedPrizeValue || giveaway.prizeValue }} {{ giveaway.currency }}
-            </span>
-          </div>
-
-          <NuxtLink :to="`/giveaways/${giveaway.id}`" class="title-link">
-            <h3 class="card-title">{{ giveaway.title }}</h3>
           </NuxtLink>
-
-          <div class="card-footer">
-            <span class="entry-count">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true">
-                <path d="M16 20v-1.5a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4V20" />
-                <circle cx="9" cy="7" r="3.2" />
-                <path d="M22 20v-1.5a4 4 0 0 0-3-3.87M16.5 4.2a3.2 3.2 0 0 1 0 6.1" />
-              </svg>
-              {{ giveaway.entryCount }} prijava
-            </span>
-
-            <div class="card-actions">
-              <button class="share-btn" aria-label="Podeli nagradnu igru" @click.prevent="shareCard">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <circle cx="18" cy="5" r="2.6" />
-                  <circle cx="6" cy="12" r="2.6" />
-                  <circle cx="18" cy="19" r="2.6" />
-                  <path d="m8.3 10.7 7.4-4.3M8.3 13.3l7.4 4.3" />
-                </svg>
-              </button>
-              <NuxtLink :to="`/giveaways/${giveaway.id}`" class="details-link">
-                Detalji
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-              </NuxtLink>
-            </div>
-          </div>
         </div>
-      </template>
-
-      <div v-else class="card-skeleton" aria-hidden="true"></div>
-    </article>
-  </UseElementVisibility>
+      </div>
+    </div>
+  </article>
 </template>
 
 <style scoped>
@@ -493,13 +492,5 @@ const categoryIcon = computed(() => getCategoryIcon(props.giveaway.category, cat
 .details-link:hover {
   background: var(--primary);
   color: #fff;
-}
-
-.card-skeleton {
-  flex: 1;
-  min-height: 390px;
-  background: linear-gradient(100deg, var(--bg-muted) 20%, var(--surface-2) 40%, var(--bg-muted) 60%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s infinite linear;
 }
 </style>

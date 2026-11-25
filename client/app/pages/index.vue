@@ -1,11 +1,25 @@
 <script setup lang="ts">
-const { giveaways, isLoading, totalCount, page, totalPages, limit, fetchGiveaways } = useGiveaways();
+const route = useRoute();
+const {
+  giveaways,
+  isLoading,
+  totalCount,
+  page,
+  totalPages,
+  limit,
+  feedQuery,
+  applyRouteQuery,
+  fetchGiveaways,
+} = useGiveaways();
 const { categories } = useCategories();
 
 const config = useRuntimeConfig();
 
+// Incoming links (and browser back/forward) are the source of truth for the feed.
+applyRouteQuery(route.query);
+
 await useAsyncData('home-giveaways', async () => {
-  await fetchGiveaways(true);
+  await fetchGiveaways(page.value);
   return true;
 }, {
   // Reuse the server payload during hydration, but never reuse data from a
@@ -13,6 +27,25 @@ await useAsyncData('home-giveaways', async () => {
   // a stale feed after an admin adds a new giveaway.
   getCachedData: (key, nuxtApp) => nuxtApp.isHydrating ? nuxtApp.payload.data[key] : undefined,
 });
+
+watch(() => route.query, async (query) => {
+  if (applyRouteQuery(query)) {
+    await fetchGiveaways(page.value);
+  }
+});
+
+const siteUrl = (config.public.siteUrl || '').replace(/\/+$/, '');
+const feedUrl = (query: Record<string, string>) => {
+  const search = new URLSearchParams(query).toString();
+  return search ? `${siteUrl}/?${search}` : `${siteUrl}/`;
+};
+const canonicalUrl = computed(() => feedUrl(feedQuery.value));
+const pageUrl = (targetPage: number) => {
+  const query = { ...feedQuery.value };
+  if (targetPage <= 1) delete query.page;
+  else query.page = String(targetPage);
+  return feedUrl(query);
+};
 
 const title = 'Naslovna - Najveća baza nagradnih igara';
 const description = 'Sve nagradne igre na jednom mestu u Srbiji, Hrvatskoj i BIH. Pronađi, učestvuj i osvoji vredne nagrade!';
@@ -22,17 +55,16 @@ useSeoMeta({
   ogTitle: title,
   description,
   ogDescription: description,
-  ogUrl: config.public.siteUrl,
+  ogUrl: canonicalUrl,
 });
 
-useHead({
+useHead(() => ({
   link: [
-    {
-      rel: 'canonical',
-      href: config.public.siteUrl
-    }
-  ]
-});
+    { rel: 'canonical', href: canonicalUrl.value },
+    ...(page.value > 1 ? [{ rel: 'prev', href: pageUrl(page.value - 1) }] : []),
+    ...(page.value < totalPages.value ? [{ rel: 'next', href: pageUrl(page.value + 1) }] : []),
+  ],
+}));
 
 const statCount = computed(() => (totalCount.value > 0 ? totalCount.value : giveaways.value.length));
 const statCategories = computed(() => categories.value.length || 8);
