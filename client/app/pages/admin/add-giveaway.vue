@@ -161,7 +161,7 @@
             />
           </div>
         </div>
-        <p class="help-text">Ako datumi nisu uneti: početni datum je danas, a završni +7 dana.</p>
+        <p class="help-text">Ako datum početka nije unet, koristi se danas. Ako datum završetka ostane prazan, nagradna igra nema rok.</p>
       </div>
 
       <div class="form-section">

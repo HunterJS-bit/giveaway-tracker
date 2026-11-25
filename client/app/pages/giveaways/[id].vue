@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { getCategoryPlaceholderImage } from '~/utils/categoryImages';
+import { getCategoryLabel } from '~/utils/categories';
 
 interface Giveaway {
   id: string;
@@ -18,13 +19,14 @@ interface Giveaway {
   isVerified?: boolean;
   country?: string;
   startDate?: string;
-  endDate: string;
+  endDate?: string | null;
 }
 
 const route = useRoute();
 const id = route.params.id as string;
 const config = useRuntimeConfig();
 const { giveaways } = useGiveaways();
+const { categories } = useCategories();
 const { isFavorite, toggleFavorite } = useFavorites();
 const { registerCountdown, unregisterCountdown, getCountdown, getTimeLeft } = useCountdown();
 const { sanitizeHtml } = useSanitize();
@@ -109,7 +111,22 @@ if (result.value) {
 // Dynamic SEO meta tags
 const currentGiveaway = computed(() => giveaway.value || result.value as Giveaway);
 const seoTitle = computed(() => `${currentGiveaway.value?.title || 'Nagradna igra'} - Osvoji ${currentGiveaway.value?.formattedPrizeValue || currentGiveaway.value?.prizeValue || 'nagradu'}`);
-const seoDescription = computed(() => currentGiveaway.value?.description || `Učestvuj u nagradnoj igri i osvoji ${currentGiveaway.value?.formattedPrizeValue || currentGiveaway.value?.prizeValue} od ${currentGiveaway.value?.brand}. Završava se: ${new Date(currentGiveaway.value?.endDate).toLocaleDateString('sr-RS')}.`);
+const seoDescription = computed(() => {
+  const giveawayData = currentGiveaway.value;
+  if (!giveawayData) return 'Pogledajte detalje ove nagradne igre.';
+
+  const base = `Učestvuj u nagradnoj igri i osvoji ${giveawayData.formattedPrizeValue || giveawayData.prizeValue} od ${giveawayData.brand}.`;
+  const withDeadline = giveawayData.endDate
+    ? `${base} Završava se: ${new Date(giveawayData.endDate).toLocaleDateString('sr-RS')}.`
+    : base;
+
+  // Descriptions are Tiptap HTML; meta tags need plain, truncated text.
+  if (giveawayData.description) {
+    const plain = giveawayData.description.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (plain) return plain.slice(0, 160);
+  }
+  return withDeadline;
+});
 const seoImage = computed(() => currentGiveaway.value?.imageUrl || '/og-image.jpg');
 
 useSeoMeta({
@@ -119,7 +136,11 @@ useSeoMeta({
   ogDescription: seoDescription,
   ogImage: seoImage,
   ogUrl: `${config.public.siteUrl}/giveaways/${id}`,
+  ogType: 'article',
   twitterCard: 'summary_large_image',
+  twitterTitle: seoTitle,
+  twitterDescription: seoDescription,
+  twitterImage: seoImage,
 });
 
 useHead({
@@ -149,18 +170,18 @@ const jsonLd = computed(() => ({
     priceCurrency: currentGiveaway.value?.currency || 'RSD',
     availability: 'https://schema.org/InStock',
     validFrom: currentGiveaway.value?.startDate,
-    validThrough: currentGiveaway.value?.endDate
+    ...(currentGiveaway.value?.endDate ? { validThrough: currentGiveaway.value.endDate } : {})
   }
 }));
 
-useHead({
+useHead(() => ({
   script: [
     {
       type: 'application/ld+json',
-      children: jsonLd.value
+      children: JSON.stringify(jsonLd.value)
     }
   ]
-});
+}));
 
 const { data: similarData } = await useAsyncData(
   `similar-${id}`,
@@ -175,7 +196,9 @@ const timeLeft = computed(() => {
 
 const isExpired = computed(() => {
   if (!giveaway.value) return false;
-  return giveaway.value.status === 'expired' || new Date(giveaway.value.endDate).getTime() < Date.now();
+  if (giveaway.value.status === 'expired') return true;
+  if (!giveaway.value.endDate) return false;
+  return new Date(giveaway.value.endDate).getTime() < Date.now();
 });
 
 const isUrgent = computed(() => {
@@ -209,34 +232,8 @@ onUnmounted(() => {
   unregisterCountdown(id);
 });
 
-const categoryLabel = computed(() => {
-  const cat = giveaway.value?.category || '';
-  if (!cat) return '';
-  return cat.charAt(0).toUpperCase() + cat.slice(1);
-});
-
-useSeoMeta({
-  title: () => giveaway.value?.title || 'Nagradna Igra',
-  ogTitle: () => giveaway.value?.title || 'Nagradna Igra',
-  description: () => giveaway.value?.description || 'Pogledajte detalje ove nagradne igre.',
-  ogDescription: () => giveaway.value?.description || 'Pogledajte detalje ove nagradne igre.',
-  ogImage: () => giveaway.value?.imageUrl,
-  ogUrl: () => `${config.public.siteUrl}/giveaways/${id}`,
-  ogType: 'article',
-  twitterCard: 'summary_large_image',
-  twitterTitle: () => giveaway.value?.title || 'Nagradna Igra',
-  twitterDescription: () => giveaway.value?.description || 'Pogledajte detalje ove nagradne igre.',
-  twitterImage: () => giveaway.value?.imageUrl,
-});
-
-useHead({
-  script: [
-    {
-      type: 'application/ld+json',
-      children: jsonLd.value
-    }
-  ]
-});
+// The stored value is a slug (e.g. "Tech") — always show the Serbian name.
+const categoryLabel = computed(() => getCategoryLabel(giveaway.value?.category, categories.value));
 </script>
 
 <template>
@@ -261,7 +258,7 @@ useHead({
           <div class="hero-media reveal" style="--delay: 0.06s">
             <NuxtImg
               :src="displayImage"
-              :alt="`${giveaway.brand ? giveaway.brand + ' - ' : ''}${giveaway.title} - ${giveaway.category} nagradna igra ${giveaway.prize ? 'sa nagradom ' + giveaway.prize : ''}`"
+              :alt="`${giveaway.brand ? giveaway.brand + ' - ' : ''}${giveaway.title} - ${categoryLabel} nagradna igra ${giveaway.prize ? 'sa nagradom ' + giveaway.prize : ''}`"
               class="main-image"
               format="webp"
               preload

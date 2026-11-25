@@ -14,7 +14,7 @@ interface Giveaway {
   currency: string;
   status: string;
   entryCount: number;
-  endDate: string;
+  endDate?: string | null;
   isFeatured?: boolean;
 }
 

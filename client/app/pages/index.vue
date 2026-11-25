@@ -7,6 +7,11 @@ const config = useRuntimeConfig();
 await useAsyncData('home-giveaways', async () => {
   await fetchGiveaways(true);
   return true;
+}, {
+  // Reuse the server payload during hydration, but never reuse data from a
+  // previous client-side visit — returning here would skip the fetch and show
+  // a stale feed after an admin adds a new giveaway.
+  getCachedData: (key, nuxtApp) => nuxtApp.isHydrating ? nuxtApp.payload.data[key] : undefined,
 });
 
 const title = 'Naslovna - Najveća baza nagradnih igara';
