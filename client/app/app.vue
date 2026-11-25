@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
 const auth = useAuth();
+const siteUrl = (config.public.siteUrl || '').replace(/\/+$/, '');
+const ogImage = `${siteUrl}/og-image.jpg`;
 
 // Initialize auth check on app load
 onMounted(() => {
@@ -11,8 +13,12 @@ useSeoMeta({
   ogSiteName: 'Nagradne Igre Tracker',
   ogType: 'website',
   twitterCard: 'summary_large_image',
-  ogImage: `${config.public.siteUrl}/og-image.jpg`,
-  twitterImage: `${config.public.siteUrl}/og-image.jpg`
+  ogImage,
+  ogImageWidth: 1200,
+  ogImageHeight: 630,
+  ogImageAlt: 'Sve Nagradne Igre - pronađi svoju sledeću nagradu',
+  twitterImage: ogImage,
+  twitterImageAlt: 'Sve Nagradne Igre - pronađi svoju sledeću nagradu'
 });
 </script>
 
