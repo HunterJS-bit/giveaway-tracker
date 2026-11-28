@@ -1,5 +1,13 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-const siteUrl = (process.env.NUXT_PUBLIC_SITE_URL || 'https://svenagradneigre.rs').replace(/\/+$/, '')
+const PRODUCTION_SITE_URL = 'https://svenagradneigre.rs'
+
+// Canonical URLs, sitemap and RSS are baked into the build output, so never
+// allow a staging host (or plain HTTP on the production domain) to leak into
+// them — even if a stale/misconfigured SITE_URL variable is passed by CI.
+const configuredSiteUrl = (process.env.NUXT_PUBLIC_SITE_URL || PRODUCTION_SITE_URL).replace(/\/+$/, '')
+const siteUrl = /sslip\.io/i.test(configuredSiteUrl) || /^http:\/\/svenagradneigre\.rs/i.test(configuredSiteUrl)
+  ? PRODUCTION_SITE_URL
+  : configuredSiteUrl
 
 export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
