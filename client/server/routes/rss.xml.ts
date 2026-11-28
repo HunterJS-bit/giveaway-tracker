@@ -29,7 +29,10 @@ interface RssGiveaway {
 
 export default defineEventHandler(async (event) => {
   const config = useRuntimeConfig()
-  const baseUrl = (config.public.siteUrl || 'https://svenagradneigre.rs').replace(/\/+$/, '')
+  const configuredBaseUrl = String(config.public.siteUrl || '').replace(/\/+$/, '')
+  const baseUrl = /sslip\.io/i.test(configuredBaseUrl) || /^http:\/\/svenagradneigre\.rs/i.test(configuredBaseUrl)
+    ? 'https://svenagradneigre.rs'
+    : configuredBaseUrl || 'https://svenagradneigre.rs'
   const backendUrl = `${config.apiBase}/api`
 
   try {
