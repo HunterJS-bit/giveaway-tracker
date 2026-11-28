@@ -40,7 +40,7 @@ jobs:
 
       - name: Build project
         env:
-          NUXT_PUBLIC_SITE_URL: ${{ vars.SITE_URL }}
+          NUXT_PUBLIC_SITE_URL: https://svenagradneigre.rs
           NUXT_PUBLIC_API_BASE: ${{ vars.API_BASE_URL }}
         run: |
           cd client
@@ -76,7 +76,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
-            NUXT_PUBLIC_SITE_URL=${{ vars.SITE_URL }}
+            NUXT_PUBLIC_SITE_URL=https://svenagradneigre.rs
             NUXT_PUBLIC_API_BASE=${{ vars.API_BASE_URL }}
 
       - name: Update Environment Variables in Dokploy
@@ -93,7 +93,7 @@ jobs:
               -H "Content-Type: application/json" \
               -d "{
                 \"applicationId\": \"$DOKPLOY_APP_ID\",
-                \"env\": \"NUXT_PUBLIC_API_BASE=${{ vars.API_BASE_URL }}\nNUXT_PUBLIC_SITE_URL=${{ vars.SITE_URL }}\nNUXT_PUBLIC_DEBUG_ERRORS=${{ vars.DEBUG_ERRORS }}\nNODE_ENV=production\"
+                \"env\": \"NUXT_PUBLIC_API_BASE=${{ vars.API_BASE_URL }}\nNUXT_PUBLIC_SITE_URL=https://svenagradneigre.rs\nNUXT_PUBLIC_DEBUG_ERRORS=${{ vars.DEBUG_ERRORS }}\nNODE_ENV=production\"
               }"
           else
             echo "Error: DOKPLOY_URL, DOKPLOY_API_KEY, or DOKPLOY_APP_ID not configured"
